@@ -1,6 +1,6 @@
 # Primera fase de cuentas — IMPULSO UAEMÉX 2026
 
-La landing sigue en `index-impulso-uaemex-365.html`. No se creó un segundo index ni se cambió su URL.
+La landing sigue en `index.html`. No se creó un segundo index ni se cambió su URL.
 
 ## Flujo actualizado: inscripción automática
 
@@ -24,7 +24,7 @@ Si una cuenta antigua no tiene los datos necesarios, se solicita completar el pe
 - Módulos: `js/config.js`, `js/supabase-client.js`, `js/auth.js`, `js/ui.js`, `js/navbar-auth.js`, `js/profile.js`, `js/event-registration.js`, `js/private-page.js`, `js/registro.js`, `js/login.js`, `js/recovery.js`, `js/account.js`, `js/passport.js`, `js/prepare-account.js`.
 - SQL: `supabase/migrations/001_users_events.sql`, `supabase/verify.sql`, `supabase/tests/phase1.sql`.
 - Pruebas: `tests/database.mjs`, `tests/frontend.mjs`.
-- Modificado: `index-impulso-uaemex-365.html` (enlaces, navbar, aviso de registro y estilos de navegación necesarios).
+- Modificado: `index.html` (enlaces, navbar, aviso de registro y estilos de navegación necesarios).
 - Respaldo: `backups/landing-antes-auth.html`.
 - `.gitignore` excluye dependencias de pruebas, respaldos, resultados y archivos de entorno.
 
@@ -35,7 +35,7 @@ Si una cuenta antigua no tiene los datos necesarios, se solicita completar el pe
 3. Ejecutar `supabase/tests/phase1.sql` como postgres para verificar aislamiento con dos usuarios temporales. Revierte las filas de prueba; los números de secuencia consumidos no se reciclan. Una excepción FAIL indica que hay que corregir antes de abrir registros.
 4. `js/config.js` ya contiene la URL HTTPS del proyecto y su Publishable Key. No hay claves privadas ni se necesitan para las consultas frontend.
 5. Mantener Email habilitado, confirmación obligatoria y usuarios anónimos deshabilitados. Establecer contraseña mínima de al menos 8 caracteres.
-6. Site URL: `http://127.0.0.1:5500/index-impulso-uaemex-365.html`.
+6. Site URL: `http://127.0.0.1:5500/index.html`.
 7. Redirect URLs: `http://127.0.0.1:5500/**` y `http://localhost:5500/**`. No incluir barras invertidas delante de los asteriscos.
 8. Conservar el enlace de verificación de Supabase en las plantillas de correo (`{{ .ConfirmationURL }}`). Confirmación vuelve a `login.html?confirmed=1`; recuperación a `recuperar-password.html?mode=reset`.
 9. Abrir la landing con Live Server. Usar el mismo origen de forma consistente: localhost y 127.0.0.1 tienen almacenamientos de sesión diferentes.

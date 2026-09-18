@@ -7,7 +7,7 @@ let adminRole=null,allowedScenarios=[];
 const pageSize=50;
 const editorScenarios={cultura:'Cultura e Innovación Creativa',deporte:'Deporte',tecnologia:'Tecnología',diseno:'Diseño',investigacion:'Investigación Aplicada',gobernanza:'Gobernanza',bienestar:'Bienestar Integral'};
 function say(text){message.textContent=text;}
-function deny(){revision++;identity=null;content.hidden=true;view.replaceChildren();say('No tienes permisos para acceder a esta sección.');setTimeout(()=>location.replace('index-impulso-uaemex-365.html'),2200);}
+function deny(){revision++;identity=null;content.hidden=true;view.replaceChildren();say('No tienes permisos para acceder a esta sección.');setTimeout(()=>location.replace('index.html'),2200);}
 function fail(error){const code=error?.message||'';if(code.includes('SCENARIO_ADMIN_REQUIRED')||code.includes('SUPER_ADMIN_REQUIRED'))say(adminError(error));else if(code.includes('ADMIN_REQUIRED'))deny();else say(adminError(error));}
 function button(text,action){const b=element('button',text,'btn secondary');b.type='button';b.addEventListener('click',action);return b;}
 function table(headers,rows){

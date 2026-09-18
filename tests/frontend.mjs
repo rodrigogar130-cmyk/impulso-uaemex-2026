@@ -87,7 +87,7 @@ async function load(page, script, state, search='') {
     return mod;
   }
   const mod=await moduleFor(path.resolve('js',script));await mod.evaluate();
-  return {document,location,async submit(selector,values={}){
+  return {document,location,context,async submit(selector,values={}){
     const form=document.querySelector(selector);for(const [k,v]of Object.entries(values))form.elements[k].value=v;
     form.dispatchEvent(new Event('submit',{cancelable:true}));
     for(let i=0;i<12;i++)await new Promise(setImmediate);
@@ -123,19 +123,19 @@ await page.submit('#request-form',{email:user.email});assert.equal(state.calls[0
 state=backend({user});page=await load('recuperar-password.html','recovery.js',state,'?mode=reset');assert.equal(page.document.querySelector('#reset-form').hidden,false);
 await page.submit('#reset-form',{password:'newpassword123',confirm_password:'newpassword123'});assert.equal(state.calls[0][0],'updatePassword');assert.equal(state.session,null);ok('recuperación guarda contraseña y cierra sesión');
 
-state=backend();page=await load('index-impulso-uaemex-365.html','navbar-auth.js',state);
+state=backend();page=await load('index.html','navbar-auth.js',state);
 assert.equal(page.document.querySelector('[data-auth-user]').hidden,true);
 state.session={user};state.listeners.forEach(fn=>fn('SIGNED_IN',{user}));await new Promise(resolve=>setTimeout(resolve,20));assert.equal(page.document.querySelector('[data-auth-guest]').hidden,true);assert.equal(page.document.querySelector('[data-auth-passport]').textContent,'Mi pasaporte');ok('navbar cambia según sesión');
 
 const before=parseHTML(fs.readFileSync('backups/landing-antes-auth.html','utf8')).document;
-const after=parseHTML(fs.readFileSync('index-impulso-uaemex-365.html','utf8')).document;
+const after=parseHTML(fs.readFileSync('index.html','utf8')).document;
 for(const id of ['pasaporte','escenarios','ponentes','mapa'])assert.equal(after.getElementById(id).outerHTML,before.getElementById(id).outerHTML);
 const preservedCatalog=JSON.parse(fs.readFileSync('data/activities-catalog.json','utf8'));
 assert.equal(preservedCatalog.length,67);
 assert.deepEqual(preservedCatalog.map(a=>a.title),[...before.querySelectorAll('.agenda-title strong')].map(x=>x.textContent));
 assert.equal(after.querySelectorAll('.agenda-item').length,0);
 ok('contenido público y las 67 actividades originales conservados');
-for(const file of ['index-impulso-uaemex-365.html','registro.html','login.html','mi-cuenta.html','pasaporte.html','recuperar-password.html']){
+for(const file of ['index.html','registro.html','login.html','mi-cuenta.html','pasaporte.html','recuperar-password.html']){
  const doc=parseHTML(fs.readFileSync(file,'utf8')).document;
  for(const el of doc.querySelectorAll('[src],[href]')){
   const value=el.getAttribute('src')||el.getAttribute('href');
@@ -190,12 +190,12 @@ page=await load('registro.html','registro.js',state);await page.submit('form',si
 assert.equal(page.document.querySelector('#signup-result').hidden,true);assert.equal(page.document.querySelector('form').hidden,false);ok('error temporal permite reintentar sin fingir envío');
 console.log('Total actualizado: '+passed+' pruebas aprobadas.');
 
-for(const file of ['index-impulso-uaemex-365.html','mi-cuenta.html','pasaporte.html','login.html','registro.html','recuperar-password.html']){
+for(const file of ['index.html','mi-cuenta.html','pasaporte.html','login.html','registro.html','recuperar-password.html']){
  state=backend({user});page=await load(file,'navbar-auth.js',state);
  assert.equal(page.document.querySelectorAll('#siteHeader').length,1);
  assert.equal(page.document.querySelectorAll('#mobileMenu').length,1);
  for(const id of ['evento','escenarios','ponentes','agenda','ubicacion']){
-  const href='index-impulso-uaemex-365.html#'+id;
+  const href='index.html#'+id;
   assert.ok(page.document.querySelector('.nav-links a[href="'+href+'"]'));
   assert.ok(after.getElementById(id));
  }
@@ -205,23 +205,23 @@ for(const file of ['index-impulso-uaemex-365.html','mi-cuenta.html','pasaporte.h
  toggle.click();assert.equal(toggle.getAttribute('aria-expanded'),'false');assert.equal(menu.hasAttribute('inert'),true);
  ok(file+': header compartido, destinos y menú móvil');
 }
-state=backend({user});page=await load('index-impulso-uaemex-365.html','navbar-auth.js',state);
+state=backend({user});page=await load('index.html','navbar-auth.js',state);
 assert.equal(page.document.querySelector('.hero [data-auth-guest]').hidden,true);
 assert.equal(page.document.querySelector('.hero [data-auth-user]').hidden,false);
 assert.match(page.document.querySelector('.hero [data-auth-user]').textContent,/MI CUENTA/);ok('HERO con sesión muestra Mi cuenta');
-assert.ok(!/text-decoration\s*:\s*underline/.test(fs.readFileSync('css/site.css','utf8')+fs.readFileSync('css/account.css','utf8')+fs.readFileSync('index-impulso-uaemex-365.html','utf8')));ok('sin reglas de subrayado');
+assert.ok(!/text-decoration\s*:\s*underline/.test(fs.readFileSync('css/site.css','utf8')+fs.readFileSync('css/account.css','utf8')+fs.readFileSync('index.html','utf8')));ok('sin reglas de subrayado');
 console.log('Total navegación: '+passed+' comprobaciones aprobadas.');
 
 state=backend({user});state.client.auth.getUser=async()=>({data:{user:null},error:{code:'user_not_found',status:403}});
-page=await load('index-impulso-uaemex-365.html','navbar-auth.js',state);
+page=await load('index.html','navbar-auth.js',state);
 assert.equal(state.session,null);assert.equal(page.document.querySelector('.nav-actions [data-auth-guest]').hidden,false);assert.equal(page.document.querySelector('.nav-actions [data-auth-user]').hidden,true);ok('usuario eliminado limpia sesión y recupera registro e inicio de sesión');
 state=backend({user});state.client.auth.getUser=async()=>({data:{user:null},error:{status:503}});
-page=await load('index-impulso-uaemex-365.html','navbar-auth.js',state);
+page=await load('index.html','navbar-auth.js',state);
 assert.ok(state.session);assert.equal(state.calls.filter(c=>c[0]==='signOut').length,0);ok('fallo temporal no elimina sesión almacenada');
 
 const initialActivity=JSON.parse(fs.readFileSync('data/activities-catalog.json','utf8'))[0];
 const openActivity={...initialActivity,id:'activity-1',status:'open',timezone:'America/Mexico_City'};
-state=backend();state.activities=[{...openActivity}];page=await load('index-impulso-uaemex-365.html','agenda-route.js',state);
+state=backend();state.activities=[{...openActivity}];page=await load('index.html','agenda-route.js',state);
 let card=page.document.querySelector('[data-activity-slug="'+openActivity.slug+'"]');
 assert.doesNotMatch(card.textContent,/cupo|lugares disponibles|sin límite/i);assert.equal(card.querySelector('.route-controls button').textContent,'ASISTIR');
 assert.doesNotMatch(card.textContent,/Consultando disponibilidad|Consultando cupo/);
@@ -231,15 +231,15 @@ card.querySelector('.route-controls > button').click();
 assert.equal(page.location.href,'login.html?activity='+openActivity.slug);
 assert.equal(state.route.length,0);
 ok('cupo NULL seleccionable y acceso conserva actividad');
-state=backend({user});state.activities=[{...openActivity}];page=await load('index-impulso-uaemex-365.html','agenda-route.js',state);
+state=backend({user});state.activities=[{...openActivity}];page=await load('index.html','agenda-route.js',state);
 card=page.document.querySelector('[data-activity-slug="'+openActivity.slug+'"]');card.querySelector('.route-controls > button').click();
 for(let i=0;i<30;i++)await new Promise(setImmediate);
 assert.equal(state.route[0].status,'registered');assert.match(card.textContent,/AGREGADA A TU RUTA/);assert.equal(card.querySelector('a[href^="https://calendar.google.com"]'),null);assert.match(card.textContent,/GOOGLE CALENDAR/);assert.match(card.textContent,/APPLE/);ok('selección sin hora final guarda ruta sin habilitar calendario');
 card.querySelector('.route-controls > button').click();for(let i=0;i<30;i++)await new Promise(setImmediate);
 assert.equal(state.route[0].status,'cancelled');ok('quitar selección actualiza disponibilidad');
-state=backend();state.activities=[{...openActivity,}];page=await load('index-impulso-uaemex-365.html','agenda-route.js',state);card=page.document.querySelector('[data-activity-slug="'+openActivity.slug+'"]');assert.doesNotMatch(card.textContent,/cupo|lugares disponibles|sin límite/i);assert.equal(card.querySelector('.route-controls button').textContent,'ASISTIR');ok('ningún contador ni capacidad antigua bloquea selección');
-state=backend();state.activities=[{...openActivity,}];page=await load('index-impulso-uaemex-365.html','agenda-route.js',state);assert.doesNotMatch(page.document.querySelector('[data-activity-slug="'+openActivity.slug+'"]').textContent,/cupo|lugares disponibles|sin límite|27 de 80/i);ok('no muestra disponibilidad numérica');
-state=backend();page=await load('login.html','login.js',state,'?activity='+openActivity.slug);await page.submit('form',{email:user.email,password:'password123'});assert.equal(page.location.destination,'index-impulso-uaemex-365.html?activity='+openActivity.slug+'#arma-tu-ruta');ok('login regresa a actividad sin seleccionarla automáticamente');
+state=backend();state.activities=[{...openActivity,}];page=await load('index.html','agenda-route.js',state);card=page.document.querySelector('[data-activity-slug="'+openActivity.slug+'"]');assert.doesNotMatch(card.textContent,/cupo|lugares disponibles|sin límite/i);assert.equal(card.querySelector('.route-controls button').textContent,'ASISTIR');ok('ningún contador ni capacidad antigua bloquea selección');
+state=backend();state.activities=[{...openActivity,}];page=await load('index.html','agenda-route.js',state);assert.doesNotMatch(page.document.querySelector('[data-activity-slug="'+openActivity.slug+'"]').textContent,/cupo|lugares disponibles|sin límite|27 de 80/i);ok('no muestra disponibilidad numérica');
+state=backend();page=await load('login.html','login.js',state,'?activity='+openActivity.slug);await page.submit('form',{email:user.email,password:'password123'});assert.equal(page.location.destination,'index.html?activity='+openActivity.slug+'#arma-tu-ruta');ok('login regresa a actividad sin seleccionarla automáticamente');
 state=backend();page=await load('registro.html','registro.js',state,'?activity='+openActivity.slug);await page.submit('form',signupValues);assert.match(state.calls[0][1].options.emailRedirectTo,/confirmed=1&activity=/);ok('confirmación conserva destino de actividad');
 state=backend();page=await load('login.html','login.js',state,'?activity=https%3A%2F%2Fevil.example');await page.submit('form',{email:user.email,password:'password123'});assert.equal(page.location.destination,'mi-cuenta.html');ok('destinos externos rechazados');
 state=backend({user});state.activities=[{...openActivity,end_time:'10:00:00'}];state.route=[{id:'r1',activity_id:'activity-1',status:'registered'}];page=await load('pasaporte.html','passport.js',state);assert.match(page.document.querySelector('[data-route-count]').textContent,/1 ACTIVIDADES/);assert.match(page.document.querySelector('.metrics').textContent,/0 \/ 12/);assert.ok(page.document.querySelector('[data-route-list] a[href^="https://calendar.google.com"]'));ok('Mi ruta cuenta selecciones sin sumar asistencias y ofrece calendarios');
@@ -250,7 +250,7 @@ console.log('Total final: '+passed+' comprobaciones DOM.');
 
 state=backend();const originalRpc=state.client.rpc;
 state.client.rpc=async(name,args)=>{if(name==='list_impulso_activities')throw new Error('offline');return originalRpc(name,args);};
-page=await load('index-impulso-uaemex-365.html','agenda-route.js',state);
+page=await load('index.html','agenda-route.js',state);
 assert.equal(page.document.querySelector('#route-status').textContent,'');
 assert.equal(page.document.querySelector('.route-controls button'),null);
 assert.match(page.document.querySelector('#agendaList').textContent,/No pudimos cargar la agenda/);
@@ -258,7 +258,7 @@ assert.equal(state.calls.filter(c=>c[1]==='get_my_impulso_route').length,0);
 ok('fallo inicial público no consulta datos privados ni inventa actividades');
 state=backend({user});state.activities=[{...openActivity}];const signedRpc=state.client.rpc;
 state.client.rpc=async(name,args)=>{if(name==='get_my_impulso_route')throw new Error('private failure');return signedRpc(name,args);};
-page=await load('index-impulso-uaemex-365.html','agenda-route.js',state);
+page=await load('index.html','agenda-route.js',state);
 assert.match(page.document.querySelector('#route-status').textContent,/No pudimos cargar tu ruta en este momento/);
 assert.equal(page.document.querySelectorAll('#route-status button').length,1);
 assert.equal(page.document.querySelector('.route-controls button').textContent,'ASISTIR');
@@ -311,7 +311,7 @@ assert.equal('updated_by' in update,false);assert.equal('p_updated_by' in update
 ok('edición envía horarios opcionales y versión NULL, sin identidad de auditoría');
 state=backend();page=await load('login.html','login.js',state,'?next=admin');await page.submit('form',{email:user.email,password:'password123'});assert.equal(page.location.destination,'admin.html');ok('login permite únicamente destino administrativo interno');
 state=backend();state.activities=[{...openActivity,speaker:'Ponente actualizado',description:'Descripción actualizada',start_time:null,end_time:null}];
-page=await load('index-impulso-uaemex-365.html','agenda-route.js',state);
+page=await load('index.html','agenda-route.js',state);
 assert.match(page.document.querySelector('#agendaList').textContent,/Ponente actualizado/);assert.match(page.document.querySelector('#agendaList').textContent,/Descripción actualizada/);assert.match(page.document.querySelector('#agendaList').textContent,/HORARIO POR CONFIRMAR/);ok('agenda dinámica refleja edición y permite open sin horas');
 const settle=async()=>{for(let i=0;i<20;i++)await new Promise(setImmediate);};
 state=backend({user});
@@ -344,4 +344,64 @@ page.document.querySelector('[data-section="activities"]').click();await settle(
 page.document.querySelector('.admin-scenario button').click();await settle();
 assert.match(page.document.querySelector('#admin-message').textContent,/administrar este escenario/);assert.equal(page.document.querySelector('#admin-content').hidden,false);assert.equal(page.location.destination,undefined);ok('denegación de escenario muestra error sin cerrar sesión');
 assigned=false;page.document.querySelector('[data-section="activities"]').click();await settle();assert.match(page.document.querySelector('#admin-view').textContent,/No tienes escenarios asignados/);ok('staff sin asignaciones tiene estado vacío');
+// Execute the production filter handlers against the rendered public agenda.
+state=backend();
+state.activities=preservedCatalog.map((activity,index)=>({...activity,id:'filter-'+index,status:'open'}));
+page=await load('index.html','agenda-route.js',state);
+const agendaDocument=page.document;
+await (await page.moduleFor(path.resolve('js/site-header.js'))).evaluate();
+const agendaSearch=agendaDocument.getElementById('agendaSearch');
+const agendaCards=[...agendaDocument.querySelectorAll('.agenda-item')];
+assert.ok(agendaCards.length>12);
+let agendaFocused=false,agendaScrolled=false;
+agendaDocument.getElementById('agenda').focus=()=>{agendaFocused=true;};
+agendaDocument.getElementById('agenda').getBoundingClientRect=()=>({top:300});
+agendaDocument.getElementById('siteHeader').getBoundingClientRect=()=>({height:80});
+page.context.requestAnimationFrame=callback=>callback();
+page.context.prefersReducedMotion=true;
+page.context.window.scrollTo=()=>{agendaScrolled=true;};
+page.context.history={pushState(_state,_title,hash){page.location.hash=hash;}};
+const landingSource=fs.readFileSync('index.html','utf8');
+vm.runInContext(landingSource.slice(landingSource.indexOf('    let selectedDay ='),landingSource.indexOf('    /* Keep only one disclosure')),page.context);
+agendaDocument.dispatchEvent(new agendaDocument.defaultView.CustomEvent('impulso:agenda-updated'));
+const visibleCards=()=>agendaCards.filter(card=>!card.hidden);
+const showAllPages=()=>{while(!agendaDocument.getElementById('agendaMore').hidden)agendaDocument.getElementById('agendaMore').click();};
+const search=value=>{agendaSearch.value=value;agendaSearch.dispatchEvent(new agendaDocument.defaultView.Event('input'));};
+assert.equal(page.location.destination,undefined);
+assert.ok(agendaDocument.getElementById('ponentes'));
+ok('visitante accede al inicio y Ponentes sin cuenta');
+agendaDocument.querySelector('button[data-day="16"]').click();
+agendaDocument.querySelector('button[data-stage="deporte"]').click();
+const speakerLink=agendaDocument.querySelector('[data-agenda-query]');
+speakerLink.click();
+assert.equal(agendaSearch.value,speakerLink.dataset.agendaQuery);
+assert.equal(agendaDocument.querySelector('button[data-stage="all"]').getAttribute('aria-pressed'),'true');
+assert.equal(agendaDocument.querySelector('button[data-day="all"]').getAttribute('aria-pressed'),'true');
+assert.ok(visibleCards().length>0);
+assert.ok(visibleCards().every(card=>card.textContent.includes(speakerLink.dataset.agendaQuery)));
+assert.equal(page.location.hash,'#agenda');assert.ok(agendaFocused && agendaScrolled);
+ok('Ver actividad busca al ponente, limpia día y escenario y navega a #agenda');
+search('');
+assert.equal(visibleCards().length,12);
+showAllPages();assert.equal(visibleCards().length,agendaCards.length);
+ok('borrar ponente recupera todas las actividades y VER MÁS conserva paginación');
+for(const link of agendaDocument.querySelectorAll('[data-agenda-stage]:not([data-agenda-query])')){
+ search('búsqueda anterior');agendaDocument.querySelector('button[data-day="16"]').click();
+ link.click();showAllPages();
+ assert.equal(agendaSearch.value,'');
+ assert.deepEqual(visibleCards(),agendaCards.filter(card=>card.dataset.stage===link.dataset.agendaStage));
+}
+ok('cada escenario limpia búsqueda y día y muestra únicamente sus actividades');
+agendaDocument.querySelector('button[data-day="15"]').click();search(speakerLink.dataset.agendaQuery);
+agendaDocument.getElementById('resetAgenda').click();
+assert.equal(agendaSearch.value,'');
+showAllPages();assert.equal(visibleCards().length,agendaCards.length);
+ok('VER TODAS LAS ACTIVIDADES elimina todos los filtros');
+agendaDocument.querySelector('button[data-day="15"]').click();
+agendaDocument.querySelector('button[data-stage="cultura"]').click();showAllPages();
+assert.deepEqual(visibleCards(),agendaCards.filter(card=>card.dataset.day==='15' && card.dataset.stage==='cultura'));
+agendaDocument.getElementById('resetAgenda').click();search(speakerLink.dataset.agendaQuery);
+assert.ok(visibleCards().length>0);
+assert.ok(visibleCards().every(card=>card.textContent.includes(speakerLink.dataset.agendaQuery)));
+ok('filtros manuales de día, escenario y búsqueda conservados');
 console.log('TOTAL: '+passed+' comprobaciones de interfaz.');

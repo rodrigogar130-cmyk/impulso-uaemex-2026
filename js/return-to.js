@@ -1,4 +1,4 @@
-const landing = 'index-impulso-uaemex-365.html';
+const landing = 'index.html';
 // Solo este destino interno y slugs conocidos por su formato. Nunca una URL libre.
 export function routeDestination(slug) {
   return /^[a-z0-9-]{1,180}$/.test(slug || '') ? `${landing}?activity=${encodeURIComponent(slug)}#arma-tu-ruta` : null;

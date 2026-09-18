@@ -1,6 +1,6 @@
 import { client } from './supabase-client.js';
 import { confirmationPath } from './return-to.js';
-export const landing = 'index-impulso-uaemex-365.html';
+export const landing = 'index.html';
 export function localUrl(page) { return new URL(page, window.location.href).href; }
 export async function getSession() {
   const { data, error } = await client().auth.getSession();

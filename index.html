@@ -1112,7 +1112,7 @@
       link.addEventListener("click", event => {
         event.preventDefault();
         selectedDay = "all";
-        selectedStage = link.dataset.agendaStage;
+        selectedStage = link.hasAttribute("data-agenda-query") ? "all" : link.dataset.agendaStage;
         searchInput.value = link.dataset.agendaQuery || "";
         applyAgendaFilters();
         const agenda = document.getElementById("agenda");
