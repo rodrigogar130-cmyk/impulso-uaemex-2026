@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {googleCalendarUrl,routeICS,calendarReady,foldCalendarLine} from '../js/calendar.js';
+const a={id:'11111111-1111-4111-8111-111111111111',slug:'prueba',title:'Diseño, IA; cultura\nBEGIN:FAKE',activity_date:'2026-10-15',start_time:'11:00:00',end_time:'12:30:00',timezone:'America/Mexico_City',location:'Auditorio, C.U.; Toluca'};
+const url=new URL(googleCalendarUrl(a));
+assert.equal(url.origin,'https://calendar.google.com');assert.equal(url.searchParams.get('dates'),'20261015T110000/20261015T123000');assert.equal(url.searchParams.get('stz'),'America/Mexico_City');assert.equal(url.searchParams.get('etz'),'America/Mexico_City');assert.equal(url.searchParams.get('location'),a.location);assert.match(url.searchParams.get('text'),/IMPULSO UAEMÉX 2026/);
+assert.equal(calendarReady({...a,end_time:null}),false);assert.equal(calendarReady({...a,activity_date:null}),false);
+assert.throws(()=>routeICS([{...a,end_time:null}]));assert.throws(()=>googleCalendarUrl({...a,start_time:null}));
+const ics=routeICS([a,{...a,id:'22222222-2222-4222-8222-222222222222',title:'Otra actividad'},a],new Date('2026-09-17T10:00:00Z'));
+assert.equal((ics.match(/BEGIN:VEVENT/g)||[]).length,2);assert.equal((ics.match(/BEGIN:VALARM/g)||[]).length,4);
+assert.match(ics,/TRIGGER:-P1D/);assert.match(ics,/TRIGGER:-PT1H/);assert.match(ics,/DTSTART;TZID=America\/Mexico_City:20261015T110000/);assert.match(ics,/BEGIN:VTIMEZONE/);assert.match(ics,/TZOFFSETTO:-0600/);assert.match(ics,/DTSTAMP:20260917T100000Z/);
+assert.equal(ics.includes('\r\nBEGIN:FAKE'),false);assert.match(ics,/Diseño\\, IA\\; cultura\\nBEGIN:FAKE/);
+assert.ok(!ics.replaceAll('\r\n','').includes('\n'));
+const folded=foldCalendarLine('SUMMARY:'+'México 🦋 '.repeat(50));for(const line of folded.split('\r\n'))assert.ok(Buffer.byteLength(line)<=75);
+assert.equal(folded.replaceAll('\r\n ',''),'SUMMARY:'+'México 🦋 '.repeat(50));
+const repeated=routeICS([a]);assert.equal(repeated.match(/UID:([^\r]+)/)[1],ics.match(/UID:([^\r]+)/)[1]);
+console.log('PASS calendarios: fechas locales, zona, alarmas, UID estable, ruta múltiple, escape, UTF-8, líneas y horarios incompletos.');

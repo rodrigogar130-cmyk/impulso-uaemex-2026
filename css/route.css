@@ -1,0 +1,14 @@
+.route-controls{grid-column:1/-1;border-top:1px solid var(--border);padding-top:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
+.route-controls .btn,.route-actions .btn,.route-card>.btn{font-size:.72rem;min-height:42px;padding:10px 16px;max-width:100%;white-space:normal;text-align:center}
+.route-controls button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.route-availability,.route-selected,.route-feedback{font-size:.78rem;line-height:1.5;margin:0;overflow-wrap:anywhere}
+.route-availability{color:var(--text-secondary);flex-basis:100%}.route-selected{color:#fff;font-weight:600}.route-feedback:empty{display:none}
+.route-actions{display:flex;gap:10px;flex-wrap:wrap}.route-card{border-top:1px solid var(--border);padding:24px 0;min-width:0}
+.route-card h3{font-size:1.25rem;margin:0 0 12px}.route-card>.btn{margin-top:16px}.route-card .route-actions{margin-top:16px}
+#my-route{scroll-margin-top:100px}#my-route [data-export-options]{padding:24px 0;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+#my-route [data-export-options][hidden]{display:none}.agenda-item[data-activity-slug]{scroll-margin-top:100px}
+#my-route [data-route-count]{color:#fff;font-size:.8rem;letter-spacing:.06em}#route-status{min-height:1.5em}
+@media(max-width:560px){.route-controls{align-items:stretch}.route-controls .btn,.route-actions,.route-actions .btn{width:100%}.route-card .btn{width:100%}}
+
+
+.calendar-time-dialog{width:min(480px,calc(100% - 32px));box-sizing:border-box;max-height:90dvh;overflow:auto;margin:auto;padding:28px;background:#0b0b0b;color:#fff;border:1px solid #444;font-family:inherit}.calendar-time-dialog::backdrop{background:#000b}.calendar-time-dialog h2{font-size:1.3rem}.calendar-time-dialog p{font-size:.85rem;line-height:1.6}.calendar-time-dialog label{display:block;margin:16px 0;font-size:.8rem}.calendar-time-dialog input{display:block;box-sizing:border-box;width:100%;margin-top:6px;padding:10px;background:#151515;color:#fff;border:1px solid #555;font:inherit;color-scheme:dark}

@@ -1,0 +1,93 @@
+# Primera fase de cuentas — IMPULSO UAEMÉX 2026
+
+La landing sigue en `index-impulso-uaemex-365.html`. No se creó un segundo index ni se cambió su URL.
+
+## Flujo actualizado: inscripción automática
+
+Crear cuenta → confirmar correo → iniciar sesión → cargar/crear perfil → garantizar inscripción y folio → Mi cuenta. Ya no hay botón de inscripción al evento. `js/prepare-account.js` centraliza la operación y verifica `email_confirmed_at` mediante `getUser()`. Primero consulta la inscripción existente; solo inserta si falta. La restricción UNIQUE y la recuperación tras error 23505 resuelven intentos simultáneos. El navegador envía únicamente event_id; PostgreSQL sigue generando el folio. No se requiere ni se ejecutó otra migración.
+
+Si una cuenta antigua no tiene los datos necesarios, se solicita completar el perfil. Guardarlo finaliza automáticamente la inscripción. Un registro cancelado se conserva, sin duplicarlo ni reactivarlo.
+
+## Estado
+
+- Implementación local de cuentas, perfil, inscripción al festival y pasaporte inicial.
+- Migración ejecutada y probada en PostgreSQL local aislado (PGlite), con roles y helpers de Auth de prueba.
+- URL y clave pública configuradas. El usuario confirmó que aplicó la migración `users_events_phase_one` en Supabase real. No se volvió a ejecutar ni modificar la migración.
+- Verificación real: Auth devuelve HTTP 200 con Email habilitado, confirmación obligatoria y usuarios anónimos deshabilitados. Las tres tablas rechazan consultas sin sesión con `42501` (HTTP 401).
+- Pendiente probar correos reales, persistencia entre pestañas y los anchos 1440, 1024, 768, 430 y 390 px en navegador. El navegador integrado no estuvo disponible en esta sesión.
+- No hay QR, tablas de actividades, asistencias, premios, emisión de insignias ni panel administrativo. El pasaporte muestra únicamente su estado inicial.
+
+## Archivos
+
+- Nuevos: `registro.html`, `login.html`, `recuperar-password.html`, `mi-cuenta.html`, `pasaporte.html`.
+- Estilos: `css/account.css`.
+- Módulos: `js/config.js`, `js/supabase-client.js`, `js/auth.js`, `js/ui.js`, `js/navbar-auth.js`, `js/profile.js`, `js/event-registration.js`, `js/private-page.js`, `js/registro.js`, `js/login.js`, `js/recovery.js`, `js/account.js`, `js/passport.js`, `js/prepare-account.js`.
+- SQL: `supabase/migrations/001_users_events.sql`, `supabase/verify.sql`, `supabase/tests/phase1.sql`.
+- Pruebas: `tests/database.mjs`, `tests/frontend.mjs`.
+- Modificado: `index-impulso-uaemex-365.html` (enlaces, navbar, aviso de registro y estilos de navegación necesarios).
+- Respaldo: `backups/landing-antes-auth.html`.
+- `.gitignore` excluye dependencias de pruebas, respaldos, resultados y archivos de entorno.
+
+## Configuración
+
+1. **La migración ya fue aplicada según confirmación del usuario. No volver a ejecutarla.** `supabase/migrations/001_users_events.sql` queda como referencia de la estructura preparada.
+2. Ejecutar `supabase/verify.sql`. Esperar tres tablas con RLS `true`, seis políticas, permisos limitados por columna, slug `impulso-uaemex-2026`, estado `open`, fechas 15 y 16 de octubre y secuencia sin ciclo.
+3. Ejecutar `supabase/tests/phase1.sql` como postgres para verificar aislamiento con dos usuarios temporales. Revierte las filas de prueba; los números de secuencia consumidos no se reciclan. Una excepción FAIL indica que hay que corregir antes de abrir registros.
+4. `js/config.js` ya contiene la URL HTTPS del proyecto y su Publishable Key. No hay claves privadas ni se necesitan para las consultas frontend.
+5. Mantener Email habilitado, confirmación obligatoria y usuarios anónimos deshabilitados. Establecer contraseña mínima de al menos 8 caracteres.
+6. Site URL: `http://127.0.0.1:5500/index-impulso-uaemex-365.html`.
+7. Redirect URLs: `http://127.0.0.1:5500/**` y `http://localhost:5500/**`. No incluir barras invertidas delante de los asteriscos.
+8. Conservar el enlace de verificación de Supabase en las plantillas de correo (`{{ .ConfirmationURL }}`). Confirmación vuelve a `login.html?confirmed=1`; recuperación a `recuperar-password.html?mode=reset`.
+9. Abrir la landing con Live Server. Usar el mismo origen de forma consistente: localhost y 127.0.0.1 tienen almacenamientos de sesión diferentes.
+
+El SDK v2.57.4 se carga desde esm.sh; la única instancia se crea en `js/supabase-client.js`. Todos los módulos la importan. La sesión se persiste y renueva mediante Supabase. Las páginas privadas validan al usuario y RLS protege los datos incluso ante peticiones directas.
+
+## Prueba manual del flujo
+
+1. En la landing pulsar **Regístrate**.
+2. Completar nombre, apellidos, tipo, correo, contraseña y confirmación. Para estudiantes completar número de cuenta y espacio académico. Teléfono es opcional.
+3. Pulsar **Crear cuenta**. Debe aparecer el mensaje de confirmación por correo. Aún no existe inscripción al evento.
+4. Abrir el correo y seguir el enlace. Regresa a login; la sesión de confirmación se cierra para solicitar el inicio de sesión explícito.
+5. Iniciar sesión. Antes de abrir Mi cuenta se crea/consulta el perfil y se garantiza automáticamente la inscripción al festival.
+6. Mi cuenta muestra directamente **REGISTRO CONFIRMADO**, folio `IMP-2026-XXXXXX` y fecha, sin otro botón de inscripción.
+7. Recargar. Debe conservarse el mismo folio. Otro intento de inscripción no debe generar una segunda fila.
+8. Pulsar **VER MI PASAPORTE**. Esperar `0 / 12 ACTIVIDADES` e insignia bloqueada.
+9. Cerrar sesión e intentar abrir Mi cuenta o el pasaporte: debe volver a login.
+10. Probar **Olvidé mi contraseña**, abrir el correo, establecer una nueva contraseña e iniciar sesión con ella. El formulario de recuperación muestra un mensaje para enlaces inválidos o caducados.
+11. Si falta la confirmación, desplegar **¿No recibiste el correo de confirmación?** en login y reenviarla.
+
+## RLS y pruebas
+
+Las tablas privadas no conceden acceso a visitantes. Un usuario puede insertar y editar únicamente los campos de su propio perfil; no puede cambiar su ID o correo por esta vía. Los eventos publicados son legibles para usuarios autenticados. Las inscripciones solo admiten `event_id`: propietario, folio, estado y fecha se asignan en la base. No se permite modificar ni borrar inscripciones desde el cliente.
+
+La prueba SQL crea usuarios A y B temporales y comprueba lectura y modificación cruzadas, lectura propia, edición propia, bloqueo de suplantación, cambio de estado y correo, validación de estudiantes, ausencia de inscripción por el mero INSERT de un perfil (la orquestación automática corresponde al cliente después del login confirmado), duplicados y folios distintos. No utiliza una clave privilegiada en el frontend.
+
+Para repetir localmente las pruebas (dependencias solo de desarrollo; la aplicación no requiere npm):
+
+```powershell
+npm.cmd install --prefix .test-runtime --cache .test-runtime/npm-cache --no-save --ignore-scripts @electric-sql/pglite linkedom
+node tests/database.mjs
+node --experimental-vm-modules tests/frontend.mjs
+```
+
+Las pruebas DOM utilizan Supabase simulado: comprueban lógica, mensajes y navegación, pero no prueban SMTP, Auth real, CSS calculado ni renderizado. Las pruebas SQL utilizan PostgreSQL real embebido con un esquema Auth mínimo; deben repetirse en Supabase con los archivos entregados.
+
+Para probar cuentas reales A y B, usar dos correos propios y navegadores/perfiles separados. Registrar ambos y verificar folios diferentes. Repetir además la prueba SQL: comprobar solo la interfaz no demuestra aislamiento RLS.
+
+## Referencias consultadas
+
+- https://supabase.com/docs/reference/javascript/initializing
+- https://supabase.com/docs/reference/javascript/auth-signup
+- https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail
+- https://supabase.com/docs/reference/javascript/auth-onauthstatechange
+- https://supabase.com/docs/guides/database/postgres/row-level-security
+
+## Pendientes para activar el servicio
+
+La configuración pública está completa y la migración fue aplicada por el usuario. Falta completar el recorrido con un correo real confirmado, comprobar aislamiento entre dos cuentas reales, duplicados, persistencia/cierre de sesión y consola en navegador. Las pruebas locales no sustituyen estas comprobaciones. No se solicitarán contraseñas ni enlaces de confirmación al usuario.
+
+Live Server devolvió HTTP 200 para `registro.html`, `login.html`, `mi-cuenta.html` y `pasaporte.html`. Que un HTML privado se pueda descargar es normal en un sitio estático: el acceso a sus datos depende de la sesión y de RLS. El SDK y sus dependencias directas devolvieron HTTP 200; el SDK admite CORS. Esto no equivale a una revisión de consola en un navegador real.
+
+## Verificación de la corrección de flujo
+
+23 comprobaciones DOM con Supabase simulado aprobaron: creación sin folio previo a confirmar, confirmación sin inscripción previa al login, login con preparación antes de redirección, inscripción automática, recarga con el mismo folio y sin nueva inserción, carrera de solicitudes, rechazo de correo sin confirmar y conservación de registros cancelados. El esquema SQL permanece sin cambios. La prueba end-to-end real por correo y navegador sigue pendiente; estas pruebas no la sustituyen.
