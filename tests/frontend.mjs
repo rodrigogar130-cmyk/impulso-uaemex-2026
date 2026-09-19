@@ -12,6 +12,7 @@ function backend(session = null) {
   const listeners = [];
   const state = {session, profiles:[], registrations:[], calls:[], listeners, activities:[], route:[]};
   state.authCalls={session:0,user:0};
+  state.clientLoads=0;
   const emit = (type, value) => listeners.forEach(fn => fn(type, value));
   state.emit=(type,value)=>{state.session=value;emit(type,value);};
   state.client = {
@@ -75,7 +76,7 @@ async function load(page, script, state, search='', options={}) {
   const location={href:`http://127.0.0.1:5500/${page}${search}`,search,hash:'',replace(value){this.destination=value;},reload(){this.reloaded=true;}};
   const windowEvents=document.createElement('window-events');
   const testDate=options.clock?class extends Date{constructor(...args){super(...(args.length?args:[options.clock.now]));}static now(){return options.clock.now;}}:Date;
-  const context = vm.createContext({setTimeout,TextEncoder,CustomEvent:document.defaultView.CustomEvent,document,location,window:{location,scrollY:0,addEventListener:windowEvents.addEventListener.bind(windowEvents),dispatchEvent:windowEvents.dispatchEvent.bind(windowEvents),matchMedia:options.matchMedia||(()=>({matches:false,addEventListener(){}}))},URL,URLSearchParams,console,Error,Date:testDate,FormData:class {
+  const context = vm.createContext({setTimeout:options.setTimeout||setTimeout,localStorage:options.storage,sessionStorage:options.storage,TextEncoder,CustomEvent:document.defaultView.CustomEvent,document,location,window:{location,scrollY:0,addEventListener:windowEvents.addEventListener.bind(windowEvents),dispatchEvent:windowEvents.dispatchEvent.bind(windowEvents),matchMedia:options.matchMedia||(()=>({matches:false,addEventListener(){}}))},URL,URLSearchParams,console,Error,Date:testDate,FormData:class {
     constructor(form){this.values=new Map([...form.querySelectorAll('[name]')].filter(el=>!el.disabled).map(el=>[el.name,el.value]));}
     get(key){return this.values.get(key)??null;}
   }});
@@ -84,8 +85,13 @@ async function load(page, script, state, search='', options={}) {
     if(cache.has(file))return cache.get(file);
     let mod;
     if(file.endsWith('supabase-client.js')){
+      state.clientLoads++;
       mod = new vm.SyntheticModule(['client','supabase'],function(){this.setExport('client',()=>state.client);this.setExport('supabase',state.client);},{context,identifier:file});
-    } else mod = new vm.SourceTextModule(fs.readFileSync(file,'utf8'),{context,identifier:file});
+    } else mod = new vm.SourceTextModule(fs.readFileSync(file,'utf8'),{context,identifier:file,importModuleDynamically:async(specifier,parent)=>{
+      const imported=await moduleFor(path.resolve(path.dirname(parent.identifier),specifier));
+      if(imported.status==='linked')await imported.evaluate();
+      return imported;
+    }});
     cache.set(file,mod);
     await mod.link((specifier,parent)=>moduleFor(path.resolve(path.dirname(parent.identifier),specifier)));
     return mod;
@@ -615,4 +621,116 @@ for(const mode of ['mobile','reduced','cdn-failure']){
  Object.defineProperty(page.document,'hidden',{configurable:true,value:true});fireVisible(page);assert.equal(intervals,0);
  ok(mode+': contenido visible, filtros disponibles, menú compatible con addListener y contador pausado al ocultar');
 }
+// Confirmation is deliberately passive until the user activates its button.
+const sensitiveWrites=[];
+const noSensitiveStorage={getItem(){return null;},setItem(...args){sensitiveWrites.push(args);},removeItem(){}};
+const confirmHtml=parseHTML(fs.readFileSync('confirmar.html','utf8')).document;
+const confirmScripts=[...confirmHtml.querySelectorAll('script[src]')].map(script=>path.basename(script.getAttribute('src')));
+assert.deepEqual(confirmScripts,['site-header.js','confirm-email.js']);
+assert.equal(confirmHtml.querySelector('meta[name="referrer"]').getAttribute('content'),'no-referrer');
+assert.match(confirmHtml.querySelector('main .small').textContent,/Spam, Correo no deseado o Promociones/);
+for(const el of confirmHtml.querySelectorAll('[src],[href]')){
+ const href=el.getAttribute('src')||el.getAttribute('href');assert.ok(fs.existsSync(path.resolve(root,href)));
+}
+ok('confirmación usa recursos existentes, nota de Spam y política no-referrer');
+
+state=backend();let finishConfirmation;
+state.client.auth.verifyOtp=payload=>{state.calls.push(['verifyOtp',payload]);return new Promise(resolve=>{finishConfirmation=resolve;});};
+const redirectTimers=[];
+page=await load('confirmar.html',confirmScripts,state,'?token_hash=test-token-only&type=email&next=https://example.invalid',{storage:noSensitiveStorage,setTimeout:(callback,ms)=>redirectTimers.push({callback,ms})});
+const confirmationButton=page.document.getElementById('confirm-email');
+assert.equal(confirmationButton.disabled,false);assert.equal(confirmationButton.type,'button');
+fireWindow(page,'focus');fireVisible(page);await flush();
+assert.equal(state.clientLoads,0);assert.equal(state.calls.length,0);assert.equal(redirectTimers.length,0);
+ok('abrir, enfocar y recuperar visibilidad no inicializan Auth ni consumen token');
+confirmationButton.click();confirmationButton.click();await flush();
+assert.equal(state.clientLoads,1);assert.equal(state.calls.length,1);
+assert.equal(state.calls[0][1].token_hash,'test-token-only');assert.equal(state.calls[0][1].type,'email');
+assert.equal(confirmationButton.disabled,true);assert.equal(confirmationButton.textContent,'CONFIRMANDO...');
+assert.equal(confirmationButton.getAttribute('aria-busy'),'true');
+ok('clic explícito verifica una sola vez y bloquea doble clic durante la solicitud');
+finishConfirmation({data:{session:{user}},error:null});await flush();
+assert.equal(page.document.querySelector('[data-message]').textContent,'Correo confirmado correctamente.');
+assert.equal(state.profiles.length,0);assert.equal(state.registrations.length,0);assert.equal(state.calls.length,1);
+assert.equal(redirectTimers.length,1);assert.equal(page.location.destination,undefined);
+confirmationButton.click();await flush();assert.equal(state.calls.length,1);
+redirectTimers[0].callback();assert.equal(page.location.destination,'login.html?confirmed=1');
+assert.equal(sensitiveWrites.length,0);
+ok('éxito muestra aviso y reemplaza URL por login interno sin perfil, folio ni almacenamiento del token');
+for(const query of ['', '?type=email', '?token_hash=&type=email', '?token_hash=test&type=recovery', '?token_hash=test&type=signup', '?token_hash=test', '?token_hash=test&type=email&type=recovery']){
+ state=backend();page=await load('confirmar.html',confirmScripts,state,query,{storage:noSensitiveStorage});
+ page.document.getElementById('confirm-email').click();fireWindow(page,'focus');fireVisible(page);await flush();
+ assert.equal(state.clientLoads,0);assert.equal(state.calls.length,0);
+ assert.equal(page.document.getElementById('confirm-email').hidden,true);
+ assert.equal(page.document.getElementById('confirm-email').disabled,true);
+ assert.equal(page.document.querySelector('[data-message]').textContent,'Este enlace de confirmación no es válido o está incompleto.');
+ assert.equal(page.document.getElementById('confirmation-login').hidden,false);
+}
+ok('enlaces incompletos, vacíos o de otro tipo no hacen llamadas a Supabase');
+for(const error of [{code:'otp_expired',status:403},{code:'access_denied',status:400},{status:422,message:'Token already used: test-token-only'}]){
+ state=backend();state.client.auth.verifyOtp=async()=>({error});
+ page=await load('confirmar.html',confirmScripts,state,'?token_hash=test-token-only&type=email',{storage:noSensitiveStorage});
+ page.document.getElementById('confirm-email').click();await flush();
+ assert.equal(page.document.querySelector('[data-message]').textContent,'Este enlace ya fue utilizado o ha expirado.');
+ assert.equal(page.document.getElementById('confirmation-help').hidden,false);
+ assert.equal(page.document.getElementById('confirmation-login').hidden,false);
+ assert.equal(page.location.destination,undefined);assert.doesNotMatch(page.document.querySelector('main').textContent,/test-token-only|otp_expired|access_denied/);
+}
+ok('token expirado o utilizado muestra explicación neutral y acceso a login sin errores técnicos');
+for(const error of [{status:503},{status:429},new Error('Failed to fetch')]){
+ state=backend();let attempts=0;state.client.auth.verifyOtp=async()=>{attempts++;throw error;};
+ page=await load('confirmar.html',confirmScripts,state,'?token_hash=test-token-only&type=email',{storage:noSensitiveStorage});
+ const button=page.document.getElementById('confirm-email');button.click();await flush();
+ assert.equal(button.disabled,false);assert.equal(button.hidden,false);
+ assert.match(page.document.querySelector('[data-message]').textContent,/inténtalo de nuevo/);
+ assert.doesNotMatch(page.document.querySelector('[data-message]').textContent,/Correo confirmado correctamente/);
+ assert.equal(page.location.destination,undefined);button.click();await flush();assert.equal(attempts,2);
+}
+ok('fallos temporales de confirmación permiten reintentar solo mediante otro clic');
+state=backend({user});page=await load('login.html','login.js',state,'?confirmed=1');
+assert.equal(state.session,null);assert.equal(state.profiles.length,0);assert.equal(state.registrations.length,0);
+await page.submit('form',{email:user.email,password:'password123'});
+assert.equal(state.profiles.length,1);assert.equal(state.registrations.length,1);
+assert.equal(page.location.destination,'mi-cuenta.html');
+ok('login confirmado cierra la sesión de verificación; login explícito posterior crea perfil y folio');
+
+state=backend();page=await load('registro.html','registro.js',state,'',{storage:noSensitiveStorage});
+const passwordFields=[page.document.getElementById('signup-password'),page.document.getElementById('signup-confirm-password')];
+const passwordButtons=[...page.document.querySelectorAll('[data-password-toggle]')];
+assert.equal(passwordButtons.length,2);let accidentalSubmits=0;
+page.document.querySelector('form').addEventListener('submit',()=>{accidentalSubmits++;});
+for(const input of passwordFields){assert.equal(input.type,'password');input.value='Private-test-value-42!';}
+for(let index=0;index<2;index++){
+ const button=passwordButtons[index],input=passwordFields[index],other=passwordFields[1-index];
+ assert.equal(button.type,'button');assert.equal(button.getAttribute('aria-label'),'Mostrar contraseña');
+ assert.equal(button.getAttribute('aria-controls'),input.id);assert.equal(button.getAttribute('tabindex'),null);
+ assert.ok(page.document.querySelector('label[for="'+input.id+'"]'));
+ button.click();assert.equal(input.type,'text');assert.equal(other.type,'password');
+ assert.equal(button.getAttribute('aria-label'),'Ocultar contraseña');assert.equal(input.value,'Private-test-value-42!');
+ button.click();assert.equal(input.type,'password');assert.equal(button.getAttribute('aria-label'),'Mostrar contraseña');
+ assert.equal(input.value,'Private-test-value-42!');
+}
+assert.equal(accidentalSubmits,0);assert.equal(state.calls.length,0);assert.equal(sensitiveWrites.length,0);
+ok('botones nativos independientes alternan contraseña sin enviar, modificar valores ni guardar secretos');
+await page.submit('form',signupValues);
+const signupNotice=page.document.querySelector('#signup-result');
+assert.equal(signupNotice.hidden,false);
+assert.match(signupNotice.textContent,/Spam, Correo no deseado o Promociones/);
+assert.match(signupNotice.textContent,/tardar unos minutos/);
+assert.match(signupNotice.textContent,/El correo será enviado por IMPULSO UAEMéx 2026/);
+assert.ok(signupNotice.querySelector('a[href="login.html"]'));assert.ok(signupNotice.querySelector('a[href="recuperar-password.html"]'));
+assert.ok(parseHTML(fs.readFileSync('login.html','utf8')).document.getElementById('resend-form'));
+ok('aviso de registro incluye Spam, demora y remitente; conserva login, recuperación y reenvío existente');
+for(const error of [{status:500,message:'Error sending confirmation email'},{code:'over_email_send_rate_limit'},{code:'over_request_rate_limit'}]){
+ state=backend();state.client.auth.signUp=async()=>({error});
+ page=await load('registro.html','registro.js',state,'',{storage:noSensitiveStorage});await page.submit('form',signupValues);
+ assert.equal(page.document.querySelector('form').hidden,false);assert.equal(page.document.querySelector('#signup-result').hidden,true);
+ assert.equal(page.document.querySelector('button[type="submit"]').disabled,false);
+ assert.doesNotMatch(page.document.querySelector('[data-message]').textContent,/te enviamos/i);
+ assert.match(page.document.querySelector('[data-message]').textContent,/inténtalo|espera/i);
+}
+assert.equal(sensitiveWrites.length,0);
+assert.doesNotMatch(fs.readFileSync('js/confirm-email.js','utf8'),/localStorage|sessionStorage|document\.cookie|console\./);
+assert.doesNotMatch(fs.readFileSync('js/registro.js','utf8'),/localStorage|sessionStorage|document\.cookie|console\./);
+ok('SMTP y rate limit mantienen formulario y reintento sin anunciar envío; tokens y contraseñas no se guardan');
 console.log('TOTAL: '+passed+' comprobaciones de interfaz.');

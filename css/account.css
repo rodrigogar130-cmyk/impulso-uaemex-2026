@@ -12,6 +12,8 @@ p{color:var(--muted)}.panel{border-top:1px solid var(--border);padding:30px 0;ma
 label{display:block;min-width:0;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase}.hint{display:block;text-transform:none;letter-spacing:0;color:var(--muted);margin-top:8px}
 input,select{display:block;width:100%;min-width:0;min-height:46px;margin-top:8px;border:0;border-bottom:1px solid #666;background:var(--surface);color:#fff;border-radius:0;padding:12px;font-size:1rem;letter-spacing:normal;text-transform:none}
 input:focus,select:focus{border-bottom-color:#fff}.actions{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:28px}
+.password-field{position:relative;margin-top:8px}.password-field input{margin-top:0;padding-right:88px}
+.password-toggle{position:absolute;right:4px;top:1px;bottom:1px;min-width:76px;min-height:44px;padding:8px;border:0;background:transparent;color:var(--text);font-size:.75rem;cursor:pointer}
 .btn{background:var(--text-primary);color:var(--background);text-decoration:none;max-width:100%;text-align:center}
 .btn.secondary{background:transparent;color:#fff;border-color:#666}.btn:hover{background:#ddd;color:#050505}button:disabled{opacity:.5;cursor:wait}
 .message{border:1px solid #777;padding:16px;color:#fff;margin:24px 0;white-space:pre-line}.message[data-error=true]{border-style:dashed}
