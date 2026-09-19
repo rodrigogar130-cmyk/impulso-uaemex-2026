@@ -1,5 +1,5 @@
 import { client } from './supabase-client.js';
-import { confirmationPath } from './return-to.js';
+import { confirmationPath, googleReturnPath } from './return-to.js';
 export const landing = 'index.html';
 export function localUrl(page) { return new URL(page, window.location.href).href; }
 let localSession, localPromise, verifiedPromise, subscription;
@@ -90,6 +90,14 @@ export async function signInWithPassword(email, password) {
   const { data, error } = await client().auth.signInWithPassword({ email, password });
   if (error) throw error;
   if (!data.user.email_confirmed_at) { await signOut(); throw new Error('Confirma tu correo antes de iniciar sesión.'); }
+  return data;
+}
+export async function signInWithGoogle() {
+  const { data, error } = await client().auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: localUrl(googleReturnPath()) }
+  });
+  if (error) throw error;
   return data;
 }
 export async function signOut() {

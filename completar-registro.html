@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <title>Completa tu registro | Impulso UAEMéx 2026</title>
+  <link rel="stylesheet" href="css/account.css">
+</head>
+<body>
+  <div id="site-navigation"></div>
+  <main class="narrow">
+    <span class="eyebrow">Festival de Emprendimiento · 2026</span>
+    <div data-message class="message" role="status" aria-live="polite">Comprobando tu sesión…</div>
+    <noscript><p>Activa JavaScript para completar tu registro.</p></noscript>
+    <section id="completion-content" hidden>
+      <h1>Completa tu registro</h1>
+      <p>Google ya confirmó tu identidad. Solo necesitamos algunos datos para completar tu inscripción a IMPULSO UAEMéx 2026.</p>
+      <p id="completion-email" class="account-email"></p>
+      <form id="completion-form" method="post">
+        <div class="form-grid">
+          <label>Nombre<input name="nombre" autocomplete="given-name" required maxlength="100"></label>
+          <label>Apellidos<input name="apellidos" autocomplete="family-name" required maxlength="150"></label>
+          <label class="full">Tipo de usuario<select name="tipo_usuario" required>
+            <option value="">Selecciona una opción</option>
+            <option>Estudiante</option><option>Docente</option><option>Administrativo</option>
+            <option>Investigador</option><option>Empresario</option><option>Público general</option>
+          </select></label>
+          <div class="full form-grid" data-student hidden>
+            <label>Número de cuenta<input name="numero_cuenta" maxlength="40"></label>
+            <label>Espacio académico<input name="espacio_academico" maxlength="200"></label>
+          </div>
+          <label class="full">Teléfono (opcional)<input name="telefono" type="tel" autocomplete="tel" maxlength="30"></label>
+        </div>
+        <div class="actions"><button class="btn" type="submit">COMPLETAR REGISTRO ↗</button></div>
+      </form>
+    </section>
+    <p class="small"><a href="login.html">VOLVER A INICIAR SESIÓN</a></p>
+  </main>
+  <footer>Universidad Autónoma del Estado de México · Dirección de Desarrollo Empresarial</footer>
+  <script type="module" src="js/site-header.js"></script>
+  <script type="module" src="js/navbar-auth.js"></script>
+  <script type="module" src="js/completar-registro.js"></script>
+</body>
+</html>

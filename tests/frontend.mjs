@@ -34,6 +34,7 @@ function backend(session = null) {
       onAuthStateChange(fn){listeners.push(fn);return {data:{subscription:{unsubscribe(){}}}};},
       async signUp(payload){state.calls.push(['signUp',payload]);return {data:{user,session:null}};},
       async signInWithPassword(payload){state.calls.push(['signIn',payload]);state.session={user};emit('SIGNED_IN',state.session);return {data:state.session};},
+      async signInWithOAuth(payload){state.calls.push(['oauth',payload]);return {data:{provider:'google',url:'https://accounts.google.com/'}};},
       async signOut(){state.calls.push(['signOut']);state.session=null;emit('SIGNED_OUT',null);return {};},
       async resetPasswordForEmail(...args){state.calls.push(['reset',...args]);return {};},
       async updateUser(payload){state.calls.push(['updatePassword',payload]);return {};},
@@ -52,7 +53,9 @@ function backend(session = null) {
         const list=table==='profiles'?state.profiles:state.registrations;
         if(op==='insert') {
           if(table==='event_registrations' && list.length) return {error:{code:'23505'}};
-          const row=table==='profiles'?{id:user.id,...payload}:{id:'reg-a',user_id:user.id,...payload,folio:'IMP-2026-000001',status:'confirmed',created_at:'2026-09-17T12:00:00Z'};
+          const authenticatedId=state.session?.user.id || user.id;
+          if(table==='profiles' && list.some(row=>row.id===authenticatedId))return {error:{code:'23505'}};
+          const row=table==='profiles'?{id:authenticatedId,...payload}:{id:'reg-a',user_id:authenticatedId,...payload,folio:'IMP-2026-000001',status:'confirmed',created_at:'2026-09-17T12:00:00Z'};
           list.push(row);return {data:row};
         }
         const row=list.find(row=>filters.every(([k,v])=>row[k]===v));
@@ -73,7 +76,8 @@ async function load(page, script, state, search='', options={}) {
     form.elements = Object.fromEntries([...form.querySelectorAll('[name]')].map(el=>[el.name,el]));
     form.reportValidity = () => true;
   }
-  const location={href:`http://127.0.0.1:5500/${page}${search}`,search,hash:'',replace(value){this.destination=value;},reload(){this.reloaded=true;}};
+  const pageUrl=new URL(page+search,options.baseUrl||'http://127.0.0.1:5500/');
+  const location={href:pageUrl.href,pathname:pageUrl.pathname,search,hash:options.hash||'',replace(value){this.destination=value;},reload(){this.reloaded=true;}};
   const windowEvents=document.createElement('window-events');
   const testDate=options.clock?class extends Date{constructor(...args){super(...(args.length?args:[options.clock.now]));}static now(){return options.clock.now;}}:Date;
   const context = vm.createContext({setTimeout:options.setTimeout||setTimeout,localStorage:options.storage,sessionStorage:options.storage,TextEncoder,CustomEvent:document.defaultView.CustomEvent,document,location,window:{location,scrollY:0,addEventListener:windowEvents.addEventListener.bind(windowEvents),dispatchEvent:windowEvents.dispatchEvent.bind(windowEvents),matchMedia:options.matchMedia||(()=>({matches:false,addEventListener(){}}))},URL,URLSearchParams,console,Error,Date:testDate,FormData:class {
@@ -81,7 +85,7 @@ async function load(page, script, state, search='', options={}) {
     get(key){return this.values.get(key)??null;}
   }});
   const cache=new Map();
-  async function moduleFor(file) {
+  function sourceModule(file) {
     if(cache.has(file))return cache.get(file);
     let mod;
     if(file.endsWith('supabase-client.js')){
@@ -93,7 +97,11 @@ async function load(page, script, state, search='', options={}) {
       return imported;
     }});
     cache.set(file,mod);
-    await mod.link((specifier,parent)=>moduleFor(path.resolve(path.dirname(parent.identifier),specifier)));
+    return mod;
+  }
+  async function moduleFor(file) {
+    const mod=sourceModule(file);
+    if(mod.status==='unlinked')await mod.link((specifier,parent)=>sourceModule(path.resolve(path.dirname(parent.identifier),specifier)));
     return mod;
   }
   const modules=[];
@@ -733,4 +741,151 @@ assert.equal(sensitiveWrites.length,0);
 assert.doesNotMatch(fs.readFileSync('js/confirm-email.js','utf8'),/localStorage|sessionStorage|document\.cookie|console\./);
 assert.doesNotMatch(fs.readFileSync('js/registro.js','utf8'),/localStorage|sessionStorage|document\.cookie|console\./);
 ok('SMTP y rate limit mantienen formulario y reintento sin anunciar envío; tokens y contraseñas no se guardan');
+// Google uses the same SDK/session and only an allowlisted local callback.
+const oauthErrorText='No pudimos iniciar sesión con Google. Inténtalo nuevamente o utiliza tu correo y contraseña.';
+const oauthBase='https://rodrigogar130-cmyk.github.io/impulso-uaemex-2026/';
+const oauthStorageValues=new Map(),oauthWrites=[];
+const oauthStorage={getItem:key=>oauthStorageValues.get(key)||null,setItem(key,value){oauthWrites.push([key,value]);oauthStorageValues.set(key,value);},removeItem:key=>oauthStorageValues.delete(key)};
+for(const [file,script] of [['login.html','login.js'],['registro.html','registro.js']]){
+ state=backend();page=await load(file,script,state,'?activity='+openActivity.slug+'&next=admin',{storage:oauthStorage,baseUrl:oauthBase});
+ const googleButton=page.document.querySelector('[data-google-login]');
+ assert.ok(googleButton);assert.equal(googleButton.type,'button');
+ assert.match(googleButton.textContent,/CONTINUAR CON GOOGLE/);
+ assert.ok(page.document.querySelector('form input[name="email"]'));assert.ok(page.document.querySelector('form input[type="password"]'));
+ assert.ok(page.document.querySelector('.auth-divider'));
+ let accidentalSubmit=0;page.document.querySelector('form').addEventListener('submit',()=>accidentalSubmit++);
+ googleButton.click();googleButton.click();await flush();
+ assert.equal(state.calls.length,1);assert.equal(state.calls[0][0],'oauth');assert.equal(accidentalSubmit,0);
+ const payload=state.calls[0][1];assert.equal(payload.provider,'google');
+ const redirect=new URL(payload.options.redirectTo);
+ assert.equal(redirect.origin,new URL(oauthBase).origin);assert.equal(redirect.pathname,'/impulso-uaemex-2026/completar-registro.html');
+ assert.equal(redirect.searchParams.get('activity'),openActivity.slug);assert.equal(redirect.searchParams.get('next'),'admin');
+ assert.equal(payload.options.skipBrowserRedirect,undefined);
+ assert.equal(googleButton.disabled,true);assert.match(googleButton.textContent,/CONECTANDO CON GOOGLE/);
+ assert.equal(JSON.parse(oauthStorageValues.get('impulso-route-intent')).slug,openActivity.slug);
+ const restore=new page.document.defaultView.Event('pageshow');restore.persisted=true;page.context.window.dispatchEvent(restore);
+ assert.equal(googleButton.disabled,false);assert.match(googleButton.textContent,/CONTINUAR CON GOOGLE/);
+ ok(file+': Google principal, doble clic bloqueado, retorno local con actividad/admin y botón recuperable al volver');
+}
+assert.ok(oauthWrites.every(([key,value])=>key==='impulso-route-intent'&&Object.keys(JSON.parse(value)).every(key=>['slug','section'].includes(key))));
+ok('Google solo reutiliza el almacenamiento de intención de actividad; no guarda tokens ni redirects libres');
+for(const query of ['?next=https://example.invalid&activity=https://example.invalid','?next=//example.invalid','?redirectTo=https://example.invalid']){
+ state=backend();page=await load('login.html','login.js',state,query,{baseUrl:oauthBase});
+ page.document.querySelector('[data-google-login]').click();await flush();
+ assert.equal(state.calls[0][1].options.redirectTo,oauthBase+'completar-registro.html');
+}
+ok('redirectTo externo, next arbitrario y activity inválida no alteran el retorno OAuth');
+for(const code of ['provider_disabled','access_denied','oauth_error']){
+ state=backend();state.client.auth.signInWithOAuth=async()=>({error:{code,message:'Technical provider detail'}});
+ page=await load('login.html','login.js',state);
+ const button=page.document.querySelector('[data-google-login]');button.click();await flush();
+ assert.equal(page.document.querySelector('[data-message]').textContent,oauthErrorText);assert.equal(button.disabled,false);
+ assert.equal(page.document.querySelector('form').hidden,false);
+}
+ok('errores al iniciar Google muestran mensaje neutral y mantienen el método por correo');
+
+const googleUser={id:'google-user-id',email:'google@example.invalid',email_confirmed_at:'2026-09-18',app_metadata:{provider:'google'},user_metadata:{given_name:'Ana María',family_name:'García López',full_name:'Ana María García López'}};
+const completionScripts=['navbar-auth.js','completar-registro.js'];
+const completeValues={nombre:'Ana editada',apellidos:'García editada',tipo_usuario:'Público general',telefono:'7221234567'};
+state=backend({user:googleUser});
+page=await load('completar-registro.html',completionScripts,state,'?activity='+openActivity.slug,{storage:noSensitiveStorage});
+assert.equal(state.authCalls.session,1);assert.equal(state.authCalls.user,1);
+assert.equal(page.document.querySelector('#completion-content').hidden,false);
+assert.equal(page.document.querySelector('[name="nombre"]').value,'Ana María');assert.equal(page.document.querySelector('[name="apellidos"]').value,'García López');
+assert.equal(page.document.querySelector('#completion-email').textContent,googleUser.email);
+assert.equal(page.document.querySelector('[name="email"],input[type="password"],[name="confirm_password"]'),null);
+assert.equal(state.profiles.length,0);assert.equal(state.registrations.length,0);
+ok('nuevo usuario Google verifica sesión, muestra correo readonly y prellena nombres sin crear inscripción aún');
+await page.submit('#completion-form',completeValues);
+assert.equal(state.profiles.length,1);assert.equal(state.profiles[0].id,googleUser.id);
+assert.equal(state.profiles[0].nombre,'Ana editada');assert.equal(state.profiles[0].apellidos,'García editada');
+assert.equal(state.registrations.length,1);assert.equal(state.registrations[0].user_id,googleUser.id);assert.ok(state.registrations[0].folio);
+assert.equal(page.location.destination,'index.html?activity='+openActivity.slug+'#arma-tu-ruta');
+assert.equal(state.calls.some(call=>['signUp','resend','verifyOtp'].includes(call[0])),false);
+assert.equal(sensitiveWrites.length,0);
+ok('guardar Google usa id verificado, crea perfil/folio con helpers y vuelve a actividad sin correo SMTP');
+const originalFolio=state.registrations[0].folio;
+state.route=[{id:'preserved-route',activity_id:openActivity.id,status:'registered'}];
+const insertsBefore=state.calls.filter(call=>call[1]==='insert').length;
+page=await load('completar-registro.html','completar-registro.js',state);
+assert.equal(page.document.querySelector('#completion-content').hidden,true);assert.equal(page.location.destination,'mi-cuenta.html');
+assert.equal(state.profiles.length,1);assert.equal(state.registrations[0].folio,originalFolio);
+assert.equal(state.calls.filter(call=>call[1]==='insert').length,insertsBefore);assert.equal(state.route[0].id,'preserved-route');
+ok('perfil existente omite formulario, conserva folio y ruta y no duplica inserciones');
+state.registrations[0].status='cancelled';
+page=await load('completar-registro.html','completar-registro.js',state);
+assert.equal(state.registrations[0].status,'cancelled');assert.equal(state.registrations[0].folio,originalFolio);
+ok('OAuth no reactiva ni sustituye una inscripción cancelada existente');
+
+for(const metadata of [{full_name:'Nombre Completo Sin Separar'},{name:'Nombre alternativo'}]){
+ state=backend({user:{...googleUser,user_metadata:metadata}});page=await load('completar-registro.html','completar-registro.js',state);
+ assert.equal(page.document.querySelector('[name="nombre"]').value,metadata.full_name||metadata.name);
+ assert.equal(page.document.querySelector('[name="apellidos"]').value,'');
+}
+ok('full_name/name ayudan al prellenado sin inventar apellidos');
+state=backend({user:googleUser});page=await load('completar-registro.html','completar-registro.js',state);
+const studentType=page.document.querySelector('[name="tipo_usuario"]');
+assert.deepEqual([...studentType.querySelectorAll('option')].map(option=>option.value||option.textContent).slice(1),['Estudiante','Docente','Administrativo','Investigador','Empresario','Público general']);
+studentType.value='Estudiante';studentType.dispatchEvent(new page.document.defaultView.Event('change'));
+assert.equal(page.document.querySelector('[data-student]').hidden,false);
+assert.equal(page.document.querySelector('[name="numero_cuenta"]').required,true);assert.equal(page.document.querySelector('[name="espacio_academico"]').required,true);
+await page.submit('#completion-form',{...completeValues,tipo_usuario:'Estudiante'});
+assert.equal(state.profiles.length,0);assert.equal(state.registrations.length,0);
+assert.match(page.document.querySelector('[data-message]').textContent,/número de cuenta y espacio académico/);
+await page.submit('#completion-form',{numero_cuenta:'1234567',espacio_academico:'Ingeniería'});
+assert.equal(state.profiles[0].numero_cuenta,'1234567');assert.equal(state.profiles[0].espacio_academico,'Ingeniería');
+assert.equal(state.registrations.length,1);
+ok('mismos tipos de usuario; estudiante exige cuenta y espacio antes de guardar');
+
+state=backend({user:googleUser});state.profiles=[{id:googleUser.id,nombre:'Ana',apellidos:'',tipo_usuario:'Público general'}];
+page=await load('completar-registro.html','completar-registro.js',state);
+assert.equal(page.document.querySelector('#completion-content').hidden,false);
+await page.submit('#completion-form',completeValues);
+assert.equal(state.profiles.length,1);assert.equal(state.profiles[0].apellidos,'García editada');
+assert.equal(state.calls.some(call=>call[0]==='profiles'&&call[1]==='update'),true);
+ok('perfil incompleto se completa con saveProfile sin crear otro perfil');
+
+for(const options of [{search:'?error=access_denied'}, {hash:'#error=access_denied&error_description=private-detail'}, {search:'?error_code=provider_disabled'}]){
+ state=backend({user:googleUser});page=await load('completar-registro.html','completar-registro.js',state,options.search||'',options);
+ assert.equal(page.document.querySelector('[data-message]').textContent,oauthErrorText);
+ assert.equal(page.document.querySelector('#completion-content').hidden,true);assert.equal(state.calls.length,0);
+ assert.equal(page.location.destination,undefined);
+}
+ok('cancelación y errores de callback muestran mensaje neutral y no preparan otra sesión existente');
+for(const active of [null,{user:{...googleUser,email_confirmed_at:null}}]){
+ state=backend(active);page=await load('completar-registro.html','completar-registro.js',state);
+ assert.equal(page.document.querySelector('#completion-content').hidden,true);assert.equal(state.calls.length,0);
+ assert.equal(page.document.querySelector('[data-message]').textContent,oauthErrorText);
+}
+state=backend({user:googleUser});state.client.auth.getUser=async()=>({error:{status:503}});
+page=await load('completar-registro.html','completar-registro.js',state);
+assert.equal(page.document.querySelector('#completion-content').hidden,true);assert.equal(state.calls.length,0);
+assert.equal(page.document.querySelector('[data-message]').textContent,oauthErrorText);
+ok('sesión ausente, no confirmada o sin verificación remota no puede crear perfil ni registro');
+state=backend({user:googleUser});page=await load('completar-registro.html','completar-registro.js',state);
+state.emit('SIGNED_IN',{user:{...googleUser,id:'different-google-id'}});
+await page.submit('#completion-form',completeValues);
+assert.equal(page.document.querySelector('#completion-content').hidden,true);assert.equal(state.profiles.length,0);assert.equal(state.registrations.length,0);
+ok('cambiar de usuario mientras se completa el formulario bloquea el guardado anterior');
+
+// Identity linking is owned by Supabase: the returned ID locates the existing profile.
+state=backend({user:{...user,app_metadata:{provider:'google'},user_metadata:{given_name:'Otro nombre'}}});
+state.profiles=[{id:user.id,nombre:'Nombre existente',apellidos:'Apellido existente',tipo_usuario:'Docente'}];
+state.registrations=[{id:'reg-existing',user_id:user.id,event_id:event.id,status:'confirmed',folio:'IMP-2026-123456'}];
+state.client.rpc=async name=>{state.calls.push(['admin',name]);if(name==='admin_get_access')return {data:'staff'};if(name==='admin_list_scenarios')return {data:[]};throw Error('Unexpected '+name);};
+page=await load('completar-registro.html','completar-registro.js',state,'?next=admin');
+assert.equal(page.location.destination,'admin.html');assert.equal(state.profiles[0].nombre,'Nombre existente');assert.equal(state.registrations[0].folio,'IMP-2026-123456');
+assert.equal(state.calls.some(call=>call[1]==='insert'||call[1]==='update'),false);
+page=await load('admin.html','admin.js',state);
+assert.equal(page.document.querySelector('#admin-content').hidden,false);
+assert.ok(state.calls.some(call=>call[0]==='admin'&&call[1]==='admin_get_access'));
+assert.equal(page.document.querySelector('[data-section="users"]').hidden,true);
+ok('identidad Google enlazada conserva perfil/folio y admin sigue comprobando rol staff mediante RPC');
+state.client.rpc=async()=>({error:{message:'ADMIN_REQUIRED'}});
+page=await load('admin.html','admin.js',state);assert.equal(page.document.querySelector('#admin-content').hidden,true);
+ok('next=admin no concede acceso: backend puede denegar al usuario OAuth');
+const newFrontend=['js/google-auth.js','js/completar-registro.js','js/auth.js','completar-registro.html','login.html','registro.html'].map(file=>fs.readFileSync(file,'utf8')).join('\n');
+assert.doesNotMatch(newFrontend,/client_secret|[0-9]+-[a-z0-9]+\.apps\.googleusercontent\.com|window\.open\s*\(|localStorage\.setItem|sessionStorage\.setItem|document\.cookie\s*=/i);
+assert.doesNotMatch(fs.readFileSync('js/completar-registro.js','utf8'),/resendConfirmation|signUp\(|confirmar\.html|console\./);
+ok('sin secretos, OAuth Client ID, popup, almacenamiento manual de tokens ni confirmación SMTP para Google');
 console.log('TOTAL: '+passed+' comprobaciones de interfaz.');

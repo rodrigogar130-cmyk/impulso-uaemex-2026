@@ -10,7 +10,16 @@ export function requestedActivity() {
   return routeDestination(slug) ? slug : null;
 }
 export function authLink(page, slug = requestedActivity()) {
-  return `${page}${routeDestination(slug) ? '?activity=' + encodeURIComponent(slug) : ''}`;
+  const parameters = new URLSearchParams();
+  if (routeDestination(slug)) parameters.set('activity', slug);
+  if (new URLSearchParams(location.search).get('next') === 'admin') parameters.set('next', 'admin');
+  const query = parameters.toString();
+  return page + (query ? '?' + query : '');
+}
+export function googleReturnPath() {
+  const slug = requestedActivity();
+  if (slug) rememberActivity(slug);
+  return authLink('completar-registro.html', slug);
 }
 export function afterLogin() { return new URLSearchParams(location.search).get('next')==='admin' ? 'admin.html' : routeDestination(requestedActivity()) || 'mi-cuenta.html'; }
 export function confirmationPath() {
@@ -19,7 +28,7 @@ export function confirmationPath() {
 }
 export function preserveAuthLinks() {
   const slug = requestedActivity();
-  if (!slug) return;
+  if (!slug && new URLSearchParams(location.search).get('next') !== 'admin') return;
   document.querySelectorAll('a[href="login.html"],a[href="registro.html"]').forEach(link => {
     link.href = authLink(link.getAttribute('href'), slug);
   });

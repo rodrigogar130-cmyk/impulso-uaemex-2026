@@ -3,7 +3,9 @@ import { bindForm, message, errorText } from './ui.js';
 import { client } from './supabase-client.js';
 import { prepareAccount } from './prepare-account.js';
 import { afterLogin, preserveAuthLinks, requestedActivity, authLink } from './return-to.js';
+import { bindGoogleButton, hasOAuthError, googleAuthError } from './google-auth.js';
 preserveAuthLinks();
+bindGoogleButton();
 if(requestedActivity()){
   const heading=document.querySelector('h1');heading.textContent='PARA ASISTIR A ESTA ACTIVIDAD';
   const intro=document.createElement('p');intro.textContent='Necesitas acceder a tu cuenta de IMPULSO UAEMÉX 2026.';
@@ -14,10 +16,10 @@ if(requestedActivity()){
 }
 
 const parameters = new URLSearchParams(location.search);
-const callback = new URLSearchParams(location.hash.slice(1));
 try {
-  if (callback.has('error') || parameters.has('error')) message('El enlace no es válido o ha caducado. Solicita uno nuevo.', true);
-  else if (parameters.has('confirmed')) message('Inicia sesión para comprobar tu cuenta y continuar.');
+  if (hasOAuthError()) message(googleAuthError, true);
+  else {
+  if (parameters.has('confirmed')) message('Inicia sesión para comprobar tu cuenta y continuar.');
   const session = await getSession();
   if (session && parameters.has('confirmed')) {
     const { data, error } = await client().auth.getUser();
@@ -28,6 +30,7 @@ try {
     const prepared = await prepareAccount();
     const destination = prepared.profile ? afterLogin() : 'mi-cuenta.html';
     location.replace(destination);
+  }
   }
 } catch (error) { message(errorText(error), true); }
 bindForm(document.querySelector('form'), async data => {

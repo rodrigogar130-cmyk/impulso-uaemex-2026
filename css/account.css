@@ -14,6 +14,8 @@ input,select{display:block;width:100%;min-width:0;min-height:46px;margin-top:8px
 input:focus,select:focus{border-bottom-color:#fff}.actions{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:28px}
 .password-field{position:relative;margin-top:8px}.password-field input{margin-top:0;padding-right:88px}
 .password-toggle{position:absolute;right:4px;top:1px;bottom:1px;min-width:76px;min-height:44px;padding:8px;border:0;background:transparent;color:var(--text);font-size:.75rem;cursor:pointer}
+.google-button{width:100%;gap:12px}.google-mark{font-size:1.2rem;font-weight:700;line-height:1}
+.auth-divider{display:flex;align-items:center;gap:14px;margin:28px 0;color:var(--muted);font-size:.7rem;letter-spacing:.06em;text-align:center}.auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:var(--border)}
 .btn{background:var(--text-primary);color:var(--background);text-decoration:none;max-width:100%;text-align:center}
 .btn.secondary{background:transparent;color:#fff;border-color:#666}.btn:hover{background:#ddd;color:#050505}button:disabled{opacity:.5;cursor:wait}
 .message{border:1px solid #777;padding:16px;color:#fff;margin:24px 0;white-space:pre-line}.message[data-error=true]{border-style:dashed}

@@ -1,7 +1,9 @@
 import { signUp } from './auth.js';
 import { client } from './supabase-client.js';
 import { preserveAuthLinks } from './return-to.js';
+import { bindGoogleButton, hasOAuthError, googleAuthError } from './google-auth.js';
 preserveAuthLinks();
+bindGoogleButton();
 import { bindForm, studentFields, profileData, matchingPassword, message, errorText } from './ui.js';
 const form = document.querySelector('form');
 form.querySelectorAll('[data-password-toggle]').forEach(button => {
@@ -15,6 +17,7 @@ form.querySelectorAll('[data-password-toggle]').forEach(button => {
 });
 studentFields(form);
 try { client(); } catch (error) { message(errorText(error), true); }
+if (hasOAuthError()) message(googleAuthError, true);
 bindForm(form, async data => {
   try {
     await signUp(String(data.get('email')).trim(), matchingPassword(data), profileData(data));
