@@ -11,7 +11,9 @@ const event = { id: 'event-2026', slug:'impulso-uaemex-2026',status:'open' };
 function backend(session = null) {
   const listeners = [];
   const state = {session, profiles:[], registrations:[], calls:[], listeners, activities:[], route:[]};
+  state.authCalls={session:0,user:0};
   const emit = (type, value) => listeners.forEach(fn => fn(type, value));
+  state.emit=(type,value)=>{state.session=value;emit(type,value);};
   state.client = {
     async rpc(name,args) {
       state.calls.push(['rpc',name,args]);
@@ -26,8 +28,8 @@ function backend(session = null) {
       throw new Error('Unexpected RPC '+name);
     },
     auth: {
-      async getSession(){return {data:{session:state.session}};},
-      async getUser(){return {data:{user:state.session?.user}};},
+      async getSession(){state.authCalls.session++;return {data:{session:state.session}};},
+      async getUser(){state.authCalls.user++;return {data:{user:state.session?.user}};},
       onAuthStateChange(fn){listeners.push(fn);return {data:{subscription:{unsubscribe(){}}}};},
       async signUp(payload){state.calls.push(['signUp',payload]);return {data:{user,session:null}};},
       async signInWithPassword(payload){state.calls.push(['signIn',payload]);state.session={user};emit('SIGNED_IN',state.session);return {data:state.session};},
@@ -61,7 +63,7 @@ function backend(session = null) {
   };
   return state;
 }
-async function load(page, script, state, search='') {
+async function load(page, script, state, search='', options={}) {
   const {document,Event} = parseHTML(fs.readFileSync(page,'utf8'));
   for(const select of document.querySelectorAll('select'))Object.defineProperty(select,'value',{configurable:true,get(){return this.querySelector('option[selected]')?.getAttribute('value') ?? this.querySelector('option[selected]')?.textContent ?? '';},set(v){for(const opt of this.querySelectorAll('option'))opt.toggleAttribute('selected',(opt.getAttribute('value')??opt.textContent)===v);}});
   const nativeCreate=document.createElement.bind(document);
@@ -71,7 +73,9 @@ async function load(page, script, state, search='') {
     form.reportValidity = () => true;
   }
   const location={href:`http://127.0.0.1:5500/${page}${search}`,search,hash:'',replace(value){this.destination=value;},reload(){this.reloaded=true;}};
-  const context = vm.createContext({setTimeout,TextEncoder,CustomEvent:document.defaultView.CustomEvent,document,location,window:{location,scrollY:0,addEventListener(){},matchMedia(){return {matches:false,addEventListener(){}};}},URL,URLSearchParams,console,Error,Date,FormData:class {
+  const windowEvents=document.createElement('window-events');
+  const testDate=options.clock?class extends Date{constructor(...args){super(...(args.length?args:[options.clock.now]));}static now(){return options.clock.now;}}:Date;
+  const context = vm.createContext({setTimeout,TextEncoder,CustomEvent:document.defaultView.CustomEvent,document,location,window:{location,scrollY:0,addEventListener:windowEvents.addEventListener.bind(windowEvents),dispatchEvent:windowEvents.dispatchEvent.bind(windowEvents),matchMedia:options.matchMedia||(()=>({matches:false,addEventListener(){}}))},URL,URLSearchParams,console,Error,Date:testDate,FormData:class {
     constructor(form){this.values=new Map([...form.querySelectorAll('[name]')].filter(el=>!el.disabled).map(el=>[el.name,el.value]));}
     get(key){return this.values.get(key)??null;}
   }});
@@ -86,7 +90,9 @@ async function load(page, script, state, search='') {
     await mod.link((specifier,parent)=>moduleFor(path.resolve(path.dirname(parent.identifier),specifier)));
     return mod;
   }
-  const mod=await moduleFor(path.resolve('js',script));await mod.evaluate();
+  const modules=[];
+  for(const name of Array.isArray(script)?script:[script])modules.push(await moduleFor(path.resolve('js',name)));
+  await Promise.all(modules.map(mod=>mod.evaluate()));
   return {document,location,context,async submit(selector,values={}){
     const form=document.querySelector(selector);for(const [k,v]of Object.entries(values))form.elements[k].value=v;
     form.dispatchEvent(new Event('submit',{cancelable:true}));
@@ -166,7 +172,7 @@ assert.equal(page.document.querySelector('#reset-form').hidden,true);assert.matc
 console.log(`${passed} comprobaciones aprobadas (DOM y Supabase simulado; no navegador real).`);
 
 state=backend({user:{...user,email_confirmed_at:null}});page=await load('mi-cuenta.html','account.js',state);assert.equal(state.registrations.length,0);assert.equal(state.profiles.length,0);assert.equal(page.location.destination,'login.html');ok('correo no confirmado nunca crea perfil ni folio');
-state=backend({user});page=await load('login.html','login.js',state,'?confirmed=1');state.session={user};
+state=backend({user});page=await load('login.html','login.js',state,'?confirmed=1');state.session={user};state.listeners.forEach(fn=>fn('SIGNED_IN',state.session));
 const prep=await page.moduleFor(path.resolve('js/prepare-account.js'));
 const results=await Promise.all([prep.namespace.prepareAccount(),prep.namespace.prepareAccount()]);assert.equal(state.registrations.length,1);assert.equal(results[0].registration.folio,results[1].registration.folio);ok('solicitudes simultáneas recuperan el mismo folio tras duplicado');
 state.registrations[0].status='cancelled';page=await load('mi-cuenta.html','account.js',state);assert.equal(state.registrations.length,1);assert.equal(state.registrations[0].status,'cancelled');ok('registro cancelado no se duplica ni reactiva');
@@ -213,10 +219,10 @@ assert.ok(!/text-decoration\s*:\s*underline/.test(fs.readFileSync('css/site.css'
 console.log('Total navegación: '+passed+' comprobaciones aprobadas.');
 
 state=backend({user});state.client.auth.getUser=async()=>({data:{user:null},error:{code:'user_not_found',status:403}});
-page=await load('index.html','navbar-auth.js',state);
-assert.equal(state.session,null);assert.equal(page.document.querySelector('.nav-actions [data-auth-guest]').hidden,false);assert.equal(page.document.querySelector('.nav-actions [data-auth-user]').hidden,true);ok('usuario eliminado limpia sesión y recupera registro e inicio de sesión');
+page=await load('mi-cuenta.html','account.js',state);
+assert.equal(state.session,null);assert.equal(page.location.destination,'login.html');assert.equal(page.document.querySelector('[data-private]').hidden,true);ok('usuario eliminado limpia sesión y bloquea acceso privado');
 state=backend({user});state.client.auth.getUser=async()=>({data:{user:null},error:{status:503}});
-page=await load('index.html','navbar-auth.js',state);
+page=await load('mi-cuenta.html','account.js',state);
 assert.ok(state.session);assert.equal(state.calls.filter(c=>c[0]==='signOut').length,0);ok('fallo temporal no elimina sesión almacenada');
 
 const initialActivity=JSON.parse(fs.readFileSync('data/activities-catalog.json','utf8'))[0];
@@ -404,4 +410,209 @@ agendaDocument.getElementById('resetAgenda').click();search(speakerLink.dataset.
 assert.ok(visibleCards().length>0);
 assert.ok(visibleCards().every(card=>card.textContent.includes(speakerLink.dataset.agendaQuery)));
 ok('filtros manuales de día, escenario y búsqueda conservados');
+// Performance regressions use event-driven modules and a controlled clock, not real services.
+const flush=async()=>{await new Promise(resolve=>setTimeout(resolve,10));await settle();};
+const rpcCount=(state,name)=>state.calls.filter(call=>call[0]==='rpc'&&call[1]===name).length;
+const fireWindow=(page,type)=>page.context.window.dispatchEvent(new page.document.defaultView.Event(type));
+const fireVisible=page=>page.document.dispatchEvent(new page.document.defaultView.Event('visibilitychange'));
+const clock={now:Date.now()};
+state=backend();state.activities=[{...openActivity}];
+const initialSessionRead=state.client.auth.getSession;
+state.client.auth.getSession=async()=>{const result=await initialSessionRead();state.emit('INITIAL_SESSION',state.session);return result;};
+page=await load('index.html',['navbar-auth.js','agenda-route.js'],state,'',{clock});
+assert.equal(state.authCalls.session,1);assert.equal(state.authCalls.user,0);
+assert.equal(rpcCount(state,'list_impulso_activities'),1);
+assert.ok(page.document.querySelector('.agenda-item'));
+ok('navbar y agenda concurrentes comparten sesión y hacen una sola carga pública sin getUser');
+for(let i=0;i<10;i++){fireWindow(page,'focus');fireVisible(page);fireWindow(page,'hashchange');}
+await flush();assert.equal(rpcCount(state,'list_impulso_activities'),1);
+clock.now+=120001;fireWindow(page,'focus');fireVisible(page);fireWindow(page,'focus');
+await flush();assert.equal(rpcCount(state,'list_impulso_activities'),2);
+ok('focus y visibility comparten límite de dos minutos; navegar no consulta ni crea bucles');
+fireWindow(page,'impulso-activities-changed');await flush();
+assert.equal(rpcCount(state,'list_impulso_activities'),3);
+const storageEvent=new page.document.defaultView.Event('storage');storageEvent.key='impulso-activities-changed';
+page.context.window.dispatchEvent(storageEvent);await flush();
+assert.equal(rpcCount(state,'list_impulso_activities'),4);
+ok('cambios locales y de otra pestaña actualizan agenda sin esperar al throttle');
+const publicRpc=state.client.rpc;
+state.client.rpc=async(name,args)=>{if(name==='admin_get_access'){state.calls.push(['rpc',name,args]);return {data:'staff'};}return publicRpc(name,args);};
+state.emit('SIGNED_IN',{user,access_token:'first'});await flush();
+assert.equal(rpcCount(state,'list_impulso_activities'),5);
+assert.equal(rpcCount(state,'get_my_impulso_route'),1);
+assert.equal(page.document.querySelector('[data-auth-user]').hidden,false);
+assert.equal(page.document.querySelector('[data-admin-link]').hidden,false);
+for(let i=0;i<5;i++)state.emit('SIGNED_IN',{user,access_token:'first'});
+state.emit('TOKEN_REFRESHED',{user,access_token:'second'});await flush();
+assert.equal(rpcCount(state,'list_impulso_activities'),5);
+assert.equal(rpcCount(state,'admin_get_access'),1);assert.equal(state.authCalls.user,0);
+ok('auth repetida y renovación de token no recargan catálogo ni permiso administrativo de UI');
+state.emit('SIGNED_OUT',null);await flush();
+assert.equal(page.document.querySelector('[data-admin-link]').hidden,true);
+assert.equal(page.document.querySelector('[data-auth-user]').hidden,true);
+state.emit('SIGNED_IN',{user:{...user,id:'user-b'}});await flush();
+assert.equal(rpcCount(state,'admin_get_access'),2);
+state.emit('SIGNED_IN',{user});await flush();
+assert.equal(rpcCount(state,'admin_get_access'),3);
+ok('cerrar sesión y cambiar usuario invalidan permiso de UI y refrescan la agenda');
+const sharedAuth=await page.moduleFor(path.resolve('js/auth.js'));
+const verifiedBefore=state.authCalls.user;
+await Promise.all([sharedAuth.namespace.getVerifiedSession(),sharedAuth.namespace.getVerifiedSession()]);
+assert.equal(state.authCalls.user,verifiedBefore+1);
+await sharedAuth.namespace.getVerifiedSession();assert.equal(state.authCalls.user,verifiedBefore+2);
+ok('verificación privada comparte solicitudes simultáneas pero vuelve a verificar acciones posteriores');
+const originalGetUser=state.client.auth.getUser;
+state.client.auth.getUser=async()=>{
+ state.emit('TOKEN_REFRESHED',{user,access_token:'renewed-during-verification'});
+ return originalGetUser();
+};
+assert.equal((await sharedAuth.namespace.getVerifiedSession()).access_token,'renewed-during-verification');
+let releaseVerification;
+state.client.auth.getUser=()=>new Promise(resolve=>{releaseVerification=resolve;});
+const oldVerification=sharedAuth.namespace.getVerifiedSession();await flush();
+state.emit('SIGNED_IN',{user:{...user,id:'user-c'}});
+releaseVerification({data:{user}});
+assert.equal(await oldVerification,null);await flush();
+ok('renovar token durante getUser conserva sesión; cambiar usuario invalida respuesta anterior');
+const beforeLocalEvent=rpcCount(state,'list_impulso_activities');
+page.document.dispatchEvent(new page.document.defaultView.Event('impulso-activities-changed'));await flush();
+assert.equal(rpcCount(state,'list_impulso_activities'),beforeLocalEvent+1);
+ok('evento local enviado en document también refresca agenda');
+
+// Navbar permission TTL: role changes become visible without restarting the session.
+{
+ const cacheClock={now:Date.now()},cacheState=backend({user});
+ let role=null,requests=0,activeRequests=0,maxRequests=0,releaseAccess=null,delayAccess=false;
+ cacheState.client.rpc=async name=>{
+  assert.equal(name,'admin_get_access');requests++;activeRequests++;maxRequests=Math.max(maxRequests,activeRequests);
+  const result=role;
+  if(delayAccess)await new Promise(resolve=>{releaseAccess=resolve;});
+  activeRequests--;return {data:result};
+ };
+ const cachePage=await load('index.html','navbar-auth.js',cacheState,'',{clock:cacheClock});
+ const links=()=>[...cachePage.document.querySelectorAll('[data-admin-link]')];
+ assert.ok(links().every(link=>link.hidden));assert.equal(requests,1);
+ role='staff';cacheClock.now+=119999;
+ for(let i=0;i<5;i++){fireWindow(cachePage,'focus');fireVisible(cachePage);}
+ await flush();assert.equal(requests,1);assert.ok(links().every(link=>link.hidden));
+ cacheClock.now+=2;
+ for(let i=0;i<5;i++){fireWindow(cachePage,'focus');fireVisible(cachePage);}
+ await flush();assert.equal(requests,2);assert.ok(links().every(link=>!link.hidden));
+ assert.equal(cacheState.authCalls.user,0);
+ ok('navbar conserva permiso menos de dos minutos y detecta nuevo staff al volver sin getUser');
+ role=null;cacheClock.now+=120001;
+ Object.defineProperty(cachePage.document,'hidden',{configurable:true,value:true});fireVisible(cachePage);fireWindow(cachePage,'focus');
+ await flush();assert.equal(requests,2);
+ Object.defineProperty(cachePage.document,'hidden',{configurable:true,value:false});fireVisible(cachePage);await flush();
+ assert.equal(requests,3);assert.ok(links().every(link=>link.hidden));
+ ok('visibility solo refresca cuando la página es visible y oculta el enlace tras revocar permisos');
+ role='staff';delayAccess=true;cacheClock.now+=120001;fireWindow(cachePage,'focus');await flush();
+ assert.equal(requests,4);
+ cacheClock.now+=120001;
+ for(let i=0;i<10;i++){fireWindow(cachePage,'focus');fireVisible(cachePage);cacheState.emit('SIGNED_IN',{user});}
+ await flush();assert.equal(requests,4);assert.equal(maxRequests,1);
+ releaseAccess();await flush();
+ fireWindow(cachePage,'focus');fireVisible(cachePage);await flush();assert.equal(requests,4);
+ assert.ok(links().every(link=>!link.hidden));
+ ok('caché vencida comparte consulta lenta y reinicia throttle al completarla');
+ cacheClock.now+=120001;fireWindow(cachePage,'focus');await flush();assert.equal(requests,5);
+ cacheState.emit('SIGNED_IN',{user:{...user,id:'cache-user-b'}});role=null;
+ await flush();assert.equal(requests,5);assert.ok(links().every(link=>link.hidden));
+ delayAccess=false;releaseAccess();await flush();
+ assert.equal(requests,6);assert.equal(maxRequests,1);assert.ok(links().every(link=>link.hidden));
+ cacheState.emit('SIGNED_OUT',null);fireWindow(cachePage,'focus');await flush();assert.equal(requests,6);
+ role='staff';cacheState.emit('SIGNED_IN',{user:{...user,id:'cache-user-b'}});await flush();
+ assert.equal(requests,7);assert.ok(links().every(link=>!link.hidden));
+ ok('cambio de usuario descarta respuesta anterior sin consultas paralelas; logout invalida la caché');
+}
+
+// A late response from user A must not restore their private route after sign-out.
+let resolveRoute;
+state=backend({user});state.activities=[{...openActivity}];
+page=await load('index.html','agenda-route.js',state,'',{clock});
+const normalRpc=state.client.rpc;
+state.client.rpc=async(name,args)=>name==='get_my_impulso_route'?new Promise(resolve=>{resolveRoute=resolve;}):normalRpc(name,args);
+fireWindow(page,'impulso-activities-changed');await flush();assert.equal(typeof resolveRoute,'function');
+state.emit('SIGNED_OUT',null);await flush();
+resolveRoute({data:[{activity_id:openActivity.id,status:'registered'}]});await flush();
+assert.equal(page.document.querySelector('.route-selected'),null);
+assert.equal(page.document.querySelector('.route-controls button').textContent,'ASISTIR');
+ok('respuestas privadas tardías no restauran ruta después de cerrar sesión');
+
+// Repeated return events must not launch parallel catalog requests.
+let releaseCatalog,concurrentCatalogs=0,maxConcurrentCatalogs=0;
+const normalCatalogRpc=state.client.rpc;
+state.client.rpc=async(name,args)=>{
+ if(name!=='list_impulso_activities')return normalCatalogRpc(name,args);
+ concurrentCatalogs++;maxConcurrentCatalogs=Math.max(maxConcurrentCatalogs,concurrentCatalogs);
+ if(!releaseCatalog)await new Promise(resolve=>{releaseCatalog=resolve;});
+ concurrentCatalogs--;return {data:[{...openActivity}]};
+};
+clock.now+=120001;fireWindow(page,'focus');await flush();
+for(let i=0;i<10;i++){fireWindow(page,'focus');fireVisible(page);}
+fireWindow(page,'impulso-activities-changed');fireWindow(page,'impulso-activities-changed');
+releaseCatalog();await flush();assert.equal(maxConcurrentCatalogs,1);
+assert.ok(page.document.querySelector('.agenda-item'));
+ok('consultas lentas se serializan y agrupan cambios pendientes sin duplicar solicitudes en vuelo');
+
+for(const [file,script] of [['mi-cuenta.html','account.js'],['pasaporte.html','passport.js']]){
+ state=backend({user});page=await load(file,['navbar-auth.js',script],state);
+ assert.equal(state.authCalls.session,1);assert.equal(state.authCalls.user,1);
+ assert.equal(page.document.querySelector('[data-private]').hidden,false);
+ ok(file+': usuario verificado una vez y navbar sin verificación adicional');
+}
+const routeClock={now:clock.now};
+state=backend({user});state.activities=[{...openActivity}];
+page=await load('pasaporte.html','passport.js',state,'',{clock:routeClock});
+for(let i=0;i<5;i++){fireWindow(page,'focus');fireVisible(page);}
+await flush();assert.equal(rpcCount(state,'get_my_impulso_route'),1);
+routeClock.now+=120001;fireWindow(page,'focus');fireVisible(page);await flush();
+assert.equal(rpcCount(state,'get_my_impulso_route'),2);
+ok('Mi ruta elimina polling y agrupa focus/visibility sin repetir getUser');
+
+state=backend({user});let accessChecks=0;
+state.client.rpc=async(name)=>{
+ if(name==='admin_get_access'){accessChecks++;return {data:'staff'};}
+ if(name==='admin_list_scenarios')return {data:[]};
+ throw Error('Unexpected '+name);
+};
+const adminClock={now:clock.now};page=await load('admin.html','admin.js',state,'',{clock:adminClock});
+for(let i=0;i<5;i++){fireWindow(page,'focus');fireVisible(page);state.emit('SIGNED_IN',{user});}
+await flush();assert.equal(accessChecks,1);assert.equal(state.authCalls.user,1);
+adminClock.now+=120001;fireWindow(page,'focus');fireVisible(page);await flush();
+assert.equal(accessChecks,2);assert.equal(state.authCalls.user,2);
+state.emit('SIGNED_OUT',null);
+assert.equal(page.document.querySelector('#admin-content').hidden,true);
+assert.equal(page.location.destination,'login.html?next=admin');
+ok('admin verifica remotamente al entrar y al regresar con throttle; logout bloquea inmediatamente');
+
+assert.doesNotMatch(landingSource,/lenis|smoothScroller|gsap\.ticker/i);
+for(const file of ['js/agenda-route.js','js/my-route.js'])assert.doesNotMatch(fs.readFileSync(file,'utf8'),/setInterval/);
+ok('sin Lenis, ticker asociado ni polling de agenda/ruta');
+const inlineScripts=[...parseHTML(landingSource).document.querySelectorAll('script:not([src])')].map(script=>script.textContent);
+for(const source of inlineScripts)new vm.Script(source);
+for(const file of fs.readdirSync('js').filter(file=>file.endsWith('.js')))new vm.SourceTextModule(fs.readFileSync(path.join('js',file),'utf8'));
+ok('sintaxis válida de todos los módulos y scripts inline');
+
+for(const mode of ['mobile','reduced','cdn-failure']){
+ const legacyListeners=[];
+ const matchMedia=query=>({matches:mode==='mobile'?query==='(any-pointer: coarse)':mode==='reduced'?query==='(prefers-reduced-motion: reduce)':query.includes('min-width: 821px'),addListener(listener){legacyListeners.push(listener);}});
+ page=await load('index.html','site-header.js',backend(),'',{matchMedia});
+ let intervals=0;
+ page.context.setInterval=()=>{intervals++;return 1;};page.context.clearInterval=()=>{intervals=0;};
+ page.context.requestAnimationFrame=callback=>callback();
+ page.context.window.IntersectionObserver=function(){};
+ const appended=[];const append=page.document.head.append.bind(page.document.head);
+ page.document.head.append=script=>{appended.push(script.src);append(script);script.onerror();};
+ for(const source of inlineScripts)vm.runInContext(source,page.context);
+ await flush();
+ assert.ok(legacyListeners.length>=3);
+ assert.equal(appended.length,mode==='cdn-failure'?1:0);
+ assert.notEqual(page.document.querySelector('.hero-title').style.opacity,'0');
+ assert.ok(page.document.getElementById('agendaSearch'));
+ page.document.querySelector('#menuToggle').click();assert.equal(page.document.querySelector('#mobileMenu').getAttribute('aria-hidden'),'false');
+ legacyListeners[0]({matches:true});assert.equal(page.document.querySelector('#mobileMenu').getAttribute('aria-hidden'),'true');
+ Object.defineProperty(page.document,'hidden',{configurable:true,value:true});fireVisible(page);assert.equal(intervals,0);
+ ok(mode+': contenido visible, filtros disponibles, menú compatible con addListener y contador pausado al ocultar');
+}
 console.log('TOTAL: '+passed+' comprobaciones de interfaz.');

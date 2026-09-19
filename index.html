@@ -748,9 +748,8 @@
     @media (prefers-reduced-motion: reduce){
       html{ scroll-behavior:auto; }
       *,*::before,*::after{
-        animation-duration:.01ms !important;
-        animation-iteration-count:1 !important;
-        transition-duration:.01ms !important;
+        animation:none !important;
+        transition:none !important;
       }
       .reveal{
         opacity:1 !important;
@@ -999,13 +998,6 @@
     </div>
   </footer>
 
-  <!-- GSAP -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-
-  <!-- Lenis -->
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-
   <script>
     /* =========================================================
        CONFIGURACIÓN GENERAL
@@ -1015,8 +1007,14 @@
       endDate: new Date("2026-10-16T18:00:00-06:00")
     };
 
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let prefersReducedMotion = reducedMotion.matches;
+    const motionChanged = event => { prefersReducedMotion = event.matches; };
+    if(reducedMotion.addEventListener) reducedMotion.addEventListener("change", motionChanged);
+    else reducedMotion.addListener(motionChanged);
+    const desktopMotionQuery = "(min-width: 821px) and (hover: hover) and (pointer: fine) and (any-pointer: fine) and (prefers-reduced-motion: no-preference)";
+    const desktopMotion = window.matchMedia(desktopMotionQuery);
+    const touchInput = window.matchMedia("(any-pointer: coarse)");
 
     /* =========================================================
        COUNTDOWN
@@ -1056,15 +1054,27 @@
       s.textContent = String(seconds).padStart(2,"0");
     }
 
-    updateCountdown();
-    setInterval(updateCountdown,1000);
+    let countdownTimer;
+    function resumeCountdown(){
+      clearInterval(countdownTimer);
+      if(document.hidden) return;
+      updateCountdown();
+      if(Date.now() < eventConfig.endDate.getTime()) countdownTimer = setInterval(updateCountdown,1000);
+    }
+    resumeCountdown();
+    document.addEventListener("visibilitychange", resumeCountdown);
 
     /* =========================================================
        AGENDA FILTERS
     ========================================================= */
     let selectedDay = "all";
     let selectedStage = "all";
-    let smoothScroller = null;
+    let animationRefreshPending = false;
+    function refreshAnimations(){
+      if(!window.ScrollTrigger || prefersReducedMotion || !desktopMotion.matches || touchInput.matches || animationRefreshPending) return;
+      animationRefreshPending = true;
+      requestAnimationFrame(() => { animationRefreshPending = false; ScrollTrigger.refresh(); });
+    }
     let agendaItems = [];
     const searchInput = document.getElementById("agendaSearch");
     const normalizeSearch = text => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -1098,9 +1108,7 @@
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
       });
-      if(window.ScrollTrigger && !prefersReducedMotion){
-        requestAnimationFrame(() => ScrollTrigger.refresh());
-      }
+      refreshAnimations();
     }
     document.querySelectorAll("button[data-day]").forEach(button => {
       button.addEventListener("click", () => { selectedDay = button.dataset.day; applyAgendaFilters(); });
@@ -1120,15 +1128,10 @@
         requestAnimationFrame(() => {
           const offset = document.getElementById("siteHeader").getBoundingClientRect().height + 20;
           agenda.focus({ preventScroll:true });
-          if(smoothScroller){
-            smoothScroller.resize();
-            smoothScroller.scrollTo(agenda, { offset:-offset, force:true });
-          }else{
-            window.scrollTo({
-              top:Math.max(0, agenda.getBoundingClientRect().top + window.scrollY - offset),
-              behavior:prefersReducedMotion ? "instant" : "smooth"
-            });
-          }
+          window.scrollTo({
+            top:Math.max(0, agenda.getBoundingClientRect().top + window.scrollY - offset),
+            behavior:prefersReducedMotion ? "auto" : "smooth"
+          });
           if(window.location.hash !== "#agenda"){
             history.pushState(null, "", "#agenda");
           }
@@ -1158,7 +1161,7 @@
       selectedDay = 'all'; selectedStage = 'all'; searchInput.value = '';
       agendaLimit = agendaItems.length; applyAgendaFilters(false);
       target.setAttribute('tabindex', '-1');
-      requestAnimationFrame(() => { target.scrollIntoView({block:'start',behavior:'smooth'}); target.focus({preventScroll:true}); });
+      requestAnimationFrame(() => { target.scrollIntoView({block:'start',behavior:prefersReducedMotion ? 'auto' : 'smooth'}); target.focus({preventScroll:true}); });
     });
 
     /* Keep only one disclosure open within each section. */
@@ -1174,130 +1177,76 @@
       });
     });
 
-    /* =========================================================
-       GSAP / LENIS
-    ========================================================= */
-    if(!prefersReducedMotion && window.gsap && window.ScrollTrigger){
-      gsap.registerPlugin(ScrollTrigger);
-      document.querySelectorAll("details").forEach(detail => {
-        detail.addEventListener("toggle", () => ScrollTrigger.refresh());
-      });
-
-      if(window.Lenis){
-      const lenis = new Lenis({
-        duration:1.05,
-        smoothWheel:true,
-        touchMultiplier:1.1
-      });
-      smoothScroller = lenis;
-
-      lenis.on("scroll", ScrollTrigger.update);
-
-      gsap.ticker.add((time) => {
-        lenis.raf(time * 1000);
-      });
-
-      gsap.ticker.lagSmoothing(0);
-      }
-
-      /* HERO */
-      const heroElements = [
-        ...document.querySelectorAll('.hero-title .line > span'),
-        document.querySelector('.hero-description'),
-        document.querySelector('.hero-bottom')
-      ];
-      gsap.fromTo(heroElements, { opacity:0, y:20 }, {
-        opacity:1, y:0, duration:.8, stagger:.1,
-        ease:t => 1 - Math.pow(1 - t, 4)
-      });
-
-      /* GENERAL REVEALS */
-      gsap.utils.toArray(".reveal").forEach((el) => {
-        gsap.fromTo(el,{ opacity:0, y:20 },{
-          opacity:1,
-          y:0,
-          duration:.9,
-          ease:"power3.out",
-          scrollTrigger:{
-            trigger:el,
-            start:"top 88%",
-            once:true
-          }
-        });
-      });
-
-      /* IMAGE / BLOCK CLIP REVEALS */
-      gsap.utils.toArray(".clip-reveal").forEach((el) => {
-        gsap.fromTo(el,{ clipPath:"inset(8% 0 0 0)" },{
-          clipPath:"inset(0% 0 0 0)",
-          duration:.8,
-          ease:"power4.inOut",
-          scrollTrigger:{
-            trigger:el,
-            start:"top 84%",
-            once:true
-          }
-        });
-      });
-
-      /* PARALLAX */
-      if(!isTouch){
-        gsap.to(".parallax-slow",{
-          yPercent:4,
-          ease:"none",
-          scrollTrigger:{
-            trigger:".hero",
-            start:"top top",
-            end:"bottom top",
-            scrub:true
-          }
-        });
-      }
-
-      /* COUNTERS */
-      document.querySelectorAll(".stat-number[data-target]").forEach(counter => {
-        const target = Number(counter.dataset.target);
-
-        ScrollTrigger.create({
-          trigger:counter,
-          start:"top 90%",
-          once:true,
-          onEnter:() => {
-            const obj = { value:0 };
-            gsap.to(obj,{
-              value:target,
-              duration:1.25,
-              ease:"power3.out",
-              onUpdate:() => {
-                counter.textContent = Math.round(obj.value);
-              }
-            });
-          }
-        });
-      });
-
-      /* STAGE MEDIA HOVER */
-      document.querySelectorAll(".stage").forEach(stage => {
-        const media = stage.querySelector(".stage-media");
-
-        stage.addEventListener("mouseenter", () => {
-          gsap.to(media,{ scale:1.025, duration:.7, ease:"power3.out" });
-        });
-
-        stage.addEventListener("mouseleave", () => {
-          gsap.to(media,{ scale:1, duration:.7, ease:"power3.out" });
-        });
-      });
-
-    }else{
-      document.querySelectorAll(".reveal").forEach(el => {
-        el.style.opacity = "1";
-        el.style.transform = "none";
-      });
-      document.querySelectorAll(".clip-reveal").forEach(el => {
-        el.style.clipPath = "none";
+    /* Desktop motion is optional; content is visible before scripts load. */
+    let animationLoading = false;
+    function loadAnimationScript(src){
+      return new Promise((resolve,reject) => {
+        const script = document.createElement("script");
+        script.src = src; script.async = true;
+        script.onload = resolve; script.onerror = reject;
+        document.head.append(script);
       });
     }
+    async function enableDesktopMotion(){
+      if(animationLoading || !desktopMotion.matches || touchInput.matches || !("IntersectionObserver" in window)) return;
+      animationLoading = true;
+      let media;
+      try{
+        await loadAnimationScript("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js");
+        await loadAnimationScript("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js");
+        gsap.registerPlugin(ScrollTrigger);
+        media = gsap.matchMedia();
+        media.add({desktop:desktopMotionQuery,touch:"(any-pointer: coarse)"}, context => {
+          if(!context.conditions.desktop || context.conditions.touch) return;
+          const counters = [...document.querySelectorAll(".stat-number[data-target]")];
+          const originals = counters.map(counter => counter.textContent);
+          gsap.fromTo([...document.querySelectorAll('.hero-title .line > span'),document.querySelector('.hero-description'),document.querySelector('.hero-bottom')],
+            {opacity:0,y:20},{opacity:1,y:0,duration:.8,stagger:.1,ease:"power3.out",clearProps:"opacity,transform"});
+          // One observer replaces per-element ScrollTriggers. Animate only on entry.
+          const observer = new IntersectionObserver(entries => {
+            if(prefersReducedMotion || !desktopMotion.matches || touchInput.matches) return;
+            for(const entry of entries){
+              if(!entry.isIntersecting) continue;
+              observer.unobserve(entry.target);
+              context.add(() => {
+                const el = entry.target;
+                if(el.matches(".stat-number[data-target]")){
+                  const value = {number:0};
+                  gsap.to(value,{number:Number(el.dataset.target),duration:1.25,ease:"power3.out",onUpdate:()=>{el.textContent=Math.round(value.number);}});
+                }else if(el.matches(".clip-reveal")){
+                  gsap.fromTo(el,{clipPath:"inset(8% 0 0 0)"},{clipPath:"inset(0% 0 0 0)",duration:.8,ease:"power4.inOut",clearProps:"clipPath"});
+                }else{
+                  gsap.fromTo(el,{opacity:0,y:20},{opacity:1,y:0,duration:.9,ease:"power3.out",clearProps:"opacity,transform"});
+                }
+              });
+            }
+          },{rootMargin:"0px 0px -12% 0px"});
+          document.querySelectorAll(".reveal,.clip-reveal,.stat-number[data-target]").forEach(el=>observer.observe(el));
+          // Only the desktop hero needs a scroll-linked animation.
+          gsap.to(".parallax-slow",{yPercent:4,ease:"none",scrollTrigger:{trigger:".hero",start:"top top",end:"bottom top",scrub:true}});
+          const cleanups = [];
+          document.querySelectorAll(".stage").forEach(stage => {
+            const target = stage.querySelector(".stage-media");
+            const enter = () => context.add(()=>gsap.to(target,{scale:1.025,duration:.7,ease:"power3.out",overwrite:"auto"}));
+            const leave = () => context.add(()=>gsap.to(target,{scale:1,duration:.7,ease:"power3.out",overwrite:"auto"}));
+            stage.addEventListener("mouseenter",enter);stage.addEventListener("mouseleave",leave);
+            cleanups.push(()=>{stage.removeEventListener("mouseenter",enter);stage.removeEventListener("mouseleave",leave);});
+          });
+          document.querySelectorAll("details").forEach(detail=>detail.addEventListener("toggle",refreshAnimations));
+          return () => {
+            observer.disconnect();cleanups.forEach(cleanup=>cleanup());
+            counters.forEach((counter,index)=>{counter.textContent=originals[index];});
+            document.querySelectorAll("details").forEach(detail=>detail.removeEventListener("toggle",refreshAnimations));
+          };
+        });
+      }catch{
+        // CDN failure must never hide content or block filters/authentication.
+        media?.revert();
+      }
+    }
+    if(desktopMotion.addEventListener) desktopMotion.addEventListener("change",enableDesktopMotion);
+    else desktopMotion.addListener(enableDesktopMotion);
+    void enableDesktopMotion();
   </script>
   <script type="module" src="js/site-header.js"></script>
   <script type="module" src="js/navbar-auth.js"></script>

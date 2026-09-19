@@ -29,7 +29,7 @@ try {
    render(await prepareAccount());
    message('Perfil guardado correctamente.');
   });
-  render(await prepareAccount());
+  render(await prepareAccount(user));
   await loadRouteCount();
  }
 } catch (error) {

@@ -30,7 +30,10 @@ if (mount) {
    else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}
   }
  });
- window.matchMedia('(min-width:1101px)').addEventListener('change',event=>{if(event.matches)closeMenu();});
+ const desktop = window.matchMedia('(min-width:1101px)');
+ const onDesktopChange = event=>{if(event.matches)closeMenu();};
+ if(desktop.addEventListener)desktop.addEventListener('change',onDesktopChange);
+ else desktop.addListener(onDesktopChange);
  menu.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>closeMenu()));
  const file=location.pathname?.split('/').pop();
  header.querySelectorAll('a[href]').forEach(link=>{if(link.getAttribute('href')===file)link.setAttribute('aria-current','page');});

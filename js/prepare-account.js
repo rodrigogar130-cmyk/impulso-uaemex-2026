@@ -1,11 +1,10 @@
-import { client } from './supabase-client.js';
+import { getVerifiedSession } from './auth.js';
 import { ensureProfile } from './profile.js';
 import { getEvent, ensureRegistration } from './event-registration.js';
 // Solo después del acceso autenticado; nunca desde signUp.
-export async function prepareAccount() {
-  const { data, error } = await client().auth.getUser();
-  if (error) throw error;
-  const user = data.user;
+export async function prepareAccount(verifiedUser) {
+  // Only pass a user just returned by requireUser/getVerifiedSession in this operation.
+  const user = verifiedUser || (await getVerifiedSession())?.user;
   if (!user?.email_confirmed_at) throw new Error('Confirma tu correo antes de continuar.');
   const profile = await ensureProfile(user);
   if (!profile) return { user, profile: null, event: null, registration: null };

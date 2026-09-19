@@ -1,4 +1,4 @@
-import { getSession,onAuthStateChange } from './auth.js';
+import { getVerifiedSession,onAuthStateChange } from './auth.js';
 import { adminCall,adminError } from './admin-api.js';
 import { element,formatActivityTime,scenarioName } from './route-ui.js';
 const content=document.querySelector('#admin-content'),view=document.querySelector('#admin-view'),message=document.querySelector('#admin-message');
@@ -110,9 +110,20 @@ async function detail(id){await run(async current=>{
 });}
 function navigate(next){section=next;document.querySelectorAll('[data-section]').forEach(b=>b.setAttribute('aria-current',b.dataset.section===next?'page':'false'));view.replaceChildren();return next==='dashboard'?dashboard():next==='activities'?activities():users(next==='routes');}
 document.querySelectorAll('[data-section]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.section)));
-async function checkAccess(){
+let accessPromise=null, checkAgain=false, lastAccessCheck=0;
+function checkAccess(){
+  if(accessPromise){checkAgain=true;return accessPromise;}
+  accessPromise=(async()=>{
+    do{checkAgain=false;await verifyAccess();}while(checkAgain);
+  })().finally(()=>{lastAccessCheck=Date.now();accessPromise=null;});
+  return accessPromise;
+}
+function checkOnReturn(){
+  if(!document.hidden&&!accessPromise&&Date.now()-lastAccessCheck>=120000)void checkAccess();
+}
+async function verifyAccess(){
   const current=++accessRevision;
-  try{const session=await getSession();if(current!==accessRevision)return;
+  try{const session=await getVerifiedSession();if(current!==accessRevision)return;
     if(!session){revision++;identity=null;content.hidden=true;view.replaceChildren();location.replace('login.html?next=admin');return;}
     if(identity!==session.user.id){revision++;content.hidden=true;view.replaceChildren();}
     const role=await adminCall('admin_get_access');if(current!==accessRevision)return;
@@ -121,6 +132,12 @@ async function checkAccess(){
     if(identity!==session.user.id||roleChanged){identity=session.user.id;content.hidden=false;await navigate(role==='super_admin'?'dashboard':'activities');}
   }catch(error){if(current===accessRevision){identity=null;revision++;content.hidden=true;view.replaceChildren();fail(error);}}
 }
-onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){accessRevision++;revision++;identity=null;content.hidden=true;view.replaceChildren();location.replace('login.html?next=admin');}else if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED')setTimeout(checkAccess,0);});
-window.addEventListener('focus',checkAccess);
+onAuthStateChange((event,session)=>{
+  if(event==='SIGNED_OUT'){accessRevision++;revision++;identity=null;content.hidden=true;view.replaceChildren();location.replace('login.html?next=admin');}
+  else if(session&&identity&&session.user.id!==identity){
+    accessRevision++;revision++;identity=null;content.hidden=true;view.replaceChildren();setTimeout(checkAccess,0);
+  }
+});
+window.addEventListener('focus',checkOnReturn);
+document.addEventListener('visibilitychange',checkOnReturn);
 await checkAccess();

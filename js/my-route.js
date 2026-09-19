@@ -1,4 +1,4 @@
-import { getSession,onAuthStateChange } from './auth.js';
+import { getLocalSession,getVerifiedSession,onAuthStateChange } from './auth.js';
 import { getMyRoute, setSelection, routeError } from './activities.js';
 import { calendarReady, downloadRoute, googleCalendarUrl } from './calendar.js';
 import { element, calendarActions, formatActivityTime, scenarioName } from './route-ui.js';
@@ -11,10 +11,22 @@ export async function loadMyRoute(){
   const exportButton=root.querySelector('[data-export-route]');
   const exportPanel=root.querySelector('[data-export-options]');
   let route=[],busy=false,revision=0;
-  async function refresh(){
+  let refreshPromise=null, refreshAgain=false, lastRefresh=0;
+  function refresh(){
+    if(refreshPromise){refreshAgain=true;revision++;return refreshPromise;}
+    refreshPromise=(async()=>{
+      do{refreshAgain=false;await load();}while(refreshAgain);
+    })().finally(()=>{lastRefresh=Date.now();refreshPromise=null;});
+    return refreshPromise;
+  }
+  function refreshOnReturn(){
+    if(!document.hidden&&!busy&&!refreshPromise&&Date.now()-lastRefresh>=120000)void refresh();
+  }
+  async function load(){
     const current=++revision;
     try{
-      const session=await getSession();
+      const session=await getLocalSession();
+      if(current!==revision)return;
       if(!session){route=[];list.replaceChildren();exportButton.hidden=true;exportPanel.hidden=true;return;}
       const rows=await getMyRoute();if(current!==revision)return;
       route=rows;message.textContent='';
@@ -32,7 +44,11 @@ export async function loadMyRoute(){
         const remove=element('button','QUITAR DE MI RUTA','btn btn-outline');remove.type='button';
         remove.addEventListener('click',async()=>{
           if(busy)return;busy=true;remove.disabled=true;message.textContent='Actualizando tu ruta…';
-          try{await setSelection(row.activity_id,'cancelled');await refresh();message.textContent='Actividad retirada de tu ruta. Si la guardaste en tu calendario personal, elimínala también allí.';}
+          try{
+            const verified=await getVerifiedSession();
+            if(!verified||verified.user.id!==session.user.id){location.replace('login.html');return;}
+            await setSelection(row.activity_id,'cancelled');await refresh();message.textContent='Actividad retirada de tu ruta. Si la guardaste en tu calendario personal, elimínala también allí.';
+          }
           catch(error){message.textContent=routeError(error);}
           finally{busy=false;remove.disabled=false;}
         });card.append(remove);list.append(card);
@@ -50,10 +66,11 @@ export async function loadMyRoute(){
     for(const a of exportable){const link=element('a',a.title,'btn btn-outline');link.href=googleCalendarUrl(a);link.target='_blank';link.rel='noopener noreferrer';exportPanel.append(link);}
   };
   onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){revision++;route=[];list.replaceChildren();exportButton.hidden=true;exportPanel.hidden=true;}});
-  window.addEventListener('focus',()=>{if(!busy)refresh();});
+  window.addEventListener('focus',refreshOnReturn);
+  document.addEventListener('visibilitychange',refreshOnReturn);
   window.addEventListener('storage',event=>{if(event.key==='impulso-activities-changed'&&!busy)refresh();});
-  const timer=globalThis.setInterval?.(()=>{if(!document.hidden&&!busy)refresh();},30000);
-  window.addEventListener('pagehide',()=>globalThis.clearInterval?.(timer));
+  document.addEventListener('impulso-activities-changed',()=>refresh());
+  window.addEventListener('impulso-activities-changed',event=>{if(event.target!==document)refresh();});
   await refresh();
 }
 export async function loadRouteCount(){

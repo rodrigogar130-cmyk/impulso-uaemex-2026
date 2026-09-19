@@ -1,4 +1,4 @@
-import { getSession, onAuthStateChange } from './auth.js';
+import { getLocalSession, getVerifiedSession, onAuthStateChange } from './auth.js';
 import { prepareAccount } from './prepare-account.js';
 import { supabase } from './supabase-client.js';
 import { listActivities, getMyRoute, setSelection, routeError } from './activities.js';
@@ -69,11 +69,11 @@ function render(){
       const currentVersion=version;
       pending.add(a.id);button.disabled=true;button.textContent='CARGANDO...';button.setAttribute('aria-busy','true');
       try{
-        const current=await getSession();
+        const current=await getVerifiedSession();
         if(!current){session=null;selections.clear();render();openAccess(a.slug,card.querySelector('button'));return;}
         if(current.user.id!==session.user.id){await refresh();return;}
         if(!selected){
-          const ready=await prepareAccount();
+          const ready=await prepareAccount(current.user);
           if(!ready.profile){location.href='mi-cuenta.html';return;}
           if(ready.registration?.status!=='confirmed')throw {message:'EVENT_REGISTRATION_REQUIRED'};
         }
@@ -99,10 +99,21 @@ function render(){
   }
   document.dispatchEvent(new CustomEvent('impulso:agenda-updated'));
 }
-async function refresh(){
+let refreshPromise=null, refreshAgain=false, lastRefresh=0;
+function refresh(){
+  if(refreshPromise){refreshAgain=true;version++;return refreshPromise;}
+  refreshPromise=(async()=>{
+    do{refreshAgain=false;await loadAgenda();}while(refreshAgain);
+  })().finally(()=>{lastRefresh=Date.now();refreshPromise=null;});
+  return refreshPromise;
+}
+function refreshOnReturn(){
+  if(!document.hidden&&!pending.size&&!refreshPromise&&Date.now()-lastRefresh>=120000)void refresh();
+}
+async function loadAgenda(){
   const current=++version;
   let active=null;
-  try{active=await getSession();}catch{ /* Mantener la agenda pública. */ }
+  try{active=await getLocalSession();}catch{ /* Mantener la agenda pública. */ }
   if(current!==version)return;
   if(session?.user.id!==active?.user.id)selections.clear();
   session=active;
@@ -127,14 +138,18 @@ async function refresh(){
 }
 render();
 if(supabase){
-  onAuthStateChange((event)=>{
-    if(event==='SIGNED_OUT'){version++;session=null;selections.clear();render();}
-    else if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED')setTimeout(refresh,0);
+  try{session=await getLocalSession();}catch{}
+  onAuthStateChange((_event, active)=>{
+    if(session?.user.id===active?.user.id){session=active;return;}
+    version++;session=active;selections.clear();render();
+    // Defer all SDK work until the auth callback has released its lock.
+    setTimeout(refresh,0);
   });
-  window.addEventListener('focus',refresh);
+  window.addEventListener('focus',refreshOnReturn);
+  document.addEventListener('visibilitychange',refreshOnReturn);
   window.addEventListener('storage',event=>{if(event.key==='impulso-activities-changed')refresh();});
-  const timer=globalThis.setInterval?.(()=>{if(!document.hidden&&!pending.size)refresh();},30000);
-  window.addEventListener('pagehide',()=>globalThis.clearInterval?.(timer));
+  document.addEventListener('impulso-activities-changed',()=>refresh());
+  window.addEventListener('impulso-activities-changed',event=>{if(event.target!==document)refresh();});
   await refresh();
 }
 const destination=requestedActivity();

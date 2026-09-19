@@ -4,7 +4,7 @@ import { loadMyRoute } from './my-route.js';
 try {
  const user = await privatePage();
  if (user) {
-  const { profile, registration } = await prepareAccount();
+  const { profile, registration } = await prepareAccount(user);
   if (!profile) location.replace('mi-cuenta.html');
   else {
    const confirmed = registration?.status === 'confirmed';
