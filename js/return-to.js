@@ -12,7 +12,8 @@ export function requestedActivity() {
 export function authLink(page, slug = requestedActivity()) {
   const parameters = new URLSearchParams();
   if (routeDestination(slug)) parameters.set('activity', slug);
-  if (new URLSearchParams(location.search).get('next') === 'admin') parameters.set('next', 'admin');
+  const next=new URLSearchParams(location.search).get('next');
+  if (['admin','account','passport'].includes(next)) parameters.set('next',next);
   const query = parameters.toString();
   return page + (query ? '?' + query : '');
 }
@@ -21,14 +22,30 @@ export function googleReturnPath() {
   if (slug) rememberActivity(slug);
   return authLink('completar-registro.html', slug);
 }
-export function afterLogin() { return new URLSearchParams(location.search).get('next')==='admin' ? 'admin.html' : routeDestination(requestedActivity()) || 'mi-cuenta.html'; }
+export function afterLogin() {
+  const next=new URLSearchParams(location.search).get('next');
+  const destinations={admin:'admin.html',account:'mi-cuenta.html',passport:'pasaporte.html'};
+  return (Object.hasOwn(destinations,next)?destinations[next]:null) || routeDestination(requestedActivity()) || 'mi-cuenta.html';
+}
+export function privateDestination(){
+  const file=location.pathname?.split('/').pop();
+  return ['mi-cuenta.html','pasaporte.html','admin.html'].includes(file)?file:afterLogin();
+}
+export function privacyLink(destination=privateDestination()){
+  const params=new URLSearchParams();
+  const destinations={'admin.html':'admin','mi-cuenta.html':'account','pasaporte.html':'passport'};
+  const next=Object.hasOwn(destinations,destination)?destinations[destination]:null;
+  const activity=/^index\.html\?activity=([a-z0-9-]{1,180})#arma-tu-ruta$/.exec(destination)?.[1];
+  if(next)params.set('next',next);else if(activity)params.set('activity',activity);
+  return 'aceptar-privacidad.html'+(params.toString()?'?'+params:'');
+}
 export function confirmationPath() {
   const slug = requestedActivity();
   return 'login.html?confirmed=1' + (slug ? '&activity=' + encodeURIComponent(slug) : '');
 }
 export function preserveAuthLinks() {
   const slug = requestedActivity();
-  if (!slug && new URLSearchParams(location.search).get('next') !== 'admin') return;
+  if (!slug && !['admin','account','passport'].includes(new URLSearchParams(location.search).get('next'))) return;
   document.querySelectorAll('a[href="login.html"],a[href="registro.html"]').forEach(link => {
     link.href = authLink(link.getAttribute('href'), slug);
   });

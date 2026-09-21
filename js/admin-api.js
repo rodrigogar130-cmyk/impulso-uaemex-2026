@@ -6,6 +6,9 @@ export async function adminCall(name,args={}) {
 }
 export function adminError(error){
   const code=error?.message||'';
+  if(code.includes('ACTIVITY_HAS_REGISTRATIONS'))return 'No se puede eliminar porque esta actividad tiene participantes registrados. Cámbiala a CANCELADA para retirarla de la agenda sin perder el historial.';
+  if(code.includes('INVALID_ACTIVITY_STATUS'))return 'Selecciona un estado válido.';
+  if(code.includes('EVENT_UNAVAILABLE'))return 'El festival no está disponible para crear actividades.';
   if(code.includes('SCENARIO_ADMIN_REQUIRED'))return 'No tienes permiso para administrar este escenario. Vuelve a escenarios para consultar tus accesos.';
   if(code.includes('SUPER_ADMIN_REQUIRED'))return 'Esta consulta requiere permisos de superadministrador.';
   if(code.includes('ADMIN_REQUIRED'))return 'No tienes permisos para acceder a esta sección.';

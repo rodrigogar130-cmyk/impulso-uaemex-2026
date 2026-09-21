@@ -1,6 +1,8 @@
 import { getVerifiedSession,onAuthStateChange } from './auth.js?v=20260921-4';
 import { adminCall,adminError } from './admin-api.js?v=20260921-4';
 import { element,formatActivityTime,scenarioName } from './route-ui.js?v=20260921-4';
+import { ensureProfile } from './profile.js?v=20260921-4';
+import { requirePrivacyAcknowledgement } from './privacy.js?v=20260921-4';
 const content=document.querySelector('#admin-content'),view=document.querySelector('#admin-view'),message=document.querySelector('#admin-message');
 let accessRevision=0,revision=0,identity=null,section='dashboard';
 let adminRole=null,allowedScenarios=[];
@@ -40,7 +42,7 @@ async function activities(){await run(async current=>{
     }
     if(!grid.children.length)grid.append(element('p',scenarios.length?'No hay escenarios que coincidan.':'No tienes escenarios asignados.'));
   }
-  search.addEventListener('input',draw);view.replaceChildren(breadcrumb(),element('h2','Actividades'),search,grid);draw();
+  search.addEventListener('input',draw);view.replaceChildren(breadcrumb(),element('h2','Actividades'),...(scenarios.length?[button('+ NUEVA ACTIVIDAD',()=>detail(null))]:[]),search,grid);draw();
 });}
 async function scenarioActivities(scenario){await run(async current=>{
   const rows=await adminCall('admin_list_activities',{p_scenario:scenario});if(!current())return;
@@ -51,7 +53,7 @@ async function scenarioActivities(scenario){await run(async current=>{
     results.replaceChildren(table(['ACTIVIDAD','FECHA / HORA','UBICACIÓN','ESTADO','SELECCIONARON','VER / EDITAR'],filtered.map(a=>[a.title,formatActivityTime(a),a.location,statusBadge(a.status),a.selected_count,button('VER / EDITAR',()=>detail(a.id))])));
     if(!filtered.length)results.append(element('p','No hay actividades que coincidan.'));
   }
-  search.addEventListener('input',draw);state.addEventListener('change',draw);view.replaceChildren(breadcrumb(editorScenarios[scenario]),button('← VOLVER A ESCENARIOS',activities),element('h2',editorScenarios[scenario]),element('p',`${rows.length} actividades`),search,state,results);draw();
+  search.addEventListener('input',draw);state.addEventListener('change',draw);view.replaceChildren(breadcrumb(editorScenarios[scenario]),button('← VOLVER A ESCENARIOS',activities),element('h2',editorScenarios[scenario]),button('+ AGREGAR ACTIVIDAD',()=>detail(null,scenario)),element('p',`${rows.length} actividades`),search,state,results);draw();
 });}
 async function users(onlyRoutes=false,query='',offset=0){await run(async current=>{
   const data=await adminCall('admin_list_users',{p_search:query,p_offset:offset,p_limit:pageSize,p_only_routes:onlyRoutes});if(!current())return;
@@ -63,14 +65,20 @@ async function userRoute(user){await run(async current=>{
   const rows=await adminCall('admin_get_user_route',{p_user_id:user.user_id});if(!current())return;
   view.replaceChildren(button('VOLVER',()=>users(section==='routes')),element('h2',`${user.nombre} ${user.apellidos}`),element('p',user.folio),element('p',`${rows.length} actividades seleccionadas`),table(['ACTIVIDAD','FECHA / HORA','ESCENARIO','UBICACIÓN'],rows.map(a=>[a.title,formatActivityTime(a),scenarioName(a.scenario),a.location])));
 });}
-async function detail(id){await run(async current=>{
-  const activity=await adminCall('admin_get_activity',{p_activity_id:id});if(!current())return;
+async function detail(id,initialScenario=null){await run(async current=>{
+  const creating=!id;
+  const activity=creating?{status:'draft',scenario:initialScenario}:await adminCall('admin_get_activity',{p_activity_id:id});if(!current())return;
   const scenarios=await adminCall('admin_list_scenarios');if(!current())return;allowedScenarios=scenarios;
-  const back=()=>scenarioActivities(activity.scenario);
+  if(creating){
+    if(!scenarios.length){say('No tienes escenarios asignados.');return false;}
+    activity.scenario=initialScenario||scenarios[0].scenario;
+  }
+  const back=()=>(initialScenario||!creating)?scenarioActivities(activity.scenario):activities();
   const form=element('form',undefined,'admin-edit'),grid=element('div',undefined,'form-grid'),fields={};
   for(const [key,label,type] of [['title','Título','text'],['scenario','Escenario','select'],['slug','Slug','text'],['speaker','PONENTE(S)','text'],['activity_date','Fecha','date'],['start_time','Hora de inicio','time'],['end_time','Hora de término','time'],['location','Ubicación','text'],['description','Descripción','textarea'],['status','Estado','select']]){
+    if(creating&&key==='slug')continue;
     const wrap=element('label',label,key==='description'?'full':''),input=element(type==='textarea'?'textarea':type==='select'?'select':'input');input.name=key;
-    if(type==='select'){for(const value of key==='scenario'?allowedScenarios.map(s=>s.scenario):['draft','open','closed','cancelled']){const opt=element('option',key==='scenario'?editorScenarios[value]:value.toUpperCase());opt.value=value;input.append(opt);}}
+    if(type==='select'){for(const value of key==='scenario'?allowedScenarios.map(s=>s.scenario):['draft','open','closed','cancelled']){const opt=element('option',key==='scenario'?editorScenarios[value]:({draft:'BORRADOR',open:'OPEN',closed:'CERRADA',cancelled:'CANCELADA'}[value]));opt.value=value;input.append(opt);}}
     else if(type!=='textarea')input.type=type;
     input.value=activity[key]||'';
     if(key==='slug')input.readOnly=true;
@@ -79,12 +87,14 @@ async function detail(id){await run(async current=>{
     if(type==='time'){const clear=button('QUITAR HORA',()=>{input.value='';});clear.className='clear-time';wrap.append(clear);}
     grid.append(wrap);
   }
-  const controls=element('div',undefined,'actions'),save=element('button','GUARDAR CAMBIOS','btn');save.type='submit';
-  controls.append(button('CANCELAR',back),button('RECARGAR DATOS',()=>detail(id)),save);
+  const controls=element('div',undefined,'actions'),save=element('button',creating?'CREAR ACTIVIDAD':'GUARDAR CAMBIOS','btn');save.type='submit';
+  controls.append(button('CANCELAR',back));
+  if(!creating)controls.append(button('RECARGAR DATOS',()=>detail(id)));
+  controls.append(save);
   form.append(grid,controls);
   const audit=element('p',activity.updated_at?`Última modificación: ${new Date(activity.updated_at).toLocaleString('es-MX')} · Administrador: ${activity.updated_by||'Usuario eliminado'}`:'Sin modificaciones administrativas.','admin-audit');
   form.addEventListener('submit',async event=>{
-    event.preventDefault();if(save.disabled)return;
+    event.preventDefault();if(save.disabled||!current())return;
     const value=key=>fields[key].value.trim()||null;
     if(!value('title')){say('El título es obligatorio.');return;}
     if(!Object.hasOwn(editorScenarios,value('scenario'))){say('Selecciona un escenario válido.');return;}
@@ -92,14 +102,35 @@ async function detail(id){await run(async current=>{
     if(value('start_time')&&value('end_time')&&value('end_time')<=value('start_time')){say('La hora de término debe ser posterior al inicio.');return;}
     const expected=revision;save.disabled=true;say('Guardando cambios…');
     try{
-      await adminCall('admin_update_activity',{p_activity_id:id,p_title:value('title'),p_scenario:value('scenario'),p_speaker:value('speaker'),p_activity_date:value('activity_date'),p_start_time:value('start_time'),p_end_time:value('end_time'),p_location:value('location'),p_description:value('description'),p_status:value('status'),p_expected_updated_at:activity.updated_at});
+      const saved=await adminCall(creating?'admin_create_activity':'admin_update_activity',{...(creating?{}:{p_activity_id:id,p_expected_updated_at:activity.updated_at}),p_title:value('title'),p_scenario:value('scenario'),p_speaker:value('speaker'),p_activity_date:value('activity_date'),p_start_time:value('start_time'),p_end_time:value('end_time'),p_location:value('location'),p_description:value('description'),p_status:value('status')});
       try{localStorage.setItem('impulso-activities-changed',String(Date.now()));}catch{}
       if(expected!==revision)return;
-      await detail(id);say('Cambios guardados.');
+      await detail(creating?saved.id:id);say(creating?'Actividad creada.':'Cambios guardados.');
     }catch(error){if(expected===revision)fail(error);}finally{save.disabled=false;}
   });
   const participants=element('div',undefined,'panel');
-  view.replaceChildren(breadcrumb(editorScenarios[activity.scenario]),button('VOLVER A ACTIVIDADES',back),element('h2','Editar actividad'),element('p',`Personas que la seleccionaron: ${activity.selected_count} · Asistencias confirmadas: 0`),form,audit,element('h3','ASISTENCIA'),element('p','Próximamente'),participants);
+  view.replaceChildren(breadcrumb(editorScenarios[activity.scenario]),button('VOLVER A ACTIVIDADES',back),element('h2',creating?'Nueva actividad':'Editar actividad'),...(creating?[]:[element('p',`Personas que la seleccionaron: ${activity.selected_count} · Asistencias confirmadas: 0`)]),form,...(creating?[]:[audit,element('h3','ASISTENCIA'),element('p','Próximamente'),participants]));
+  if(creating)return;
+  if(adminRole==='super_admin'){
+    const confirmation=element('section',undefined,'panel');confirmation.hidden=true;
+    confirmation.setAttribute('role','group');confirmation.setAttribute('aria-label','Confirmar eliminación de actividad');
+    const cancelDelete=button('CANCELAR',()=>{confirmation.hidden=true;deleteButton.focus();});
+    const confirmDelete=button('ELIMINAR DEFINITIVAMENTE',async()=>{
+      if(save.disabled||confirmDelete.disabled||!current())return;
+      const expected=revision;save.disabled=true;confirmDelete.disabled=true;cancelDelete.disabled=true;deleteButton.disabled=true;
+      say('Eliminando actividad…');
+      try{
+        await adminCall('admin_delete_activity',{p_activity_id:id});
+        try{localStorage.setItem('impulso-activities-changed',String(Date.now()));}catch{}
+        if(expected!==revision)return;
+        await scenarioActivities(activity.scenario);say('Actividad eliminada.');
+      }catch(error){if(expected===revision){confirmation.hidden=true;fail(error);deleteButton.focus();}}
+      finally{save.disabled=false;confirmDelete.disabled=false;cancelDelete.disabled=false;deleteButton.disabled=false;}
+    });
+    confirmation.append(element('h3','¿Eliminar definitivamente esta actividad?'),element('p','Esta acción solo está disponible si nadie la ha seleccionado.'),cancelDelete,confirmDelete);
+    const deleteButton=button('ELIMINAR ACTIVIDAD',()=>{if(save.disabled||!current())return;confirmation.hidden=false;cancelDelete.focus();});
+    view.append(deleteButton,confirmation);
+  }
   async function loadParticipants(offset=0){
     try{const data=await adminCall('admin_get_activity_participants',{p_activity_id:id,p_offset:offset,p_limit:pageSize});if(!current())return;
       participants.replaceChildren(element('h3','Participantes'),table(['NOMBRE','CORREO','FOLIO','TIPO','ESPACIO ACADÉMICO','SELECCIÓN'],data.rows.map(u=>[`${u.nombre} ${u.apellidos}`,u.email,u.folio,u.tipo_usuario,u.espacio_academico,u.status==='registered'?'SELECCIONADA':'CANCELADA'])));
@@ -125,6 +156,9 @@ async function verifyAccess(){
   const current=++accessRevision;
   try{const session=await getVerifiedSession();if(current!==accessRevision)return;
     if(!session){revision++;identity=null;content.hidden=true;view.replaceChildren();location.replace('login.html?next=admin');return;}
+    const profile=await ensureProfile(session.user);if(current!==accessRevision)return;
+    if(!await requirePrivacyAcknowledgement(session.user,profile,'admin.html')){revision++;identity=null;content.hidden=true;view.replaceChildren();return;}
+    if(current!==accessRevision)return;
     if(identity!==session.user.id){revision++;content.hidden=true;view.replaceChildren();}
     const role=await adminCall('admin_get_access');if(current!==accessRevision)return;
     const roleChanged=adminRole!==role;adminRole=role;

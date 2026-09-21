@@ -3,21 +3,30 @@ import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { parseHTML } from '../.test-runtime/node_modules/linkedom/esm/index.js';
+import { PRIVACY_NOTICE_VERSION,hasCurrentPrivacyAcknowledgement } from '../js/privacy-notice.js';
+const currentPrivacy={privacy_acknowledged_at:'2026-09-21T12:00:00Z',privacy_notice_version:PRIVACY_NOTICE_VERSION};
 const root = process.cwd();
 let passed = 0;
 const ok = name => { passed++; console.log('PASS:', name); };
 const user = { id: 'user-a', email: 'a@example.invalid', email_confirmed_at: '2026-09-17', user_metadata: { nombre:'Ana',apellidos:'Prueba',tipo_usuario:'Público general' } };
 const event = { id: 'event-2026', slug:'impulso-uaemex-2026',status:'open' };
-function backend(session = null) {
+function backend(session = null, privacyCurrent = true) {
   const listeners = [];
-  const state = {session, profiles:[], registrations:[], calls:[], listeners, activities:[], route:[]};
+  const state = {session, privacyCurrent, profiles:[], registrations:[], calls:[], listeners, activities:[], route:[]};
   state.authCalls={session:0,user:0};
   state.clientLoads=0;
   const emit = (type, value) => listeners.forEach(fn => fn(type, value));
-  state.emit=(type,value)=>{state.session=value;emit(type,value);};
+  state.emit=(type,value)=>{state.session=value;if(state.privacySeedOnAuth&&value?.user.email_confirmed_at&&!state.profiles.some(p=>p.id===value.user.id))state.profiles.push({id:value.user.id,...user.user_metadata,...currentPrivacy});emit(type,value);};
   state.client = {
     async rpc(name,args) {
       state.calls.push(['rpc',name,args]);
+      if(name==='acknowledge_privacy_notice'){
+        const profile=state.profiles.find(p=>p.id===state.session?.user.id);
+        if(!profile)return {error:{message:'PROFILE_REQUIRED'}};
+        if(args.p_version!==PRIVACY_NOTICE_VERSION)return {error:{message:'INVALID_PRIVACY_NOTICE_VERSION'}};
+        if(!hasCurrentPrivacyAcknowledgement(profile))Object.assign(profile,currentPrivacy);
+        return {data:{id:profile.id,privacy_acknowledged_at:profile.privacy_acknowledged_at,privacy_notice_version:profile.privacy_notice_version}};
+      }
       if(name==='list_impulso_activities')return {data:state.activities};
       if(name==='get_my_impulso_route')return {data:state.route.filter(r=>r.status==='registered').map(r=>({...r,activity:state.activities.find(a=>a.id===r.activity_id)||null}))};
       if(name==='set_my_activity_registration'){
@@ -55,7 +64,7 @@ function backend(session = null) {
           if(table==='event_registrations' && list.length) return {error:{code:'23505'}};
           const authenticatedId=state.session?.user.id || user.id;
           if(table==='profiles' && list.some(row=>row.id===authenticatedId))return {error:{code:'23505'}};
-          const row=table==='profiles'?{id:authenticatedId,...payload}:{id:'reg-a',user_id:authenticatedId,...payload,folio:'IMP-2026-000001',status:'confirmed',created_at:'2026-09-17T12:00:00Z'};
+          const row=table==='profiles'?{id:authenticatedId,privacy_acknowledged_at:null,privacy_notice_version:null,...(state.privacyCurrent?currentPrivacy:{}),...payload}:{id:'reg-a',user_id:authenticatedId,...payload,folio:'IMP-2026-000001',status:'confirmed',created_at:'2026-09-17T12:00:00Z'};
           list.push(row);return {data:row};
         }
         const row=list.find(row=>filters.every(([k,v])=>row[k]===v));
@@ -68,6 +77,12 @@ function backend(session = null) {
   return state;
 }
 async function load(page, script, state, search='', options={}) {
+  // Legacy feature regressions use already-acknowledged participants; privacy tests opt out.
+  state.privacySeedOnAuth=state.privacyCurrent&&['index.html','admin.html'].includes(page);
+  if(state.privacyCurrent){
+    for(const profile of state.profiles)Object.assign(profile,currentPrivacy);
+    if(['index.html','admin.html'].includes(page)&&state.session?.user.email_confirmed_at&&!state.profiles.some(p=>p.id===state.session.user.id))state.profiles.push({id:state.session.user.id,...user.user_metadata,...currentPrivacy});
+  }
   const {document,Event} = parseHTML(fs.readFileSync(page,'utf8'));
   for(const select of document.querySelectorAll('select'))Object.defineProperty(select,'value',{configurable:true,get(){return this.querySelector('option[selected]')?.getAttribute('value') ?? this.querySelector('option[selected]')?.textContent ?? '';},set(v){for(const opt of this.querySelectorAll('option'))opt.toggleAttribute('selected',(opt.getAttribute('value')??opt.textContent)===v);}});
   const nativeCreate=document.createElement.bind(document);
@@ -119,14 +134,14 @@ async function load(page, script, state, search='', options={}) {
   await Promise.all(modules.map(mod=>mod.evaluate()));
   for(let i=0;i<12;i++)await new Promise(setImmediate);
   return {document,location,context,async submit(selector,values={}){
-    const form=document.querySelector(selector);for(const [k,v]of Object.entries(values))form.elements[k].value=v;
+    const form=document.querySelector(selector);for(const [k,v]of Object.entries(values)){if(form.elements[k].type==='checkbox')form.elements[k].checked=Boolean(v);else form.elements[k].value=v;}
     form.dispatchEvent(new Event('submit',{cancelable:true}));
     for(let i=0;i<12;i++)await new Promise(setImmediate);
   },moduleFor};
 }
 
 let state=backend();let page=await load('registro.html','registro.js',state);
-await page.submit('form',{nombre:'Ana',apellidos:'Prueba',tipo_usuario:'Público general',email:user.email,password:'password123',confirm_password:'different'});
+await page.submit('form',{privacy_acknowledged:true,nombre:'Ana',apellidos:'Prueba',tipo_usuario:'Público general',email:user.email,password:'password123',confirm_password:'different'});
 assert.equal(state.calls.length,0);assert.match(page.document.querySelector('[data-message]').textContent,/no coinciden/);ok('contraseñas diferentes no envían solicitudes');
 await page.submit('form',{confirm_password:'password123'});
 assert.equal(state.calls[0][0],'signUp');assert.equal(state.registrations.length,0);assert.equal(page.document.querySelector('#signup-result').hidden,false);assert.match(page.document.querySelector('#signup-result').textContent,/Revisa tu correo/);ok('crear cuenta solicita confirmación y no registra al evento');
@@ -136,7 +151,7 @@ await page.submit('form',{email:user.email,password:'password123'});assert.equal
 state=backend({user});page=await load('login.html','login.js',state,'?confirmed=1');assert.equal(state.session,null);assert.equal(page.location.destination,undefined);assert.equal(state.registrations.length,0);ok('confirmación no inscribe hasta iniciar sesión');
 
 state=backend();page=await load('mi-cuenta.html','account.js',state);assert.equal(page.location.destination,'login.html');assert.equal(page.document.querySelector('[data-private]').hidden,true);ok('Mi cuenta sin sesión redirige sin mostrar contenido privado');
-state=backend();page=await load('pasaporte.html','passport.js',state);assert.equal(page.location.destination,'login.html');ok('pasaporte sin sesión redirige a login');
+state=backend();page=await load('pasaporte.html','passport.js',state);assert.equal(page.location.destination,'login.html?next=passport');ok('pasaporte sin sesión redirige a login conservando destino');
 
 state=backend({user});page=await load('mi-cuenta.html','account.js',state);
 assert.equal(state.profiles.length,1);assert.equal(state.registrations.length,1);assert.equal(page.document.querySelector('#event-form'),null);assert.equal(page.document.querySelector('#folio').textContent,'IMP-2026-000001');ok('acceso confirmado crea perfil e inscripción automática');
@@ -203,7 +218,7 @@ const results=await Promise.all([prep.namespace.prepareAccount(),prep.namespace.
 state.registrations[0].status='cancelled';page=await load('mi-cuenta.html','account.js',state);assert.equal(state.registrations.length,1);assert.equal(state.registrations[0].status,'cancelled');ok('registro cancelado no se duplica ni reactiva');
 console.log('Total final: '+passed+' comprobaciones aprobadas.');
 
-const signupValues={nombre:'Ana',apellidos:'Prueba',tipo_usuario:'Público general',email:user.email,password:'password123',confirm_password:'password123'};
+const signupValues={privacy_acknowledged:true,nombre:'Ana',apellidos:'Prueba',tipo_usuario:'Público general',email:user.email,password:'password123',confirm_password:'password123'};
 state=backend();page=await load('registro.html','registro.js',state);await page.submit('form',signupValues);
 const neutral=page.document.querySelector('#signup-result').textContent;
 assert.equal(state.profiles.length,0);assert.equal(state.registrations.length,0);
@@ -797,7 +812,7 @@ ok('errores al iniciar Google muestran mensaje neutral y mantienen el método po
 
 const googleUser={id:'google-user-id',email:'google@example.invalid',email_confirmed_at:'2026-09-18',app_metadata:{provider:'google'},user_metadata:{given_name:'Ana María',family_name:'García López',full_name:'Ana María García López'}};
 const completionScripts=['navbar-auth.js','completar-registro.js'];
-const completeValues={nombre:'Ana editada',apellidos:'García editada',tipo_usuario:'Público general',telefono:'7221234567'};
+const completeValues={privacy_acknowledged:true,nombre:'Ana editada',apellidos:'García editada',tipo_usuario:'Público general',telefono:'7221234567'};
 state=backend({user:googleUser});
 page=await load('completar-registro.html',completionScripts,state,'?activity='+openActivity.slug,{storage:noSensitiveStorage});
 assert.equal(state.authCalls.session,1);assert.equal(state.authCalls.user,1);
@@ -1115,5 +1130,266 @@ for(const sdkMode of ['missing','invalid','throws']){
  assert.equal(mod.namespace.supabase,null);assert.ok(mod.namespace.connectionError);
  assert.throws(()=>mod.namespace.client());
  ok(sdkMode+': importación del cliente no lanza; servicio ausente informa connectionError');
+}
+// Creation/deletion UI exercises real handlers; permissions are also tested in PostgreSQL.
+for(const role of ['super_admin','staff']){
+ const adminState=backend({user}),writes=[];
+ let denyCreate=false,delayCreate=false,releaseCreate;
+ const scenarios=(role==='super_admin'?['cultura','deporte','tecnologia','diseno','investigacion','gobernanza','bienestar']:['deporte']).map(scenario=>({scenario,label:scenario,total_activities:0,open_count:0,draft_count:0,closed_count:0,cancelled_count:0}));
+ const profileRead=adminState.client.from;
+ adminState.client.from=table=>{assert.equal(table,'profiles');const query=profileRead(table);query.insert=query.update=()=>{throw Error('No direct table writes allowed');};return query;};
+ adminState.client.rpc=async(name,args)=>{
+  adminState.calls.push([name,args]);
+  if(name==='admin_get_access')return {data:role};
+  if(name==='admin_get_dashboard_stats')return {data:{users:0,routes:0,selections:0,activities:0,attendance:0}};
+  if(name==='admin_list_scenarios')return {data:scenarios};
+  if(name==='admin_list_activities')return {data:adminState.activities.filter(a=>a.scenario===args.p_scenario)};
+  if(name==='admin_get_activity')return {data:adminState.activities.find(a=>a.id===args.p_activity_id)};
+  if(name==='admin_get_activity_participants')return {data:{rows:[],total:0}};
+  if(name==='list_impulso_activities')return {data:adminState.activities.filter(a=>a.status==='open')};
+  if(name==='get_my_impulso_route')return {data:[]};
+  if(name==='admin_create_activity'){
+   if(denyCreate)return {error:{message:'SCENARIO_ADMIN_REQUIRED'}};
+   if(delayCreate)await new Promise(resolve=>{releaseCreate=resolve;});
+   const activity={id:'created-'+adminState.activities.length,slug:'slug-generated-'+adminState.activities.length,selected_count:0,updated_at:'2026-09-21T12:00:00Z'};
+   for(const [key,val] of Object.entries(args))activity[key.slice(2)]=val;
+   adminState.activities.push(activity);return {data:activity};
+  }
+  if(name==='admin_update_activity'){
+   const activity=adminState.activities.find(a=>a.id===args.p_activity_id);
+   for(const [key,val] of Object.entries(args))if(!['p_activity_id','p_expected_updated_at'].includes(key))activity[key.slice(2)]=val;
+   return {data:activity};
+  }
+  if(name==='admin_delete_activity'){
+   const activity=adminState.activities.find(a=>a.id===args.p_activity_id);
+   if(activity.selected_count)return {error:{message:'ACTIVITY_HAS_REGISTRATIONS'}};
+   adminState.activities=adminState.activities.filter(a=>a.id!==activity.id);return {data:{id:activity.id,deleted:true}};
+  }
+  throw Error(name);
+ };
+ const adminPage=await load('admin.html','admin.js',adminState,'',{storage:{setItem(...args){writes.push(args);}}});
+ const findButton=label=>[...adminPage.document.querySelectorAll('#admin-view button')].find(b=>b.textContent===label);
+ const click=async label=>{assert.ok(findButton(label),label);findButton(label).click();await flush();};
+ const submit=async values=>{
+  for(const [key,val] of Object.entries(values))adminPage.document.querySelector('[name="'+key+'"]').value=val;
+  adminPage.document.querySelector('.admin-edit').dispatchEvent(new adminPage.document.defaultView.Event('submit',{cancelable:true}));await flush();
+ };
+ if(role==='super_admin'){adminPage.document.querySelector('[data-section="activities"]').click();await flush();}
+ await click('+ NUEVA ACTIVIDAD');
+ assert.equal(adminPage.document.querySelector('[name="status"]').value,'draft');
+ assert.equal(adminPage.document.querySelector('[name="slug"]'),null);
+ assert.deepEqual([...adminPage.document.querySelectorAll('[name="scenario"] option')].map(o=>o.value),scenarios.map(s=>s.scenario));
+ assert.equal(findButton('ELIMINAR ACTIVIDAD'),undefined);
+ await submit({title:'   '});assert.equal(adminState.activities.length,0);
+ await submit({title:'Nueva actividad',status:'open',activity_date:''});assert.equal(adminState.activities.length,0);
+ await submit({status:'draft',start_time:'12:00',end_time:'11:00'});assert.equal(adminState.activities.length,0);
+ assert.equal(adminState.calls.filter(c=>c[0]==='admin_create_activity').length,0);
+ delayCreate=true;
+ await submit({start_time:'',end_time:''});await submit({});
+ assert.equal(adminState.calls.filter(c=>c[0]==='admin_create_activity').length,1);
+ releaseCreate();await flush();delayCreate=false;
+ assert.equal(adminState.activities.length,1);
+ assert.equal(adminState.activities[0].status,'draft');
+ const createArgs=adminState.calls.find(c=>c[0]==='admin_create_activity')[1];
+ for(const field of ['p_slug','p_event_id','p_updated_by','p_activity_id','p_expected_updated_at'])assert.equal(field in createArgs,false);
+ assert.equal(adminPage.document.querySelector('[name="slug"]').value,'slug-generated-0');
+ assert.equal(adminPage.document.querySelector('[name="slug"]').readOnly,true);
+ assert.equal(writes.length,1);assert.equal(writes[0][0],'impulso-activities-changed');
+ ok(role+': alta draft por RPC, escenarios permitidos, validación, doble envío bloqueado y slug readonly solo después de guardar');
+ await click('VOLVER A ACTIVIDADES');
+ assert.match(adminPage.document.querySelector('table').textContent,/Nueva actividad/);
+ await click('+ AGREGAR ACTIVIDAD');
+ assert.equal(adminPage.document.querySelector('[name="scenario"]').value,adminState.activities[0].scenario);
+ denyCreate=true;await submit({title:'Denegada'});
+ assert.match(adminPage.document.querySelector('#admin-message').textContent,/No tienes permiso/);
+ assert.equal(adminPage.document.querySelector('.admin-edit button[type="submit"]').disabled,false);
+ assert.equal(adminState.activities.length,1);denyCreate=false;
+ await submit({title:'Publicada',status:'open',activity_date:'2026-10-16'});
+ assert.equal(adminState.activities.length,2);
+ const publicPage=await load('index.html','agenda-route.js',adminState);
+ assert.equal(publicPage.document.querySelectorAll('.agenda-item').length,1);
+ assert.match(publicPage.document.querySelector('.agenda-title strong').textContent,/Publicada/);
+ ok(role+': agregar desde escenario conserva selección; denegación recuperable; actividad OPEN aparece en agenda');
+ if(role==='super_admin'){
+  const deleteCalls=()=>adminState.calls.filter(c=>c[0]==='admin_delete_activity').length;
+  await click('ELIMINAR ACTIVIDAD');assert.equal(deleteCalls(),0);
+  const confirmation=adminPage.document.querySelector('[aria-label="Confirmar eliminación de actividad"]');
+  assert.equal(confirmation.hidden,false);assert.match(confirmation.textContent,/Esta acción solo está disponible si nadie la ha seleccionado/);
+  [...confirmation.querySelectorAll('button')].find(b=>b.textContent==='CANCELAR').click();
+  assert.equal(confirmation.hidden,true);assert.equal(deleteCalls(),0);
+  adminState.activities[1].selected_count=1;
+  await click('ELIMINAR ACTIVIDAD');await click('ELIMINAR DEFINITIVAMENTE');
+  assert.equal(deleteCalls(),1);assert.equal(adminState.activities.length,2);
+  assert.match(adminPage.document.querySelector('#admin-message').textContent,/Cámbiala a CANCELADA.*sin perder el historial/);
+  assert.equal(writes.length,2);
+  ok('super_admin: eliminar exige dos clics, CANCELAR no borra y selecciones muestran instrucción de cancelación sin borrar');
+ }else{
+  assert.equal(findButton('ELIMINAR ACTIVIDAD'),undefined);
+  assert.equal(findButton('ELIMINAR DEFINITIVAMENTE'),undefined);
+  ok('staff: sin controles de borrado definitivo en editor');
+ }
+ await submit({status:'cancelled'});
+ assert.equal(adminState.activities[1].status,'cancelled');
+ const cancelledPage=await load('index.html','agenda-route.js',adminState);
+ assert.equal(cancelledPage.document.querySelectorAll('.agenda-item').length,0);
+ assert.equal(writes.length,3);
+ ok(role+': cancelación por RPC notifica agenda y retira la actividad pública');
+ if(role==='super_admin'){
+  await click('VOLVER A ACTIVIDADES');await click('VER / EDITAR');
+  await click('ELIMINAR ACTIVIDAD');await click('ELIMINAR DEFINITIVAMENTE');
+  assert.equal(adminState.activities.length,1);
+  assert.equal(adminPage.document.querySelector('table').textContent.includes('Nueva actividad'),false);
+  assert.equal(writes.length,4);assert.match(adminPage.document.querySelector('#admin-message').textContent,/Actividad eliminada/);
+  ok('super_admin: borrado confirmado sin selecciones regresa al escenario, actualiza tabla y notifica agenda');
+ }
+ assert.ok(writes.every(([key,value])=>key==='impulso-activities-changed'&&/^\d+$/.test(value)));
+}
+// Privacy cases use real NULL defaults in the mock instead of acknowledged regression fixtures.
+for(const file of ['registro.html','completar-registro.html','aceptar-privacidad.html']){
+ const doc=parseHTML(fs.readFileSync(file,'utf8')).document;
+ const checkbox=doc.querySelector('[name="privacy_acknowledged"]');
+ assert.equal(checkbox.type,'checkbox');assert.equal(checkbox.required,true);assert.equal(checkbox.hasAttribute('checked'),false);
+ assert.ok(doc.querySelector('label[for="'+checkbox.id+'"]'));
+ const link=doc.querySelector('main a[href="privacidad.html"]');
+ assert.equal(link.getAttribute('target'),'_blank');assert.equal(link.getAttribute('rel'),'noopener noreferrer');
+ assert.ok(doc.querySelector('[data-message][role="status"][aria-live="polite"]'));
+ ok(file+': reconocimiento obligatorio sin premarcar, label asociado, enlace accesible y mensajes anunciables');
+}
+for(const file of fs.readdirSync('.').filter(f=>f.endsWith('.html'))){
+ const doc=parseHTML(fs.readFileSync(file,'utf8')).document;
+ assert.ok(doc.querySelector('footer a[href="privacidad.html"]'),file);
+}
+const privacyDoc=fs.readFileSync('privacidad.html','utf8');
+assert.match(privacyDoc,/septiembre de 2026/);assert.match(privacyDoc,/debe validarse/);
+assert.doesNotMatch(privacyDoc,/supabase-js|navbar-auth/);
+ok('aviso público disponible sin SDK ni sesión y enlazado desde todos los footers');
+assert.equal(hasCurrentPrivacyAcknowledgement(null),false);
+assert.equal(hasCurrentPrivacyAcknowledgement({privacy_notice_version:PRIVACY_NOTICE_VERSION}),false);
+assert.equal(hasCurrentPrivacyAcknowledgement({...currentPrivacy,privacy_notice_version:'anterior'}),false);
+assert.equal(hasCurrentPrivacyAcknowledgement(currentPrivacy),true);
+ok('helper exige fecha y versión vigente; una versión anterior requiere reconocimiento');
+{
+ const pendingState=backend(null,false);
+ let signupMetadata;
+ pendingState.client.auth.signUp=async payload=>{pendingState.calls.push(['signUp',payload]);signupMetadata=payload.options.data;return {data:{user,session:null}};};
+ let pendingPage=await load('registro.html','registro.js',pendingState,'?activity='+openActivity.slug);
+ await pendingPage.submit('form',{...signupValues,privacy_acknowledged:false});
+ assert.equal(pendingState.calls.length,0);assert.match(pendingPage.document.querySelector('[data-message]').textContent,/consulta y reconoce/);
+ await pendingPage.submit('form',signupValues);
+ assert.equal(signupMetadata.privacy_notice_pending_version,PRIVACY_NOTICE_VERSION);
+ assert.equal('privacy_acknowledged_at' in signupMetadata,false);
+ assert.equal(pendingState.profiles.length,0);assert.equal(pendingState.registrations.length,0);
+ assert.equal(pendingState.calls.some(c=>c[1]==='acknowledge_privacy_notice'),false);
+ const emailUser={...user,user_metadata:signupMetadata};
+ pendingState.client.auth.signInWithPassword=async payload=>{pendingState.calls.push(['signIn',payload]);pendingState.emit('SIGNED_IN',{user:emailUser});return {data:{user:emailUser}};};
+ pendingPage=await load('login.html','login.js',pendingState,'?activity='+openActivity.slug);
+ await pendingPage.submit('form',{email:user.email,password:'password123'});
+ assert.equal(pendingState.profiles.length,1);assert.equal(pendingState.registrations.length,1);
+ assert.ok(hasCurrentPrivacyAcknowledgement(pendingState.profiles[0]));
+ const ackIndex=pendingState.calls.findIndex(c=>c[1]==='acknowledge_privacy_notice');
+ assert.ok(ackIndex>pendingState.calls.findIndex(c=>c[0]==='profiles'&&c[1]==='insert'));
+ assert.ok(ackIndex<pendingState.calls.findIndex(c=>c[0]==='event_registrations'&&c[1]==='insert'));
+ assert.deepEqual(JSON.parse(JSON.stringify(pendingState.calls[ackIndex][2])),{p_version:PRIVACY_NOTICE_VERSION});
+ assert.equal(pendingPage.location.destination,'index.html?activity='+openActivity.slug+'#arma-tu-ruta');
+ ok('correo: sin checkbox no hay signup; metadata conserva solo versión; login registra evidencia por RPC antes del folio y conserva actividad');
+}
+{
+ const googleState=backend({user:googleUser},false);
+ const googlePage=await load('completar-registro.html','completar-registro.js',googleState,'?next=admin');
+ await googlePage.submit('#completion-form',{...completeValues,privacy_acknowledged:false});
+ assert.equal(googleState.profiles.length,0);assert.equal(googleState.registrations.length,0);
+ assert.match(googlePage.document.querySelector('[data-message]').textContent,/consulta y reconoce/);
+ await googlePage.submit('#completion-form',completeValues);
+ assert.ok(hasCurrentPrivacyAcknowledgement(googleState.profiles[0]));assert.equal(googleState.registrations.length,1);
+ const ackIndex=googleState.calls.findIndex(c=>c[1]==='acknowledge_privacy_notice');
+ assert.ok(ackIndex>googleState.calls.findIndex(c=>c[0]==='profiles'&&c[1]==='insert'));
+ assert.ok(ackIndex<googleState.calls.findIndex(c=>c[0]==='event_registrations'&&c[1]==='insert'));
+ assert.equal(googlePage.location.destination,'admin.html');assert.equal(googleState.profiles[0].id,googleUser.id);
+ assert.equal(googleState.calls.some(c=>['signUp','resend','verifyOtp'].includes(c[0])),false);
+ ok('Google: perfil → reconocimiento → inscripción, checkbox obligatorio, mismo user.id y sin correo de confirmación');
+}
+function privacyState(fields={}){
+ const result=backend({user},false);
+ result.profiles=[{id:user.id,...user.user_metadata,privacy_acknowledged_at:null,privacy_notice_version:null,...fields}];
+ result.registrations=[{id:'existing-reg',user_id:user.id,event_id:event.id,status:'confirmed',folio:'IMP-2026-000099',created_at:'2026-09-17T12:00:00Z'}];
+ return result;
+}
+for(const [file,script,next] of [['mi-cuenta.html','account.js','account'],['pasaporte.html','passport.js','passport'],['admin.html','admin.js','admin']]){
+ const existing=privacyState();const rpc=existing.client.rpc;
+ existing.client.rpc=async(name,args)=>{
+  if(name==='admin_get_access'){existing.calls.push(['role-check']);return {data:'super_admin'};}
+  if(name==='admin_get_dashboard_stats')return {data:{users:1,routes:0,selections:0,activities:0,attendance:0}};
+  return rpc(name,args);
+ };
+ let existingPage=await load(file,script,existing);
+ assert.equal(existingPage.location.destination,'aceptar-privacidad.html?next='+next);
+ assert.equal(existingPage.document.querySelector(file==='admin.html'?'#admin-content':'[data-private]').hidden,true);
+ assert.equal(existing.calls.some(c=>c[1]==='get_my_impulso_route'||c[0]==='role-check'),false);
+ existingPage=await load('aceptar-privacidad.html','aceptar-privacidad.js',existing,'?next='+next);
+ assert.equal(existingPage.document.querySelector('#privacy-form').hidden,false);
+ await existingPage.submit('#privacy-form',{privacy_acknowledged:false});
+ assert.equal(existing.calls.some(c=>c[1]==='acknowledge_privacy_notice'),false);
+ await existingPage.submit('#privacy-form',{privacy_acknowledged:true});
+ assert.equal(existingPage.location.destination,file);
+ assert.equal(existingPage.document.querySelector('[data-message]').textContent,'Aviso de Privacidad registrado.');
+ const ackCount=existing.calls.filter(c=>c[1]==='acknowledge_privacy_notice').length;
+ existingPage=await load(file,script,existing);
+ assert.equal(existingPage.location.destination,undefined);
+ assert.equal(existingPage.document.querySelector(file==='admin.html'?'#admin-content':'[data-private]').hidden,false);
+ assert.equal(existing.profiles.length,1);assert.equal(existing.registrations.length,1);assert.equal(existing.registrations[0].folio,'IMP-2026-000099');
+ assert.equal(existing.calls.filter(c=>c[1]==='acknowledge_privacy_notice').length,ackCount);
+ if(file==='admin.html')assert.ok(existing.calls.some(c=>c[0]==='role-check'));
+ ok(file+': usuario existente reconoce una vez, vuelve al destino y conserva perfil, folio e identidad/permisos');
+}
+{
+ const stale=privacyState({...currentPrivacy,privacy_notice_version:'anterior'});
+ let stalePage=await load('mi-cuenta.html','account.js',stale);assert.match(stalePage.location.destination,/aceptar-privacidad/);
+ stalePage=await load('aceptar-privacidad.html','aceptar-privacidad.js',stale,'?next=passport');
+ await stalePage.submit('#privacy-form',{privacy_acknowledged:true});
+ assert.equal(stale.profiles[0].privacy_notice_version,PRIVACY_NOTICE_VERSION);assert.equal(stalePage.location.destination,'pasaporte.html');
+ ok('versión anterior vuelve a solicitar reconocimiento y se actualiza sin cambiar folio');
+}
+{
+ const publicState=privacyState();publicState.activities=[{...openActivity}];
+ let publicPage=await load('index.html','agenda-route.js',publicState);
+ assert.equal(publicPage.document.querySelectorAll('.agenda-item').length,1);assert.equal(publicPage.location.destination,undefined);
+ assert.equal(publicState.calls.some(c=>c[1]==='get_my_impulso_route'),false);
+ publicPage.document.querySelector('.route-controls button').click();await flush();
+ assert.equal(publicPage.location.destination,'aceptar-privacidad.html?activity='+openActivity.slug);
+ assert.equal(publicState.calls.some(c=>c[1]==='set_my_activity_registration'),false);
+ publicPage=await load('aceptar-privacidad.html','aceptar-privacidad.js',publicState,'?activity='+openActivity.slug);
+ await publicPage.submit('#privacy-form',{privacy_acknowledged:true});
+ assert.equal(publicPage.location.destination,'index.html?activity='+openActivity.slug+'#arma-tu-ruta');
+ assert.equal(publicState.calls.some(c=>c[1]==='set_my_activity_registration'),false);
+ ok('agenda pública no se bloquea; ASISTIR solicita aviso antes de escritura y conserva actividad sin selección automática');
+}
+for(const query of ['?next=https://evil.invalid','?next=//evil.invalid','?next=constructor','?next=__proto__','?activity=https://evil.invalid']){
+ const safe=privacyState();const safePage=await load('aceptar-privacidad.html','aceptar-privacidad.js',safe,query);
+ await safePage.submit('#privacy-form',{privacy_acknowledged:true});
+ assert.equal(safePage.location.destination,'mi-cuenta.html');
+}
+ok('reconocimiento descarta destinos externos, nombres heredados y slugs inválidos');
+{
+ const failing=privacyState();const rpc=failing.client.rpc;
+ failing.client.rpc=async(name,args)=>name==='acknowledge_privacy_notice'?{error:{message:'offline'}}:rpc(name,args);
+ const failPage=await load('aceptar-privacidad.html','aceptar-privacidad.js',failing);
+ await failPage.submit('#privacy-form',{privacy_acknowledged:true});
+ assert.equal(failPage.location.destination,undefined);assert.equal(failing.profiles[0].privacy_acknowledged_at,null);
+ assert.match(failPage.document.querySelector('[data-message]').textContent,/No pudimos registrar/);
+ assert.equal(failPage.document.querySelector('button[type="submit"]').disabled,false);
+ failing.client.rpc=rpc;await failPage.submit('#privacy-form',{privacy_acknowledged:true});
+ assert.equal(failPage.location.destination,'mi-cuenta.html');
+ ok('fallo de RPC no concede acceso ni finge evidencia y permite reintento');
+}
+{
+ const changed=privacyState();const changedPage=await load('aceptar-privacidad.html','aceptar-privacidad.js',changed,'?next=admin');
+ changed.emit('SIGNED_IN',{user:{...user,id:'another-user'}});
+ await changedPage.submit('#privacy-form',{privacy_acknowledged:true});
+ assert.equal(changedPage.document.querySelector('#privacy-form').hidden,true);
+ assert.equal(changed.calls.some(c=>c[1]==='acknowledge_privacy_notice'),false);
+ assert.equal(changedPage.location.destination,'login.html?next=admin');
+ const guest=await load('aceptar-privacidad.html','aceptar-privacidad.js',backend(null,false),'?next=passport');
+ assert.equal(guest.location.destination,'login.html?next=passport');
+ ok('reconocimiento verifica sesión remotamente y bloquea ausencia/cambio de identidad sin perder destino');
 }
 console.log('TOTAL: '+passed+' comprobaciones de interfaz.');

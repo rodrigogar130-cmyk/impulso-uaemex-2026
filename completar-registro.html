@@ -16,7 +16,7 @@
     <noscript><p>Activa JavaScript para completar tu registro.</p></noscript>
     <section id="completion-content" hidden>
       <h1>Completa tu registro</h1>
-      <p>Google ya confirmó tu identidad. Solo necesitamos algunos datos para completar tu inscripción a IMPULSO UAEMéx 2026.</p>
+      <p>Completa los datos de tu perfil para continuar con tu inscripción a IMPULSO UAEMéx 2026.</p>
       <p id="completion-email" class="account-email"></p>
       <form id="completion-form" method="post">
         <div class="form-grid">
@@ -33,12 +33,12 @@
           </div>
           <label class="full">Teléfono (opcional)<input name="telefono" type="tel" autocomplete="tel" maxlength="30"></label>
         </div>
-        <div class="actions"><button class="btn" type="submit">COMPLETAR REGISTRO ↗</button></div>
+        <label class="privacy-check" for="privacy-acknowledged"><input id="privacy-acknowledged" name="privacy_acknowledged" type="checkbox" required><span>He leído y conozco el <a href="privacidad.html" target="_blank" rel="noopener noreferrer">Aviso de Privacidad</a> aplicable a IMPULSO UAEMéx 2026.</span></label><div class="actions"><button class="btn" type="submit">COMPLETAR REGISTRO ↗</button></div>
       </form>
     </section>
     <p class="small"><a href="login.html">VOLVER A INICIAR SESIÓN</a></p>
   </main>
-  <footer>Universidad Autónoma del Estado de México · Dirección de Desarrollo Empresarial</footer>
+  <footer>Universidad Autónoma del Estado de México · Dirección de Desarrollo Empresarial<p><a href="privacidad.html">Aviso de Privacidad</a></p></footer>
   <script src="vendor/supabase-js-2.57.4/supabase.js?v=20260921-4"></script>
 <script type="module" src="js/site-header.js?v=20260921-4"></script>
   <script type="module" src="js/navbar-auth.js?v=20260921-4"></script>

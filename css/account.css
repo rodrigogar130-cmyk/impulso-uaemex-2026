@@ -13,6 +13,7 @@ label{display:block;min-width:0;font-size:.75rem;letter-spacing:.06em;text-trans
 input,select{display:block;width:100%;min-width:0;min-height:46px;margin-top:8px;border:0;border-bottom:1px solid #666;background:var(--surface);color:#fff;border-radius:0;padding:12px;font-size:1rem;letter-spacing:normal;text-transform:none}
 input:focus,select:focus{border-bottom-color:#fff}.actions{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:28px}
 .password-field{position:relative;margin-top:8px}.password-field input{margin-top:0;padding-right:88px}
+.privacy-check{display:flex;gap:12px;align-items:flex-start;margin-top:24px;text-transform:none;letter-spacing:normal;font-size:.9rem}.privacy-check input{flex:0 0 22px;width:22px;min-height:22px;height:22px;margin:2px 0 0;padding:0;accent-color:#fff}.privacy-check a{border-bottom:1px solid currentColor}
 .password-toggle{position:absolute;right:4px;top:1px;bottom:1px;min-width:76px;min-height:44px;padding:8px;border:0;background:transparent;color:var(--text);font-size:.75rem;cursor:pointer}
 .google-button{width:100%;gap:12px}.google-mark{font-size:1.2rem;font-weight:700;line-height:1}
 .auth-divider{display:flex;align-items:center;gap:14px;margin:28px 0;color:var(--muted);font-size:.7rem;letter-spacing:.06em;text-align:center}.auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:var(--border)}

@@ -1,12 +1,13 @@
 import { listActivities, getMyRoute, setSelection, routeError } from './activities.js?v=20260921-4';
-import { authLink, requestedActivity, rememberActivity } from './return-to.js?v=20260921-4';
+import { authLink, requestedActivity, rememberActivity, routeDestination } from './return-to.js?v=20260921-4';
+import { hasCurrentPrivacyAcknowledgement } from './privacy-notice.js?v=20260921-4';
 import { element, calendarActions, formatActivityTime } from './route-ui.js?v=20260921-4';
 
 let cards=[];
 const agendaList=document.querySelector('#agendaList');
 const status=document.querySelector('#route-status');
 const catalogStatus=document.querySelector('#catalog-status');
-let getLocalSession, getVerifiedSession, prepareAccount;
+let getLocalSession, getVerifiedSession, prepareAccount, getProfile;
 let activities=new Map(), selections=new Map(), session=null, version=0;
 const pending=new Set();
 const scenarioNames={cultura:'Cultura',deporte:'Deporte',tecnologia:'Tecnología',diseno:'Diseño',investigacion:'Investigación aplicada',gobernanza:'Gobernanza',bienestar:'Bienestar Integral'};
@@ -71,8 +72,9 @@ function render(){
         const current=await getVerifiedSession();
         if(!current){session=null;selections.clear();render();openAccess(a.slug,card.querySelector('button'));return;}
         if(current.user.id!==session.user.id){await refresh();return;}
+        const ready=await prepareAccount(current.user,routeDestination(a.slug));
+        if(ready.privacyRequired)return;
         if(!selected){
-          const ready=await prepareAccount(current.user);
           if(!ready.profile){location.href='mi-cuenta.html';return;}
           if(ready.registration?.status!=='confirmed')throw {message:'EVENT_REGISTRATION_REQUIRED'};
         }
@@ -167,6 +169,9 @@ async function loadPrivateRoute(){
   session=active;render();
   if(!active){selections.clear();say('');render();return;}
   try{
+    const profile=await getProfile(active.user.id);
+    if(current!==version)return;
+    if(!hasCurrentPrivacyAcknowledgement(profile)){selections.clear();say('');render();return;}
     const route=await getMyRoute();
     if(current!==version)return;
     selections=new Map(route.map(r=>[r.activity_id,r]));say('');
@@ -177,6 +182,7 @@ async function initializePrivate(){
   try{
     const auth=await import('./auth.js?v=20260921-4');
     ({prepareAccount}=await import('./prepare-account.js?v=20260921-4'));
+    ({getProfile}=await import('./profile.js?v=20260921-4'));
     ({getLocalSession,getVerifiedSession}=auth);
     auth.onAuthStateChange((_event,active)=>{
       if(session?.user.id===active?.user.id){session=active;return;}

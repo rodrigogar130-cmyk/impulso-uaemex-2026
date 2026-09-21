@@ -4,10 +4,13 @@ import { prepareAccount } from './prepare-account.js?v=20260921-4';
 import { afterLogin, preserveAuthLinks } from './return-to.js?v=20260921-4';
 import { bindForm, studentFields, profileData, message } from './ui.js?v=20260921-4';
 import { hasOAuthError, googleAuthError } from './google-auth.js?v=20260921-4';
+import { bindPrivacyCheckbox,requirePrivacyCheckbox } from './privacy-notice.js?v=20260921-4';
+import { acknowledgePrivacyNotice } from './privacy.js?v=20260921-4';
 
 preserveAuthLinks();
 const content = document.querySelector('#completion-content');
 const form = document.querySelector('#completion-form');
+bindPrivacyCheckbox(form);
 const completionError = 'No pudimos completar tu inscripción en este momento. Inténtalo nuevamente.';
 let revision = 0;
 function completeProfile(profile) {
@@ -22,6 +25,7 @@ function hideAccount() {
 async function finish(user, current) {
   const prepared = await prepareAccount(user);
   if (current !== revision) return;
+  if(prepared.privacyRequired)return;
   if (!prepared.profile) throw new Error(completionError);
   // Do not override existing registrations (including cancelled ones) or admin permissions.
   location.replace(afterLogin());
@@ -63,6 +67,7 @@ if (hasOAuthError()) {
           message('');
           bindForm(form, async data => {
             if (current !== revision) return;
+            requirePrivacyCheckbox(form);
             const values = profileData(data);
             try {
               const verified = await getVerifiedSession();
@@ -76,6 +81,8 @@ if (hasOAuthError()) {
                 // Another tab may have completed the same profile after our read.
                 if (error?.code !== '23505' || !completeProfile(await getProfile(verified.user.id))) throw error;
               }
+              if (current !== revision) return;
+              await acknowledgePrivacyNotice(verified.user.id);
               if (current !== revision) return;
               await finish(verified.user, current);
             } catch {

@@ -41,4 +41,9 @@ try {
   await (await import('./admin-editor.mjs')).testAdminEditor(db);
   await db.exec(await readFile('supabase/migrations/005_admin_scenario_access.sql','utf8'));
   await (await import('./admin-scenarios.mjs')).testAdminScenarios(db);
+  // Solo esta instancia PGlite efímera; no despliega ni conecta al proyecto remoto.
+  await db.exec(await readFile('supabase/migrations/006_admin_activity_create_delete.sql','utf8'));
+  await (await import('./admin-create-delete.mjs')).testAdminCreateDelete(db);
+  await db.exec(await readFile('supabase/migrations/007_privacy_notice_acknowledgement.sql','utf8'));
+  await (await import('./privacy-notice.mjs')).testPrivacyNotice(db);
 } finally { await db.close(); }

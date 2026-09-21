@@ -28,8 +28,7 @@ try {
     message('Correo confirmado correctamente.\nYa puedes iniciar sesión.');
   } else if (session) {
     const prepared = await prepareAccount();
-    const destination = prepared.profile ? afterLogin() : 'mi-cuenta.html';
-    location.replace(destination);
+    if(!prepared.privacyRequired)location.replace(prepared.profile ? afterLogin() : 'mi-cuenta.html');
   }
   }
 } catch (error) { message(errorText(error), true); }
@@ -37,6 +36,7 @@ bindForm(document.querySelector('form'), async data => {
   await signInWithPassword(String(data.get('email')).trim(), String(data.get('password')));
   message('Preparando tu perfil e inscripción al festival…');
   const prepared = await prepareAccount();
+  if(prepared.privacyRequired)return;
   location.replace(prepared.profile ? afterLogin() : 'mi-cuenta.html');
 });
 bindForm(document.querySelector('#resend-form'), async data => {

@@ -4,8 +4,9 @@ import { loadMyRoute } from './my-route.js?v=20260921-4';
 try {
  const user = await privatePage();
  if (user) {
-  const { profile, registration } = await prepareAccount(user);
-  if (!profile) location.replace('mi-cuenta.html');
+  const { profile, registration, privacyRequired } = await prepareAccount(user);
+  if (privacyRequired) document.querySelector('[data-private]').hidden=true;
+  else if (!profile) location.replace('mi-cuenta.html');
   else {
    const confirmed = registration?.status === 'confirmed';
    document.querySelector('#passport-locked').hidden = confirmed;

@@ -10,6 +10,7 @@ try {
   const updateStudent = studentFields(form);
   let profile = null;
   function render(state) {
+   if(state.privacyRequired){document.querySelector('[data-private]').hidden=true;return;}
    profile = state.profile;
    document.querySelector('#greeting').textContent = profile ? 'Hola, ' + profile.nombre : 'Completa tu perfil';
    document.querySelector('#account-email').textContent = user.email;
@@ -29,8 +30,9 @@ try {
    render(await prepareAccount());
    message('Perfil guardado correctamente.');
   });
-  render(await prepareAccount(user));
-  await loadRouteCount();
+  const prepared=await prepareAccount(user);
+  render(prepared);
+  if(!prepared.privacyRequired)await loadRouteCount();
  }
 } catch (error) {
  const status = document.querySelector('#event-status');
