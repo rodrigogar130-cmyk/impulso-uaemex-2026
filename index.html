@@ -942,7 +942,8 @@
       <div class="agenda-toolbar"><div class="agenda-days" role="group" aria-label="Filtrar por día"><button class="filter-btn active" data-day="all" aria-pressed="true">TODOS LOS DÍAS</button><button class="filter-btn" data-day="15" aria-pressed="false">DÍA 1 · 15 OCT</button><button class="filter-btn" data-day="16" aria-pressed="false">DÍA 2 · 16 OCT</button><button class="filter-btn" data-day="pending" aria-pressed="false">PRÓXIMAMENTE</button></div><input class="agenda-search" id="agendaSearch" type="search" placeholder="Buscar actividad, ponente o sede…" aria-label="Buscar actividad, ponente o sede" /></div>
       <div class="agenda-filters" role="group" aria-label="Filtrar por escenario"><button class="filter-btn active" data-stage="all" aria-pressed="true">TODOS</button><button class="filter-btn" data-stage="cultura" aria-pressed="false">Cultura</button><button class="filter-btn" data-stage="deporte" aria-pressed="false">Deporte</button><button class="filter-btn" data-stage="tecnologia" aria-pressed="false">Tecnología</button><button class="filter-btn" data-stage="diseno" aria-pressed="false">Diseño</button><button class="filter-btn" data-stage="investigacion" aria-pressed="false">Investigación aplicada</button><button class="filter-btn" data-stage="gobernanza" aria-pressed="false">Gobernanza</button><button class="filter-btn" data-stage="bienestar" aria-pressed="false">Bienestar Integral</button></div>
       <p class="agenda-results" id="agendaResults" role="status" aria-live="polite"></p>
-      <p id="route-status" class="content-note" role="status" aria-live="polite"></p><span id="arma-tu-ruta"></span><div class="agenda-list" id="agendaList"></div>
+      <p id="catalog-status" class="content-note" role="status" aria-live="polite"></p>
+      <p id="route-status" class="content-note" role="status" aria-live="polite"></p><span id="arma-tu-ruta"></span><div class="agenda-list" id="agendaList" data-catalog-state="loading" aria-busy="true">Cargando actividades…</div>
       <div class="agenda-more-wrap"><button class="btn btn-outline" id="agendaMore" hidden>VER MÁS ACTIVIDADES <span class="arrow">↓</span></button></div>
       <div class="agenda-empty" id="agendaEmpty" hidden><h3>No hay actividades con estos filtros.</h3><p>Prueba otro día, escenario o término de búsqueda.</p><button class="btn btn-outline" id="resetAgenda">VER TODAS LAS ACTIVIDADES <span class="arrow">↗</span></button></div>
       
@@ -1081,6 +1082,12 @@
 
     let agendaLimit = 12;
     function applyAgendaFilters(resetLimit = true){
+      if(document.getElementById('agendaList').dataset.catalogLoaded !== 'true'){
+        document.getElementById('agendaEmpty').hidden = true;
+        document.getElementById('agendaMore').hidden = true;
+        document.getElementById('agendaResults').textContent = '';
+        return;
+      }
       if(resetLimit) agendaLimit = 12;
       const query = normalizeSearch(searchInput.value);
       let visible = 0;

@@ -1,6 +1,3 @@
-import { getLocalSession, getVerifiedSession, onAuthStateChange } from './auth.js';
-import { prepareAccount } from './prepare-account.js';
-import { supabase } from './supabase-client.js';
 import { listActivities, getMyRoute, setSelection, routeError } from './activities.js';
 import { authLink, requestedActivity, rememberActivity } from './return-to.js';
 import { element, calendarActions, formatActivityTime } from './route-ui.js';
@@ -8,6 +5,8 @@ import { element, calendarActions, formatActivityTime } from './route-ui.js';
 let cards=[];
 const agendaList=document.querySelector('#agendaList');
 const status=document.querySelector('#route-status');
+const catalogStatus=document.querySelector('#catalog-status');
+let getLocalSession, getVerifiedSession, prepareAccount;
 let activities=new Map(), selections=new Map(), session=null, version=0;
 const pending=new Set();
 const scenarioNames={cultura:'Cultura',deporte:'Deporte',tecnologia:'Tecnología',diseno:'Diseño',investigacion:'Investigación aplicada',gobernanza:'Gobernanza',bienestar:'Bienestar Integral'};
@@ -100,34 +99,67 @@ function render(){
   document.dispatchEvent(new CustomEvent('impulso:agenda-updated'));
 }
 let refreshPromise=null, refreshAgain=false, lastRefresh=0;
+let routePromise=null, routeAgain=false;
+let destinationPending=requestedActivity();
 function refresh(){
-  if(refreshPromise){refreshAgain=true;version++;return refreshPromise;}
+  if(refreshPromise){refreshAgain=true;return refreshPromise;}
   refreshPromise=(async()=>{
     do{refreshAgain=false;await loadAgenda();}while(refreshAgain);
   })().finally(()=>{lastRefresh=Date.now();refreshPromise=null;});
+  void refreshPrivate();
   return refreshPromise;
 }
 function refreshOnReturn(){
   if(!document.hidden&&!pending.size&&!refreshPromise&&Date.now()-lastRefresh>=120000)void refresh();
 }
+function catalogNotice(text){
+  const target=agendaList.dataset.catalogLoaded==='true'?catalogStatus:agendaList;
+  target.replaceChildren(element('p',text,'content-note'));
+  const retry=element('button','VOLVER A INTENTAR','btn btn-outline');retry.type='button';
+  retry.addEventListener('click',()=>{retry.disabled=true;void refresh();});target.append(retry);
+}
 async function loadAgenda(){
-  const current=++version;
-  let active=null;
-  try{active=await getLocalSession();}catch{ /* Mantener la agenda pública. */ }
-  if(current!==version)return;
-  if(session?.user.id!==active?.user.id)selections.clear();
-  session=active;
-  render();
-  // El catálogo público y la ruta privada fallan de forma independiente.
+  agendaList.dataset.catalogState='loading';agendaList.setAttribute('aria-busy','true');
+  if(agendaList.dataset.catalogLoaded!=='true')agendaList.textContent='Cargando actividades…';
+  catalogStatus.replaceChildren();render();
   try{
     const catalog=await listActivities();
-    if(current!==version)return;
     activities=new Map(catalog.filter(a=>a.status==='open').map(a=>[a.slug,a]));
     rebuildCards();
-  }catch{ /* Conservar las tarjetas de la última consulta correcta, sin copias del catálogo. */
-    if(!activities.size)agendaList.textContent='No pudimos cargar la agenda en este momento.';
+    agendaList.dataset.catalogLoaded='true';agendaList.dataset.catalogState='loaded';
+  }catch{
+    console.error('Agenda public catalog load failed');
+    agendaList.dataset.catalogState='error';
+    catalogNotice(agendaList.dataset.catalogLoaded==='true'
+      ?'No pudimos actualizar la agenda. Mostramos la última información cargada.'
+      :'No pudimos cargar la agenda en este momento.');
+  }finally{
+    agendaList.setAttribute('aria-busy','false');render();
   }
+  if(agendaList.dataset.catalogLoaded==='true'){
+    const destination=destinationPending;
+    if(destination){
+      destinationPending=null;
+      document.dispatchEvent(new CustomEvent('impulso:reveal-activity',{detail:destination}));
+      try{sessionStorage.removeItem('impulso-route-intent');}catch{}
+    }
+  }
+}
+function refreshPrivate(){
+  if(!getLocalSession)return Promise.resolve();
+  if(routePromise){routeAgain=true;return routePromise;}
+  routePromise=(async()=>{
+    do{routeAgain=false;await loadPrivateRoute();}while(routeAgain);
+  })().finally(()=>{routePromise=null;});
+  return routePromise;
+}
+async function loadPrivateRoute(){
+  const current=version;
+  let active=null;
+  try{active=await getLocalSession();}catch{if(current===version)routeNotice();return;}
   if(current!==version)return;
+  if(session?.user.id!==active?.user.id)selections.clear();
+  session=active;render();
   if(!active){selections.clear();say('');render();return;}
   try{
     const route=await getMyRoute();
@@ -136,24 +168,26 @@ async function loadAgenda(){
   }catch{if(current===version)routeNotice();}
   if(current===version)render();
 }
-render();
-if(supabase){
-  try{session=await getLocalSession();}catch{}
-  onAuthStateChange((_event, active)=>{
-    if(session?.user.id===active?.user.id){session=active;return;}
-    version++;session=active;selections.clear();render();
-    // Defer all SDK work until the auth callback has released its lock.
-    setTimeout(refresh,0);
-  });
-  window.addEventListener('focus',refreshOnReturn);
-  document.addEventListener('visibilitychange',refreshOnReturn);
-  window.addEventListener('storage',event=>{if(event.key==='impulso-activities-changed')refresh();});
-  document.addEventListener('impulso-activities-changed',()=>refresh());
-  window.addEventListener('impulso-activities-changed',event=>{if(event.target!==document)refresh();});
-  await refresh();
+async function initializePrivate(){
+  try{
+    const auth=await import('./auth.js');
+    ({prepareAccount}=await import('./prepare-account.js'));
+    ({getLocalSession,getVerifiedSession}=auth);
+    auth.onAuthStateChange((_event,active)=>{
+      if(session?.user.id===active?.user.id){session=active;return;}
+      version++;session=active;selections.clear();say('');render();
+      // Defer SDK work until the auth callback has released its lock.
+      setTimeout(refresh,0);
+    });
+    await refreshPrivate();
+  }catch{ /* Public catalog works even if the local SDK cannot initialize. */ }
 }
-const destination=requestedActivity();
-if(destination){
-  document.dispatchEvent(new CustomEvent('impulso:reveal-activity',{detail:destination}));
-  try{sessionStorage.removeItem('impulso-route-intent');}catch{}
-}
+window.addEventListener('focus',refreshOnReturn);
+document.addEventListener('visibilitychange',refreshOnReturn);
+window.addEventListener('storage',event=>{if(event.key==='impulso-activities-changed')void refresh();});
+document.addEventListener('impulso-activities-changed',()=>void refresh());
+window.addEventListener('impulso-activities-changed',event=>{if(event.target!==document)void refresh();});
+// Start public loading before importing Auth, with no session dependency.
+const initialCatalog=refresh();
+void initializePrivate();
+await initialCatalog;

@@ -7,7 +7,8 @@ export let supabase = null;
 export let connectionError = '';
 if (configurationReady) {
   try {
-    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.57.4');
+    await import('../vendor/supabase-js-2.57.4/supabase.js');
+    const { createClient } = globalThis.supabase;
     supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit' }
     });
