@@ -1,5 +1,5 @@
-import { getSession, onAuthStateChange, requestRecovery, updatePassword, signOut } from './auth.js';
-import { bindForm, matchingPassword, message, errorText } from './ui.js';
+import { getSession, onAuthStateChange, requestRecovery, updatePassword, signOut } from './auth.js?v=20260921-4';
+import { bindForm, matchingPassword, message, errorText } from './ui.js?v=20260921-4';
 const requestForm = document.querySelector('#request-form');
 const resetForm = document.querySelector('#reset-form');
 const params = new URLSearchParams(location.search);

@@ -1,5 +1,5 @@
-import { signInWithGoogle } from './auth.js';
-import { message } from './ui.js';
+import { signInWithGoogle } from './auth.js?v=20260921-4';
+import { message } from './ui.js?v=20260921-4';
 
 export const googleAuthError = 'No pudimos iniciar sesión con Google. Inténtalo nuevamente o utiliza tu correo y contraseña.';
 export function hasOAuthError() {

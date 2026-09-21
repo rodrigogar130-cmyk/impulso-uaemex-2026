@@ -1,7 +1,7 @@
-import { getLocalSession,getVerifiedSession,onAuthStateChange } from './auth.js';
-import { getMyRoute, setSelection, routeError } from './activities.js';
-import { calendarReady, downloadRoute, googleCalendarUrl } from './calendar.js';
-import { element, calendarActions, formatActivityTime, scenarioName } from './route-ui.js';
+import { getLocalSession,getVerifiedSession,onAuthStateChange } from './auth.js?v=20260921-4';
+import { getMyRoute, setSelection, routeError } from './activities.js?v=20260921-4';
+import { calendarReady, downloadRoute, googleCalendarUrl } from './calendar.js?v=20260921-4';
+import { element, calendarActions, formatActivityTime, scenarioName } from './route-ui.js?v=20260921-4';
 
 export async function loadMyRoute(){
   const root=document.querySelector('#my-route');if(!root)return;

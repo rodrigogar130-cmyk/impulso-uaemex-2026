@@ -1,4 +1,4 @@
-import { client } from './supabase-client.js';
+import { client } from './supabase-client.js?v=20260921-4';
 export const EVENT_SLUG = 'impulso-uaemex-2026';
 export async function ensureRegistration(userId, event) {
   const existing = await getRegistration(userId, event.id);

@@ -1,7 +1,7 @@
-import { adminCall } from './admin-api.js';
-import './site-header.js';
-import { getLocalSession, onAuthStateChange } from './auth.js';
-import { supabase } from './supabase-client.js';
+import { adminCall } from './admin-api.js?v=20260921-4';
+import './site-header.js?v=20260921-4';
+import { getLocalSession, onAuthStateChange } from './auth.js?v=20260921-4';
+import { supabase } from './supabase-client.js?v=20260921-4';
 function render(session) {
   if(!session)document.querySelectorAll('[data-admin-link]').forEach(el=>el.hidden=true);
   document.querySelectorAll('[data-auth-guest]').forEach(el => el.hidden = Boolean(session));

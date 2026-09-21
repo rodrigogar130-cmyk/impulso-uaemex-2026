@@ -1,6 +1,6 @@
-import { listActivities, getMyRoute, setSelection, routeError } from './activities.js';
-import { authLink, requestedActivity, rememberActivity } from './return-to.js';
-import { element, calendarActions, formatActivityTime } from './route-ui.js';
+import { listActivities, getMyRoute, setSelection, routeError } from './activities.js?v=20260921-4';
+import { authLink, requestedActivity, rememberActivity } from './return-to.js?v=20260921-4';
+import { element, calendarActions, formatActivityTime } from './route-ui.js?v=20260921-4';
 
 let cards=[];
 const agendaList=document.querySelector('#agendaList');
@@ -123,9 +123,14 @@ async function loadAgenda(){
   if(agendaList.dataset.catalogLoaded!=='true')agendaList.textContent='Cargando actividades…';
   catalogStatus.replaceChildren();render();
   try{
-    const catalog=await listActivities();
-    activities=new Map(catalog.filter(a=>a.status==='open').map(a=>[a.slug,a]));
-    rebuildCards();
+    let fallback=false;
+    const catalog=await listActivities({onFallback:()=>{fallback=true;}});
+    // A previously loaded live catalog is newer than the bundled snapshot.
+    if(!fallback||agendaList.dataset.catalogLoaded!=='true'){
+      activities=new Map(catalog.filter(a=>a.status==='open').map(a=>[a.slug,a]));
+      rebuildCards();
+    }
+    if(fallback)catalogStatus.textContent='Mostramos la última versión disponible de la agenda.';
     agendaList.dataset.catalogLoaded='true';agendaList.dataset.catalogState='loaded';
   }catch{
     console.error('Agenda public catalog load failed');
@@ -170,8 +175,8 @@ async function loadPrivateRoute(){
 }
 async function initializePrivate(){
   try{
-    const auth=await import('./auth.js');
-    ({prepareAccount}=await import('./prepare-account.js'));
+    const auth=await import('./auth.js?v=20260921-4');
+    ({prepareAccount}=await import('./prepare-account.js?v=20260921-4'));
     ({getLocalSession,getVerifiedSession}=auth);
     auth.onAuthStateChange((_event,active)=>{
       if(session?.user.id===active?.user.id){session=active;return;}

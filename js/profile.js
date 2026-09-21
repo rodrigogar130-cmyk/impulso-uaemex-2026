@@ -1,4 +1,4 @@
-import { client } from './supabase-client.js';
+import { client } from './supabase-client.js?v=20260921-4';
 const fields = ['nombre', 'apellidos', 'tipo_usuario', 'numero_cuenta', 'espacio_academico', 'telefono'];
 export async function getProfile(userId) {
   const { data, error } = await client().from('profiles').select('*').eq('id', userId).maybeSingle();

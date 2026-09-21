@@ -1,6 +1,6 @@
-import { getVerifiedSession } from './auth.js';
-import { ensureProfile } from './profile.js';
-import { getEvent, ensureRegistration } from './event-registration.js';
+import { getVerifiedSession } from './auth.js?v=20260921-4';
+import { ensureProfile } from './profile.js?v=20260921-4';
+import { getEvent, ensureRegistration } from './event-registration.js?v=20260921-4';
 // Solo después del acceso autenticado; nunca desde signUp.
 export async function prepareAccount(verifiedUser) {
   // Only pass a user just returned by requireUser/getVerifiedSession in this operation.

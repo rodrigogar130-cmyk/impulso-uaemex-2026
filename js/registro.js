@@ -1,10 +1,10 @@
-import { signUp } from './auth.js';
-import { client } from './supabase-client.js';
-import { preserveAuthLinks } from './return-to.js';
-import { bindGoogleButton, hasOAuthError, googleAuthError } from './google-auth.js';
+import { signUp } from './auth.js?v=20260921-4';
+import { client } from './supabase-client.js?v=20260921-4';
+import { preserveAuthLinks } from './return-to.js?v=20260921-4';
+import { bindGoogleButton, hasOAuthError, googleAuthError } from './google-auth.js?v=20260921-4';
 preserveAuthLinks();
 bindGoogleButton();
-import { bindForm, studentFields, profileData, matchingPassword, message, errorText } from './ui.js';
+import { bindForm, studentFields, profileData, matchingPassword, message, errorText } from './ui.js?v=20260921-4';
 const form = document.querySelector('form');
 form.querySelectorAll('[data-password-toggle]').forEach(button => {
   const input = document.getElementById(button.getAttribute('aria-controls'));

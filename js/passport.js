@@ -1,6 +1,6 @@
-import { privatePage, privateError } from './private-page.js';
-import { prepareAccount } from './prepare-account.js';
-import { loadMyRoute } from './my-route.js';
+import { privatePage, privateError } from './private-page.js?v=20260921-4';
+import { prepareAccount } from './prepare-account.js?v=20260921-4';
+import { loadMyRoute } from './my-route.js?v=20260921-4';
 try {
  const user = await privatePage();
  if (user) {

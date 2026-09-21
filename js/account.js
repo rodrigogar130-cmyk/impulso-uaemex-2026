@@ -1,8 +1,8 @@
-import { privatePage, privateError } from './private-page.js';
-import { saveProfile } from './profile.js';
-import { prepareAccount } from './prepare-account.js';
-import { loadRouteCount } from './my-route.js';
-import { bindForm, studentFields, profileData, message } from './ui.js';
+import { privatePage, privateError } from './private-page.js?v=20260921-4';
+import { saveProfile } from './profile.js?v=20260921-4';
+import { prepareAccount } from './prepare-account.js?v=20260921-4';
+import { loadRouteCount } from './my-route.js?v=20260921-4';
+import { bindForm, studentFields, profileData, message } from './ui.js?v=20260921-4';
 try {
  const user = await privatePage();
  if (user) {

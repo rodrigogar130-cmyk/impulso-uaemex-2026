@@ -1,9 +1,9 @@
-import { getSession, signInWithPassword, signOut, resendConfirmation } from './auth.js';
-import { bindForm, message, errorText } from './ui.js';
-import { client } from './supabase-client.js';
-import { prepareAccount } from './prepare-account.js';
-import { afterLogin, preserveAuthLinks, requestedActivity, authLink } from './return-to.js';
-import { bindGoogleButton, hasOAuthError, googleAuthError } from './google-auth.js';
+import { getSession, signInWithPassword, signOut, resendConfirmation } from './auth.js?v=20260921-4';
+import { bindForm, message, errorText } from './ui.js?v=20260921-4';
+import { client } from './supabase-client.js?v=20260921-4';
+import { prepareAccount } from './prepare-account.js?v=20260921-4';
+import { afterLogin, preserveAuthLinks, requestedActivity, authLink } from './return-to.js?v=20260921-4';
+import { bindGoogleButton, hasOAuthError, googleAuthError } from './google-auth.js?v=20260921-4';
 preserveAuthLinks();
 bindGoogleButton();
 if(requestedActivity()){

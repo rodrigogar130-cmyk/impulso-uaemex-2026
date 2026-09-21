@@ -1,5 +1,5 @@
-import { client } from './supabase-client.js';
-import { confirmationPath, googleReturnPath } from './return-to.js';
+import { client } from './supabase-client.js?v=20260921-4';
+import { confirmationPath, googleReturnPath } from './return-to.js?v=20260921-4';
 export const landing = 'index.html';
 export function localUrl(page) { return new URL(page, window.location.href).href; }
 let localSession, localPromise, verifiedPromise, subscription;

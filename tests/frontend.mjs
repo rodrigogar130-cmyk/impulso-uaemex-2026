@@ -81,10 +81,11 @@ async function load(page, script, state, search='', options={}) {
   const windowEvents=document.createElement('window-events');
   const testDate=options.clock?class extends Date{constructor(...args){super(...(args.length?args:[options.clock.now]));}static now(){return options.clock.now;}}:Date;
   const publicFetch=options.fetch||async function(url,init){
+    if(url==='data/activities-public.json')throw Error('Snapshot unavailable in this failure fixture');
     assert.match(url,/\/rest\/v1\/rpc\/list_impulso_activities$/);
     assert.equal(init.method,'POST');assert.equal(init.credentials,'omit');
     assert.ok(init.headers.apikey.startsWith('sb_publishable_'));
-    assert.equal(init.headers.Authorization,undefined);assert.equal(init.body,'{}');
+    assert.equal(init.headers.Authorization,'Bearer '+init.headers.apikey);assert.equal(init.headers.Accept,'application/json');assert.equal(init.body,'{}');
     const result=await state.client.rpc('list_impulso_activities');
     return {ok:!result.error,json:async()=>result.data};
   };
@@ -94,6 +95,7 @@ async function load(page, script, state, search='', options={}) {
   }});
   const cache=new Map();
   function sourceModule(file) {
+    file=file.split('?')[0];
     if(cache.has(file))return cache.get(file);
     let mod;
     if(file.endsWith('supabase-client.js')){
@@ -642,12 +644,12 @@ for(const mode of ['mobile','reduced','cdn-failure']){
 const sensitiveWrites=[];
 const noSensitiveStorage={getItem(){return null;},setItem(...args){sensitiveWrites.push(args);},removeItem(){}};
 const confirmHtml=parseHTML(fs.readFileSync('confirmar.html','utf8')).document;
-const confirmScripts=[...confirmHtml.querySelectorAll('script[src]')].map(script=>path.basename(script.getAttribute('src')));
+const confirmScripts=[...confirmHtml.querySelectorAll('script[type="module"][src]')].map(script=>path.basename(script.getAttribute('src').split('?')[0]));
 assert.deepEqual(confirmScripts,['site-header.js','confirm-email.js']);
 assert.equal(confirmHtml.querySelector('meta[name="referrer"]').getAttribute('content'),'no-referrer');
 assert.match(confirmHtml.querySelector('main .small').textContent,/Spam, Correo no deseado o Promociones/);
 for(const el of confirmHtml.querySelectorAll('[src],[href]')){
- const href=el.getAttribute('src')||el.getAttribute('href');assert.ok(fs.existsSync(path.resolve(root,href)));
+ const href=el.getAttribute('src')||el.getAttribute('href');assert.ok(fs.existsSync(path.resolve(root,href.split('?')[0])));
 }
 ok('confirmación usa recursos existentes, nota de Spam y política no-referrer');
 
@@ -902,8 +904,8 @@ function mountAgendaFilters(target){
  target.context.requestAnimationFrame=callback=>callback();
  target.context.prefersReducedMotion=true;
  vm.runInContext(landingSource.slice(landingSource.indexOf('    let selectedDay ='),landingSource.indexOf('    /* Keep only one disclosure')),target.context);
- target.document.dispatchEvent(new target.document.defaultView.CustomEvent('impulso:agenda-updated'));
 }
+
 const public55=Array.from({length:55},(_,i)=>({...openActivity,id:'public-'+i,slug:'public-'+i,title:'Actividad '+i}));
 for(const failure of ['no-session','sdk-unavailable','auth-error','auth-pending','route-pending']){
  const isolated=backend(failure==='route-pending'?{user}:null);
@@ -929,19 +931,19 @@ for(const failure of ['no-session','sdk-unavailable','auth-error','auth-pending'
  const diagnostics=[];
  const isolatedPage=await load('index.html','site-header.js',isolated,'',{
   console:{...console,error(...args){diagnostics.push(args);}},
-  fetch:async()=>{requests++;await new Promise(resolve=>{release=resolve;});if(fail)throw Error('private diagnostic must not leak');return {ok:true,json:async()=>public55};}
+  fetch:async(url)=>{if(url==='data/activities-public.json')throw Error('Snapshot offline');requests++;await new Promise(resolve=>{release=resolve;});if(fail)throw Error('private diagnostic must not leak');return {ok:true,json:async()=>public55};}
  });
  mountAgendaFilters(isolatedPage);
  const agendaModule=await isolatedPage.moduleFor(path.resolve('js/agenda-route.js'));
  const first=agendaModule.evaluate();await flush();
  assert.match(isolatedPage.document.querySelector('#agendaList').textContent,/Cargando actividades/);
  assert.equal(isolatedPage.document.querySelector('#agendaList').getAttribute('aria-busy'),'true');
- assert.equal(isolatedPage.document.querySelector('#agendaResults').textContent,'');
+ assert.equal(isolatedPage.document.querySelector('#agendaResults').textContent,'Cargando actividades…');
  assert.equal(isolatedPage.document.querySelector('#agendaEmpty').hidden,true);
  ok('carga inicial pendiente muestra Cargando actividades y nunca 0 ni ausencia de coincidencias');
  fail=true;release();await first;await flush();
  assert.match(isolatedPage.document.querySelector('#agendaList').textContent,/No pudimos cargar la agenda en este momento/);
- assert.equal(isolatedPage.document.querySelector('#agendaResults').textContent,'');
+ assert.equal(isolatedPage.document.querySelector('#agendaResults').textContent,'No pudimos cargar la agenda en este momento.');
  assert.equal(isolatedPage.document.querySelector('#agendaEmpty').hidden,true);
  assert.deepEqual(diagnostics,[['Agenda public catalog load failed']]);
  const retry=isolatedPage.document.querySelector('#agendaList button');assert.equal(retry.type,'button');
@@ -972,7 +974,7 @@ for(const result of ['empty','http-error','invalid-json','invalid-shape']){
  const isEmpty=result==='empty';
  assert.equal(isolatedPage.document.querySelector('#agendaList').dataset.catalogState,isEmpty?'loaded':'error');
  assert.equal(isolatedPage.document.querySelector('#agendaEmpty').hidden,!isEmpty);
- assert.equal(isolatedPage.document.querySelector('#agendaResults').textContent,isEmpty?'Mostrando 0 de 0 actividades':'');
+ assert.equal(isolatedPage.document.querySelector('#agendaResults').textContent,isEmpty?'Mostrando 0 de 0 actividades':'No pudimos cargar la agenda en este momento.');
  ok(result+': únicamente una respuesta válida vacía muestra 0 actividades');
 }
 {
@@ -993,17 +995,125 @@ for(const result of ['empty','http-error','invalid-json','invalid-shape']){
  assert.equal(crypto.createHash('sha256').update(bundle).digest('hex'),'7e94b62086deecef8c0ba3b38f514e2a1944ff6c81d92fb3ff967828c406c38f');
  const sdkContext=vm.createContext({console,URL,URLSearchParams,TextEncoder,TextDecoder,AbortController,Headers,Request,Response,setTimeout(){return 1;},clearTimeout(){},setInterval(){return 1;},clearInterval(){},fetch(){throw Error('Unexpected SDK network request');}});
  sdkContext.self=sdkContext;
- const bundleModule=new vm.SourceTextModule(bundle,{context:sdkContext});await bundleModule.link(()=>{throw Error('Unexpected bundle dependency');});await bundleModule.evaluate();
+ assert.equal(sdkContext.supabase,undefined);
+ new vm.Script(bundle).runInContext(sdkContext);
+ assert.equal(typeof sdkContext.supabase.createClient,'function');
+ const sdkFactory=sdkContext.supabase.createClient,clientOptions=[];
+ sdkContext.supabase={...sdkContext.supabase,createClient(...args){clientOptions.push(args[2]);return sdkFactory(...args);}};
  const config=new vm.SyntheticModule(['SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY'],function(){this.setExport('SUPABASE_URL','https://example.invalid');this.setExport('SUPABASE_PUBLISHABLE_KEY','sb_publishable_test');},{context:sdkContext});
  const clientSource=fs.readFileSync('js/supabase-client.js','utf8');
  assert.doesNotMatch(clientSource,/esm\.sh|https:\/\/.*supabase-js/);
- const actualClient=new vm.SourceTextModule(clientSource,{context:sdkContext,importModuleDynamically:async specifier=>{assert.equal(specifier,'../vendor/supabase-js-2.57.4/supabase.js');return bundleModule;}});
+ assert.doesNotMatch(clientSource,/import\s*\(/);
+ const actualClient=new vm.SourceTextModule(clientSource,{context:sdkContext});
  await actualClient.link(()=>config);await actualClient.evaluate();
  assert.ok(actualClient.namespace.supabase);
  assert.equal(actualClient.namespace.client(),actualClient.namespace.supabase);
  assert.equal(actualClient.namespace.client(),actualClient.namespace.client());
  assert.equal(actualClient.namespace.supabase.auth.flowType,'implicit');
+ assert.equal(clientOptions.length,1);
+ assert.deepEqual(JSON.parse(JSON.stringify(clientOptions[0])),{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'}});
  for(const method of ['signInWithOAuth','signInWithPassword','signUp','verifyOtp'])assert.equal(typeof actualClient.namespace.supabase.auth[method],'function');
- ok('bundle oficial íntegro ejecutado como módulo local: cliente compartido, flujo implicit y APIs Auth disponibles');
+ ok('bundle oficial íntegro ejecutado como script clásico antes del cliente: instancia compartida, implicit y APIs Auth disponibles');
+}
+const snapshot=JSON.parse(fs.readFileSync('data/activities-public.json','utf8'));
+const publicFields=['id','title','slug','description','scenario','speaker','activity_date','start_time','end_time','timezone','location','status'];
+assert.equal(snapshot.length,55);assert.equal(new Set(snapshot.map(a=>a.id)).size,55);
+for(const activity of snapshot){assert.equal(activity.status,'open');assert.deepEqual(Object.keys(activity),publicFields);}
+ok('snapshot contiene 55 actividades open con identificadores únicos y exclusivamente los campos públicos solicitados');
+for(const mode of ['network','cors-safari','timeout','http-401','http-500','bad-json','bad-shape']){
+ const logs=[],requests=[];
+ const isolated=backend();
+ const isolatedPage=await load('index.html','agenda-route.js',isolated,'',{
+  console:{...console,error(...args){logs.push(args);}},
+  matchMedia:()=>({matches:true,addListener(){}}),
+  setTimeout(callback,delay){return setTimeout(callback,delay===15000?0:delay);},
+  fetch:async(url,init)=>{
+   requests.push(url);
+   if(url==='data/activities-public.json'){
+    assert.equal(init.credentials,'omit');assert.equal(init.headers.Authorization,undefined);assert.equal(init.headers.apikey,undefined);
+    return {ok:true,json:async()=>snapshot};
+   }
+   assert.equal(init.headers.Authorization,'Bearer '+init.headers.apikey);
+   assert.equal(init.headers['Content-Type'],'application/json');assert.equal(init.headers.Accept,'application/json');
+   assert.equal(init.credentials,'omit');
+   if(mode==='timeout')return new Promise((_resolve,reject)=>init.signal.addEventListener('abort',()=>reject(Error('timeout'))));
+   if(mode.startsWith('http-'))return {ok:false,status:Number(mode.slice(5))};
+   if(mode==='bad-json')return {ok:true,json:async()=>{throw Error('JSON');}};
+   if(mode==='bad-shape')return {ok:true,json:async()=>({error:'unexpected'})};
+   throw new TypeError('Failed to fetch');
+  }
+ });
+ // No synthetic agenda-updated event: the real load finished BEFORE filters initialized.
+ mountAgendaFilters(isolatedPage);
+ assert.equal(requests.length,2);assert.equal(requests[1],'data/activities-public.json');
+ assert.equal(isolatedPage.document.querySelectorAll('.agenda-item').length,55);
+ assert.match(isolatedPage.document.querySelector('#agendaResults').textContent,/de 55 actividades/);
+ assert.equal(isolatedPage.document.querySelector('#agendaEmpty').hidden,true);
+ assert.equal(isolatedPage.document.querySelector('#catalog-status').textContent,'Mostramos la última versión disponible de la agenda.');
+ if(mode.startsWith('http-'))assert.deepEqual(logs,[['Agenda public catalog load failed',Number(mode.slice(5))]]);
+ else assert.deepEqual(logs,[]);
+ const input=isolatedPage.document.querySelector('#agendaSearch');input.value='no-match-snapshot';input.dispatchEvent(new isolatedPage.document.defaultView.Event('input'));
+ assert.equal(isolatedPage.document.querySelector('#agendaEmpty').hidden,false);
+ isolatedPage.document.querySelector('#resetAgenda').click();
+ while(!isolatedPage.document.querySelector('#agendaMore').hidden)isolatedPage.document.querySelector('#agendaMore').click();
+ assert.equal([...isolatedPage.document.querySelectorAll('.agenda-item')].filter(card=>!card.hidden).length,55);
+ ok(mode+': fallback real, aviso discreto, filtros/reset y primer evento recuperado sin depender del orden de carga');
+}
+{
+ const isolated=backend({user});let offline=false,snapshotRequests=0;
+ const isolatedPage=await load('index.html','agenda-route.js',isolated,'',{
+  fetch:async(url)=>{if(url==='data/activities-public.json'){snapshotRequests++;return {ok:true,json:async()=>snapshot};}if(offline)throw Error('offline');return {ok:true,json:async()=>public55};}
+ });
+ mountAgendaFilters(isolatedPage);
+ const initial=[...isolatedPage.document.querySelectorAll('.agenda-item')];
+ offline=true;fireWindow(isolatedPage,'impulso-activities-changed');await flush();
+ assert.equal(snapshotRequests,1);assert.deepEqual([...isolatedPage.document.querySelectorAll('.agenda-item')],initial);
+ assert.match(isolatedPage.document.querySelector('#catalog-status').textContent,/última versión disponible/);
+ isolated.emit('SIGNED_OUT',null);await flush();
+ isolated.emit('SIGNED_IN',{user});await flush();
+ assert.deepEqual([...isolatedPage.document.querySelectorAll('.agenda-item')],initial);
+ assert.equal(isolatedPage.document.querySelectorAll('.agenda-item').length,55);
+ ok('snapshot no sustituye catálogo en memoria más reciente; entrar/salir de sesión no cambia actividades públicas');
+}
+{
+ let requests=0;
+ const isolatedPage=await load('index.html','agenda-route.js',backend(),'',{fetch:async()=>{requests++;return {ok:true,json:async()=>[]};}});
+ mountAgendaFilters(isolatedPage);assert.equal(requests,1);
+ assert.equal(isolatedPage.document.querySelector('#agendaResults').textContent,'Mostrando 0 de 0 actividades');
+ ok('RPC con [] válido no solicita snapshot ni inventa actividades');
+}
+const authPages=['index.html','login.html','registro.html','completar-registro.html','mi-cuenta.html','pasaporte.html','admin.html','recuperar-password.html','confirmar.html'];
+for(const file of authPages){
+ const html=fs.readFileSync(file,'utf8'),doc=parseHTML(html).document;
+ const scripts=[...doc.querySelectorAll('script')];
+ const bundle=scripts.filter(script=>script.getAttribute('src')==='vendor/supabase-js-2.57.4/supabase.js?v=20260921-4');
+ assert.equal(bundle.length,1);assert.equal(bundle[0].hasAttribute('type'),false);
+ assert.equal(bundle[0].hasAttribute('async'),false);assert.equal(bundle[0].hasAttribute('defer'),false);
+ for(const mod of scripts.filter(script=>script.getAttribute('type')==='module')){
+  assert.ok(scripts.indexOf(bundle[0])<scripts.indexOf(mod));
+  assert.match(mod.getAttribute('src'),/\?v=20260921-4$/);
+ }
+ assert.doesNotMatch(html,/esm\.sh/);
+ ok(file+': UMD clásico único antes de todos los módulos, sin async/defer y con versión coherente');
+}
+for(const name of fs.readdirSync('js').filter(name=>name.endsWith('.js'))){
+ const source=fs.readFileSync('js/'+name,'utf8');
+ assert.doesNotMatch(source,/esm\.sh/);
+ for(const match of source.matchAll(/['"](\.\/[^'" ]+\.js(?:\?[^'"]*)?)['"]/g)){
+  assert.ok(match[1].endsWith('?v=20260921-4'),name+': '+match[1]);
+  assert.ok(fs.existsSync(path.resolve('js',match[1].split('?')[0])));
+ }
+}
+ok('todos los imports locales comparten versión, existen y no dependen de esm.sh');
+for(const sdkMode of ['missing','invalid','throws']){
+ const context=vm.createContext({});
+ if(sdkMode==='invalid')context.supabase={};
+ if(sdkMode==='throws')context.supabase={createClient(){throw Error('SDK initialization failed');}};
+ const config=new vm.SyntheticModule(['SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY'],function(){this.setExport('SUPABASE_URL','https://example.invalid');this.setExport('SUPABASE_PUBLISHABLE_KEY','sb_publishable_test');},{context});
+ const mod=new vm.SourceTextModule(fs.readFileSync('js/supabase-client.js','utf8'),{context});
+ await mod.link(()=>config);await mod.evaluate();
+ assert.equal(mod.namespace.supabase,null);assert.ok(mod.namespace.connectionError);
+ assert.throws(()=>mod.namespace.client());
+ ok(sdkMode+': importación del cliente no lanza; servicio ausente informa connectionError');
 }
 console.log('TOTAL: '+passed+' comprobaciones de interfaz.');

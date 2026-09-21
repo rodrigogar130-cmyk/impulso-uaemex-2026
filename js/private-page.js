@@ -1,5 +1,5 @@
-import { requireUser, onAuthStateChange, signOut } from './auth.js';
-import { bindForm, message, errorText } from './ui.js';
+import { requireUser, onAuthStateChange, signOut } from './auth.js?v=20260921-4';
+import { bindForm, message, errorText } from './ui.js?v=20260921-4';
 export async function privatePage() {
   const user = await requireUser();
   if (!user) return null;

@@ -1,4 +1,4 @@
-import { client } from './supabase-client.js';
+import { client } from './supabase-client.js?v=20260921-4';
 export async function adminCall(name,args={}) {
   const {data,error}=await client().rpc(name,args);
   if(error)throw error;

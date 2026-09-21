@@ -16,8 +16,14 @@ MIT incluida en ese mismo paquete.
 Se verificaron la integridad del tarball y la igualdad byte por byte del
 bundle y la licencia con los archivos del paquete oficial.
 
-`js/supabase-client.js` importa este archivo local una sola vez y usa
-`globalThis.supabase.createClient` para crear la instancia compartida.
+Cada página carga este archivo como script clásico local, sin `async` ni
+`defer`, antes de sus scripts de módulo. El bundle UMD no se importa como
+módulo ES. Después, `js/supabase-client.js` usa
+`globalThis.supabase?.createClient` para crear la instancia compartida.
+El bundle, los módulos de entrada y sus imports relativos usan la versión
+`?v=20260921-4` para evitar mezclar versiones almacenadas en caché.
+En `confirmar.html` cargar el bundle no crea el cliente ni consume el token:
+el módulo del cliente sigue cargándose solo al confirmar explícitamente.
 Se conserva la configuración de Auth existente. No necesita un CDN en
 ejecución, instalación npm ni compilación. La agenda pública consulta
 la RPC anónima por HTTP de manera independiente del SDK y de Auth.

@@ -1,9 +1,9 @@
-import { getVerifiedSession, onAuthStateChange } from './auth.js';
-import { getProfile, saveProfile } from './profile.js';
-import { prepareAccount } from './prepare-account.js';
-import { afterLogin, preserveAuthLinks } from './return-to.js';
-import { bindForm, studentFields, profileData, message } from './ui.js';
-import { hasOAuthError, googleAuthError } from './google-auth.js';
+import { getVerifiedSession, onAuthStateChange } from './auth.js?v=20260921-4';
+import { getProfile, saveProfile } from './profile.js?v=20260921-4';
+import { prepareAccount } from './prepare-account.js?v=20260921-4';
+import { afterLogin, preserveAuthLinks } from './return-to.js?v=20260921-4';
+import { bindForm, studentFields, profileData, message } from './ui.js?v=20260921-4';
+import { hasOAuthError, googleAuthError } from './google-auth.js?v=20260921-4';
 
 preserveAuthLinks();
 const content = document.querySelector('#completion-content');

@@ -1,4 +1,4 @@
-import { calendarReady, googleCalendarUrl, downloadRoute } from './calendar.js';
+import { calendarReady, googleCalendarUrl, downloadRoute } from './calendar.js?v=20260921-4';
 const scenarios={cultura:'Cultura',deporte:'Deporte',tecnologia:'Tecnología',diseno:'Diseño',investigacion:'Investigación aplicada',gobernanza:'Gobernanza',bienestar:'Bienestar Integral'};
 export function scenarioName(value){return scenarios[value]||value;}
 export function element(tag, text, className) {

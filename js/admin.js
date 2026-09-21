@@ -1,6 +1,6 @@
-import { getVerifiedSession,onAuthStateChange } from './auth.js';
-import { adminCall,adminError } from './admin-api.js';
-import { element,formatActivityTime,scenarioName } from './route-ui.js';
+import { getVerifiedSession,onAuthStateChange } from './auth.js?v=20260921-4';
+import { adminCall,adminError } from './admin-api.js?v=20260921-4';
+import { element,formatActivityTime,scenarioName } from './route-ui.js?v=20260921-4';
 const content=document.querySelector('#admin-content'),view=document.querySelector('#admin-view'),message=document.querySelector('#admin-message');
 let accessRevision=0,revision=0,identity=null,section='dashboard';
 let adminRole=null,allowedScenarios=[];

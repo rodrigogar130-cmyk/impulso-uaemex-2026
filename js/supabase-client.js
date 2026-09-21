@@ -1,4 +1,4 @@
-import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from './config.js';
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from './config.js?v=20260921-4';
 
 export const configurationReady = /^https:\/\/[^/]+\/?$/.test(SUPABASE_URL)
   && SUPABASE_PUBLISHABLE_KEY.startsWith('sb_publishable_');
@@ -7,9 +7,10 @@ export let supabase = null;
 export let connectionError = '';
 if (configurationReady) {
   try {
-    await import('../vendor/supabase-js-2.57.4/supabase.js');
-    const { createClient } = globalThis.supabase;
-    supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    const createClient = globalThis.supabase?.createClient;
+    if (typeof createClient !== 'function') {
+      connectionError = 'No se pudo cargar el servicio de cuentas. Comprueba tu conexión y vuelve a cargar la página.';
+    } else supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit' }
     });
   } catch {

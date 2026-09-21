@@ -1,4 +1,4 @@
-import { message } from './ui.js';
+import { message } from './ui.js?v=20260921-4';
 
 const parameters = new URLSearchParams(location.search);
 let tokenHash = (parameters.get('token_hash') || '').trim();
@@ -25,7 +25,7 @@ if (!valid) {
     try {
       // Loading this page must not initialize Auth or consume the email token.
       // Import the existing shared client only after the user's button activation.
-      const { client } = await import('./supabase-client.js');
+      const { client } = await import('./supabase-client.js?v=20260921-4');
       const { error } = await client().auth.verifyOtp({ token_hash: tokenHash, type: 'email' });
       if (error) throw error;
       tokenHash = '';
