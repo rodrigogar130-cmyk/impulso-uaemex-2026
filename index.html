@@ -705,18 +705,6 @@
     .experience-grid p,.intro-content .editorial-details p{ font-size:15px; line-height:1.65; margin:0; }
     .intro-content .audience-cloud{ margin-top:16px; }
     .stat{ display:flex; flex-direction:column; justify-content:flex-end; min-width:0; }
-    .passport{ display:grid; grid-template-columns:1.2fr 1fr; gap:60px; padding:40px; margin-top:80px; border:1px solid var(--border); background:var(--surface); }
-    .passport-visual{ grid-column:1 / -1; margin:0; min-width:0; }
-    .passport-visual a{ display:block; }
-    .passport-visual img{ width:100%; height:auto; border:1px solid var(--border); }
-    .passport-visual figcaption{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px 24px; padding-top:14px; font-size:12px; line-height:1.6; color:var(--text-secondary); }
-    .passport h3{ font-size:clamp(28px,3vw,40px); font-weight:500; letter-spacing:-.04em; margin:14px 0; }
-    .passport p{ font-size:15px; line-height:1.7; color:var(--text-secondary); }
-    .passport-steps{ list-style:none; padding:0; margin:0; counter-reset:passport-step; }
-    .passport-steps li{ counter-increment:passport-step; display:grid; grid-template-columns:24px minmax(0,1fr); gap:16px; padding:18px 0; border-top:1px solid var(--border); }
-    .passport-steps li::before{ content:counter(passport-step, decimal-leading-zero); font-size:12px; color:var(--text-secondary); padding-top:3px; }
-    .passport-steps h4{ margin:0; font-size:16px; font-weight:500; }
-    .passport-steps p{ margin:8px 0 0; font-size:14px; }
     .editorial-details{ border-top:1px solid var(--border); margin-top:28px; }
     .editorial-details summary{ padding:20px 0; display:flex; align-items:center; justify-content:space-between; gap:20px; cursor:pointer; font-size:14px; list-style:none; }
     summary::-webkit-details-marker{ display:none; }
@@ -779,7 +767,6 @@
     }
     @media (max-width:820px){
       .stage{ grid-template-columns:76px minmax(0,1fr); }
-      .passport{ grid-template-columns:1fr; gap:16px; padding:28px; }
       .agenda-item{ grid-template-columns:90px minmax(0,1fr); }
       .agenda-place,.agenda-type{ grid-column:2; }
       .collaborator-list{ grid-template-columns:1fr; }
@@ -800,7 +787,6 @@
       .agenda-type{ margin-top:4px; }
       .agenda-days{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; }
       .filter-btn{ padding:11px 12px; min-height:44px; }
-      .passport{ padding:24px; }
       .stat{ padding:30px 12px; }
     }
 
@@ -913,41 +899,99 @@
     </section>
 
     <section class="section intro" id="evento">
-      <div class="container intro-grid">
-        <div class="intro-sticky"><span class="eyebrow reveal">El evento</span><h2 class="section-title reveal">IDEAS QUE SE VIVEN.<br>CONEXIONES QUE CONTINÚAN.</h2></div>
-        <div class="intro-content reveal">
-          <p>IMPULSO UAEMÉX 2026 conecta talento universitario, emprendimiento e innovación a través de experiencias prácticas. Una iniciativa de la Dirección de Desarrollo Empresarial para explorar retos reales y construir nuevas oportunidades.</p>
-          <div class="experience-grid">
-            <article><span class="micro-label">01 / Explora</span><h3>Encuentra tu escenario.</h3><p>Charlas, talleres, paneles, demostraciones y conversaciones desde siete áreas de conocimiento.</p></article>
-            <article><span class="micro-label">02 / Construye</span><h3>Lleva tus ideas a la práctica.</h3><p>Desarrolla propuestas, prototipos o rutas de acción mediante experiencias de aprendizaje y retroalimentación.</p></article>
-            <article><span class="micro-label">03 / Conecta</span><h3>Abre tu siguiente paso.</h3><p>Explora rutas de mentoría, formación, incubación y vinculación dentro del ecosistema emprendedor universitario.</p></article>
-          </div>
-          <p class="micro-label">Un encuentro para</p>
-          <div class="audience-cloud"><span class="chip">Estudiantes</span><span class="chip">Egresados</span><span class="chip">Docentes</span><span class="chip">Investigadores</span><span class="chip">Administrativos</span><span class="chip">Directivos</span><span class="chip">Emprendedores</span><span class="chip">Empresas</span><span class="chip">Aliados estratégicos</span></div>
-          <details class="editorial-details"><summary>Después del evento <span aria-hidden="true">+</span></summary><p>Explora oportunidades de formación y acompañamiento a través de Programa Emprendedor, Emprende UAEMéx 365, Emprende Academy 365, Banco de Retos, Bootcamp, Demo Day e incubación.</p></details>
+      <div class="container event-glass">
+        <div class="event-intro" data-event-reveal>
+          <span class="eyebrow">EL EVENTO</span>
+          <h2 class="section-title"><span class="event-title-line"><span>NO VIENES A VERLO.</span></span> <span class="event-title-line"><span>VIENES A VIVIRLO.</span></span></h2>
+          <p class="event-lead">Dos días para probar ideas, conocer personas y descubrir qué puede venir después. Tú eliges cómo recorrer IMPULSO UAEMéx 2026.</p>
+          <ul class="event-pills" aria-label="La experiencia IMPULSO">
+            <li style="--event-delay:80ms">7 ESCENARIOS</li>
+            <li style="--event-delay:160ms">67 ACTIVIDADES</li>
+            <li style="--event-delay:240ms">2 DÍAS</li>
+          </ul>
         </div>
+        <div class="event-cards">
+          <article class="event-card" data-event-reveal style="--event-delay:0ms">
+            <div class="event-card-top"><span class="micro-label">01 / EXPLORA</span><span class="event-symbol" aria-hidden="true"><span>↗</span></span></div>
+            <h3>Encuentra lo que te mueve.</h3>
+            <p>Muévete entre siete escenarios, descubre nuevas ideas y entra a las experiencias que más conecten contigo.</p>
+          </article>
+          <article class="event-card" data-event-reveal style="--event-delay:100ms">
+            <div class="event-card-top"><span class="micro-label">02 / CONSTRUYE</span><span class="event-symbol" aria-hidden="true"><span>＋</span></span></div>
+            <h3>Pasa de la idea a la acción.</h3>
+            <p>Prueba, crea, pregunta y experimenta. Aquí no vienes solo a escuchar.</p>
+          </article>
+          <article class="event-card" data-event-reveal style="--event-delay:200ms">
+            <div class="event-card-top"><span class="micro-label">03 / CONECTA</span><span class="event-symbol" aria-hidden="true"><span>↔</span></span></div>
+            <h3>Haz que no termine aquí.</h3>
+            <p>Conoce personas, proyectos y oportunidades que pueden convertirse en tu siguiente paso.</p>
+          </article>
+        </div>
+        <article class="event-passport" data-event-reveal aria-labelledby="eventPassportTitle">
+          <div class="event-passport-copy">
+            <span class="event-passport-eyebrow">TU EXPERIENCIA EN IMPULSO</span>
+            <h3 id="eventPassportTitle">Explora. Participa.<br>Desbloquea tu insignia.</h3>
+            <p>Participa en actividades, registra tu asistencia y avanza hacia tu insignia digital.</p>
+          </div>
+          <div class="event-passport-progress">
+            <strong class="event-passport-count" aria-label="0 de 12 actividades">0 <span>/ 12</span></strong>
+            <span class="event-passport-label">ACTIVIDADES</span>
+            <div class="event-passport-track" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <p class="event-passport-note">Vista ilustrativa · Tu progreso estará en tu cuenta.</p>
+          </div>
+          <div class="event-passport-reward">
+            <span class="event-passport-badge"><span aria-hidden="true">✳</span> BLOQUEADA</span>
+            <p>Completa 12 actividades</p>
+            <a class="event-passport-link" href="#pasaporte">CONOCE TU PASAPORTE <span aria-hidden="true">↗</span></a>
+          </div>
+          <ol class="event-passport-steps" aria-label="Tu recorrido hacia la insignia">
+            <li style="--event-delay:100ms">Explora escenarios</li>
+            <li style="--event-delay:180ms">Registra asistencia</li>
+            <li style="--event-delay:260ms">Desbloquea insignia</li>
+          </ol>
+        </article>
       </div>
       <div class="container">
-        <aside class="passport reveal" id="pasaporte" aria-labelledby="passportTitle">
-          <div>
-            <span class="micro-label">Tu recorrido por el evento</span>
-            <h3 id="passportTitle">Pasaporte digital</h3>
-            <p>Elige tus actividades, asiste y escanea el código QR de cada una para registrar tu asistencia en tu cuenta.</p>
-            <p>Al completar <strong>12 actividades con asistencia confirmada</strong> entre el 15 y 16 de octubre, recibirás automáticamente una <strong>insignia digital en tu cuenta</strong>.</p>
-            <span class="status-label">12 actividades · Asistencia por QR · Tu insignia digital</span>
+        <aside class="passport" id="pasaporte" aria-labelledby="passportTitle">
+          <div class="passport-intro">
+            <span class="micro-label">TU RECORRIDO POR IMPULSO</span>
+            <h3 id="passportTitle">PASAPORTE DIGITAL</h3>
+            <p class="passport-lead">Participa en actividades, confirma tu asistencia y desbloquea una insignia única de IMPULSO UAEMéx 2026.</p>
+            <p>Cada asistencia confirmada se suma a tu Pasaporte Digital. Al completar 12 actividades distintas, tu cuenta desbloqueará una insignia personalizada con tu nombre, folio y fecha.</p>
+            <p class="passport-highlight">12 actividades · Asistencia por QR o NFC · Insignia digital personalizada</p>
           </div>
-          <ol class="passport-steps">
-            <li><div><h4>Inicia sesión</h4><p>Entra a tu cuenta personal para ver los escenarios y las actividades disponibles.</p></div></li>
-            <li><div><h4>Elige en qué participar</h4><p>Abre la actividad que te interesa y haz clic en «Participar en esta actividad».</p></div></li>
-            <li><div><h4>Asiste y escanea el QR</h4><p>Cuando estés en la actividad, abre la opción de escanear en tu cuenta y escanea el código QR de esa actividad. Así se confirma tu asistencia y se suma a tu pasaporte. Elegirla no basta: debes asistir y escanear.</p></div></li>
-            <li><div><h4>Completa 12 y recibe tu insignia</h4><p>Reúne 12 actividades distintas con asistencia confirmada durante los dos días. Al completar la número 12, tu cuenta mostrará automáticamente tu insignia digital.</p></div></li>
-          </ol>
-          <figure class="passport-visual">
-            <a href="assets/pasaporte-digital-impulso-2026.png?v=2" target="_blank" rel="noopener" aria-label="Ampliar imagen del pasaporte digital (abre en otra pestaña)">
-              <img src="assets/pasaporte-digital-impulso-2026.png?v=2" width="1672" height="941" loading="lazy" decoding="async" alt="Pasaporte digital Impulso UAEMéx 2026 con una insignia. Completa tu pasaporte, desbloquea tu insignia y participa por premios." />
-            </a>
-            <figcaption><span>Tu meta: 12 actividades con asistencia confirmada por QR.</span><span>Toca la imagen para ampliarla.</span></figcaption>
+          <figure class="passport-preview" aria-labelledby="passportPreviewCaption">
+            <div class="passport-composition">
+              <div class="passport-card">
+                <div class="passport-card-top"><span>IMPULSO UAEMÉX 2026</span><span aria-hidden="true">↗</span></div>
+                <h4>Tu Pasaporte</h4>
+                <div class="passport-counter" aria-label="0 de 12 actividades completadas">0 <span>/ 12</span></div>
+                <p class="passport-counter-label">Actividades completadas</p>
+                <div class="passport-stamps" aria-hidden="true">
+                  <span style="--stamp:0">01</span><span style="--stamp:1">02</span><span style="--stamp:2">03</span><span style="--stamp:3">04</span><span style="--stamp:4">05</span><span style="--stamp:5">06</span>
+                  <span style="--stamp:6">07</span><span style="--stamp:7">08</span><span style="--stamp:8">09</span><span style="--stamp:9">10</span><span style="--stamp:10">11</span><span style="--stamp:11">12</span>
+                </div>
+                <p class="passport-card-footer">Asiste, registra y suma experiencias</p>
+              </div>
+              <div class="passport-connection" aria-hidden="true"><span>→</span></div>
+              <div class="passport-badge">
+                <span class="passport-lock">BLOQUEADA</span>
+                <div class="passport-emblem" aria-hidden="true">
+                  <svg viewBox="0 0 100 100" fill="none" focusable="false"><path d="M50 8 59 34 83 17 66 41 92 50 66 59 83 83 59 66 50 92 41 66 17 83 34 59 8 50 34 41 17 17 41 34Z" fill="currentColor"/><circle cx="50" cy="50" r="9" fill="#141414"/></svg>
+                </div>
+                <h4>Insignia IMPULSO UAEMéx 2026</h4>
+                <p>Se personaliza al completar 12 actividades</p>
+                <p class="passport-badge-detail">Mostrará tu nombre, folio y fecha de cumplimiento</p>
+              </div>
+            </div>
+            <figcaption id="passportPreviewCaption">Vista ilustrativa · Tu progreso real estará en tu cuenta.</figcaption>
           </figure>
+          <ol class="passport-steps">
+            <li><div><h4>CREA TU CUENTA</h4><p>Tu recorrido comienza con tu registro.</p></div></li>
+            <li><div><h4>VIVE LAS ACTIVIDADES</h4><p>Elige tus experiencias y participa.</p></div></li>
+            <li><div><h4>CONFIRMA TU ASISTENCIA</h4><p>Registra tu asistencia por QR o NFC.</p></div></li>
+            <li><div><h4>DESBLOQUEA TU INSIGNIA</h4><p>Completa 12 actividades distintas.</p></div></li>
+          </ol>
         </aside>
       </div>
     </section>
@@ -1250,6 +1294,68 @@
         });
       });
     });
+
+    /* Event glass: visible without JS; each panel animates only on its first entry. */
+    (() => {
+      if (!('IntersectionObserver' in window)) return;
+      const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (motion.matches) return;
+      const observer = new IntersectionObserver(entries => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          if (!motion.matches) entry.target.classList.add('event-entered');
+          observer.unobserve(entry.target);
+        }
+      }, { threshold: 0.12 });
+      document.querySelectorAll('#evento .event-glass [data-event-reveal]').forEach(panel => observer.observe(panel));
+
+      // A central viewport band selects one panel, without scroll or pointer tracking.
+      const cards = [...document.querySelectorAll('#evento .event-card')];
+      const visible = new Set();
+      let focusObserver;
+      const connectFocus = () => {
+        focusObserver?.disconnect();
+        visible.clear();
+        cards.forEach(card => card.classList.remove('event-current'));
+        if (motion.matches) return;
+        const inset = Math.round(window.innerHeight * .4);
+        focusObserver = new IntersectionObserver(entries => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) visible.add(entry.target);
+            else visible.delete(entry.target);
+          }
+          const center = window.innerHeight / 2;
+          let current = null, distance = Infinity;
+          for (const card of visible) {
+            const rect = card.getBoundingClientRect();
+            const next = Math.abs((rect.top + rect.bottom) / 2 - center);
+            if (next < distance) { current = card; distance = next; }
+          }
+          cards.forEach(card => card.classList.toggle('event-current', card === current));
+        }, { rootMargin: `-${inset}px 0px -${inset}px 0px`, threshold: [0, .25, .5, .75, 1] });
+        cards.forEach(card => focusObserver.observe(card));
+      };
+      connectFocus();
+      window.addEventListener('resize', connectFocus, { passive: true });
+      motion.addEventListener('change', () => {
+        if (motion.matches) observer.disconnect();
+        connectFocus();
+      });
+    })();
+
+    /* Public preview: one-shot animation, independent of account data and GSAP. */
+    (() => {
+      const preview = document.querySelector('#pasaporte .passport-composition');
+      if (!preview || !('IntersectionObserver' in window)) return;
+      const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (motion.matches) return;
+      const observer = new IntersectionObserver(entries => {
+        if (!entries.some(entry => entry.isIntersecting)) return;
+        if (!motion.matches) preview.classList.add('passport-entered');
+        observer.disconnect();
+      }, { threshold: 0.15 });
+      observer.observe(preview);
+    })();
 
     /* Desktop motion is optional; content is visible before scripts load. */
     let animationLoading = false;
