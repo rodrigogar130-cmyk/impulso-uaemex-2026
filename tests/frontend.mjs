@@ -1551,7 +1551,7 @@ for(const trigger of ['hash','return','link','hashchange','legacy-scroll']){
  const preloads=[...doc.querySelectorAll('link[rel="preload"][as="image"]')];assert.equal(preloads.length,2);
  assert.ok(preloads.every(link=>link.getAttribute('fetchpriority')==='high'));
  assert.equal(preloads[0].getAttribute('media'),'(max-width: 820px)');assert.equal(preloads[1].getAttribute('media'),'not all and (max-width: 820px)');
- assert.ok(preloads[0].getAttribute('href').endsWith('-mobile.webp'));assert.ok(preloads[1].getAttribute('href').endsWith('2026.webp'));
+ assert.ok(preloads[0].getAttribute('href').endsWith('-mobile.png'));assert.ok(preloads[1].getAttribute('href').endsWith('-desktop.png?v=2'));
  for(const img of doc.querySelectorAll('main img')){assert.equal(img.getAttribute('loading'),'lazy');assert.equal(img.getAttribute('decoding'),'async');assert.ok(img.getAttribute('alt'));}
  assert.equal(doc.querySelector('link[href*="fonts.googleapis.com/css2"]').getAttribute('media'),'print');
  assert.ok(doc.querySelector('script[src^="js/agenda-loader.js"]'));assert.equal(doc.querySelector('script[src^="js/agenda-route.js"]'),null);

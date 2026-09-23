@@ -12,13 +12,13 @@ for (const id of ['evento','pasaporte','escenarios','ponentes','agenda']) {
 }
 assert.equal(document.querySelectorAll('#mapa .venue-row').length,7);
 assert.equal(document.querySelector('#mapa .venue-directory').parentElement.className,'container');
-assert.equal(document.querySelectorAll('[data-map-open]').length,2);
+assert.equal(document.querySelectorAll('[data-map-open]').length,1);
 assert.doesNotMatch(document.getElementById('mapa').textContent,/Mapa próximamente|se publicarán cuando/);
 for (const img of document.querySelectorAll('#mapa img, #map-dialog img')) {
-  assert.equal(img.getAttribute('src'),'assets/mapa-cu-impulso-2026.webp?v=2');
+  assert.equal(img.getAttribute('src'),'assets/mapa-cu-pdf-preview.jpg?v=1');
   assert.equal(img.getAttribute('loading'),'lazy');
-  assert.equal(img.getAttribute('width'),'1536');
-  assert.equal(img.getAttribute('height'),'1024');
+  assert.equal(img.getAttribute('width'),'2400');
+  assert.equal(img.getAttribute('height'),'1350');
 }
 const dialog = document.getElementById('map-dialog');
 dialog.showModal = () => { dialog.open=true; };
@@ -52,4 +52,4 @@ for (const opener of document.querySelectorAll('[data-map-open]')) {
   click(dialog);
   assert.equal(dialog.open,false);
 }
-console.log('PASS mapa: sedes, WebP, dimensiones, ambas aperturas, zoom, cierre, fondo, scroll y foco; secciones protegidas intactas. Escape y foco nativo de dialog requieren navegador.');
+console.log('PASS mapa: sedes, PDF y vista previa, dimensiones, apertura, zoom, cierre, fondo, scroll y foco; secciones protegidas intactas. Escape y foco nativo de dialog requieren navegador.');
