@@ -1,6 +1,7 @@
 import { getVerifiedSession,onAuthStateChange } from './auth.js?v=20260921-4';
 import { adminCall,adminError } from './admin-api.js?v=20260921-4';
 import { element,formatActivityTime,scenarioName } from './route-ui.js?v=20260921-4';
+import { attendancePanel } from './admin-attendance.js?v=20260921-4';
 import { ensureProfile } from './profile.js?v=20260921-4';
 import { requirePrivacyAcknowledgement } from './privacy.js?v=20260921-4';
 const content=document.querySelector('#admin-content'),view=document.querySelector('#admin-view'),message=document.querySelector('#admin-message');
@@ -26,7 +27,7 @@ async function dashboard(){await run(async current=>{
   for(const [key,label] of [['users','USUARIOS REGISTRADOS'],['routes','RUTAS CREADAS'],['selections','ACTIVIDADES SELECCIONADAS'],['activities','ACTIVIDADES DISPONIBLES'],['attendance','ASISTENCIAS CONFIRMADAS']]){
     const card=element('article');card.append(element('strong',String(data[key])),element('span',label));grid.append(card);
   }
-  view.replaceChildren(element('h2','Resumen general'),grid,element('p','Asistencias: próximamente. Las selecciones no confirman asistencia.'));
+  view.replaceChildren(element('h2','Resumen general'),grid,element('p','Las asistencias confirmadas se registran mediante NFC. Las selecciones no confirman asistencia.'));
 });}
 function statusBadge(status){return element('span',status.toUpperCase(),`admin-status status-${status}`);}
 function breadcrumb(label){const nav=element('nav',`ADMINISTRACIÓN / ACTIVIDADES${label?' / '+label.toUpperCase():''}`,'admin-breadcrumb');nav.setAttribute('aria-label','Ubicación');return nav;}
@@ -109,7 +110,7 @@ async function detail(id,initialScenario=null){await run(async current=>{
     }catch(error){if(expected===revision)fail(error);}finally{save.disabled=false;}
   });
   const participants=element('div',undefined,'panel');
-  view.replaceChildren(breadcrumb(editorScenarios[activity.scenario]),button('VOLVER A ACTIVIDADES',back),element('h2',creating?'Nueva actividad':'Editar actividad'),...(creating?[]:[element('p',`Personas que la seleccionaron: ${activity.selected_count} · Asistencias confirmadas: 0`)]),form,...(creating?[]:[audit,element('h3','ASISTENCIA'),element('p','Próximamente'),participants]));
+  view.replaceChildren(breadcrumb(editorScenarios[activity.scenario]),button('VOLVER A ACTIVIDADES',back),element('h2',creating?'Nueva actividad':'Editar actividad'),...(creating?[]:[element('p',`Personas que la seleccionaron: ${activity.selected_count} · Asistencias confirmadas: ${activity.attendance_count??0}`)]),form,...(creating?[]:[audit,attendancePanel(activity,current),participants]));
   if(creating)return;
   if(adminRole==='super_admin'){
     const confirmation=element('section',undefined,'panel');confirmation.hidden=true;

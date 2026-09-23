@@ -260,66 +260,88 @@
       max-width:470px;
       margin:0 0 6px;
     }
-    .stage-list{
+    #escenarios .stage-list{
       display:grid;
-      gap:30px;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:24px;
+      align-items:stretch;
     }
-    .stage{
-      display:grid;
-      grid-template-columns:160px minmax(0,1fr);
-      background:transparent;
-      border-top:1px solid var(--border);
-    }
-    .stage-media{
-      position:relative;
+    #escenarios .stage{
       display:flex;
       flex-direction:column;
-      gap:24px;
-      padding:40px 0;
+      min-width:0;
+      background:#0b0b0b;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;
       overflow:hidden;
+      transition:transform .35s ease,border-color .35s ease;
     }
-    .stage-media .stage-big-num{
-      font-size:clamp(64px,7vw,100px);
-      font-weight:500;
-      line-height:1;
-      color:#767676;
-      letter-spacing:-.06em;
+    #escenarios .stage-media{
+      position:relative;
+      overflow:hidden;
+      aspect-ratio:4 / 3;
+      flex:none;
+      padding:0;
     }
-    .stage-content{
-      padding:40px 0 44px 40px;
-      display:grid;
-      grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
-      gap:clamp(24px,4vw,60px);
+    #escenarios .stage-media img{
+      display:block;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center 15%;
+      transition:transform .35s ease;
     }
-    .stage-kicker{
-      font-size:.72rem;
-      font-weight:700;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      color:var(--text-secondary);
+    #escenarios .stage-content{
+      display:flex;
+      flex-direction:column;
+      flex:1;
+      gap:22px;
+      padding:24px;
     }
-    .stage h3{
-      overflow-wrap:normal;
-      word-break:normal;
-      hyphens:none;
-      margin:14px 0 20px;
-      font-size:clamp(28px,3vw,46px);
-      line-height:1.05;
-      letter-spacing:-.04em;
+    #escenarios .stage-big-num{ font-size:12px; letter-spacing:.12em; color:#a6a6a6; }
+    #escenarios .stage h3{
+      margin:10px 0 16px;
+      font-size:clamp(23px,2vw,29px);
+      line-height:1.15;
+      letter-spacing:-.035em;
       font-weight:600;
+      overflow-wrap:anywhere;
     }
-    .stage p{
-      margin:0;
-      max-width:580px;
-      color:var(--text-secondary);
-      line-height:1.65;
-    }
-    .stage-link{
-      display:inline-flex;
+    #escenarios .stage p{ margin:0; font-size:14px; line-height:1.65; color:#a6a6a6; }
+    #escenarios .stage .venue-label{ color:#e4e4e4; font-size:13px; }
+    #escenarios .stage-footer{ display:flex; flex-direction:column; flex:1; gap:16px; }
+    #escenarios .editorial-details{ margin:0 0 8px; }
+    #escenarios .editorial-details summary{ min-height:44px; }
+    #escenarios .stage .stage-topics{ font-size:12px; margin:12px 0; }
+    #escenarios .stage-link{
+      display:flex;
       align-items:center;
-      gap:10px;
+      justify-content:space-between;
+      gap:12px;
+      margin-top:auto;
+      min-height:44px;
+      padding-top:12px;
+      border-top:1px solid rgba(255,255,255,.12);
+      font-size:12px;
       font-weight:700;
-      font-size:.88rem;
+    }
+    #escenarios .stage-link:focus-visible{ outline-offset:-3px; border-radius:3px; }
+    @media (min-width:1400px){
+      #escenarios > .container{ max-width:1760px; }
+      #escenarios .stage-list{ grid-template-columns:repeat(8,minmax(0,1fr)); }
+      #escenarios .stage{ grid-column:span 2; }
+      #escenarios .stage:nth-child(5){ grid-column:2 / span 2; }
+    }
+    @media (min-width:701px) and (max-width:1000px){
+      #escenarios .stage-list{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width:700px){
+      #escenarios .stage-list{ grid-template-columns:minmax(0,1fr); }
+      #escenarios .stage-content{ padding:22px; }
+    }
+    @media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+      #escenarios .stage:hover{ transform:translateY(-5px); border-color:rgba(255,255,255,.3); }
+      #escenarios .stage:hover .stage-media img{ transform:scale(1.03); }
     }
 
     /* SPEAKERS */
@@ -904,39 +926,39 @@
     <section class="section stages" id="escenarios"><div class="container">
       <div class="stages-head"><div><span class="eyebrow reveal">Explora</span><h2 class="section-title reveal">7 ESCENARIOS.<br>TU PROPIA RUTA.</h2></div><p class="section-copy reveal">Cada escenario conecta una disciplina con retos, experiencias y oportunidades. Descubre qué te interesa y encuentra tu próxima actividad.</p></div>
       <div class="stage-list"><article class="stage reveal" id="escenario-cultura">
-        <div class="stage-media"><span class="stage-big-num">01</span><span class="stage-function">Inspirar</span></div>
-        <div class="stage-content"><div><span class="stage-kicker">Campus Storytelling Lab</span><h3>Cultura</h3><p>Transforma patrimonio, identidad y creatividad en ideas de emprendimiento cultural. Explora nuevas audiencias, narrativas y modelos de negocio.</p><p class="stage-topics">Storytelling · Patrimonio · IA y transmedia · Economía creativa · Financiamiento</p></div>
-        <div><p class="venue-label">Ciencias Políticas y Sociales / Ágora del Cénide</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><h4>Cultura Disruptiva (Cult-D)</h4><p>Narrativas de impacto, mapa transmedia y rutas de ingresos para proyectos culturales.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes de humanidades, diseño, artes, comunicación y turismo; docentes, gestores culturales y proyectos con vocación social.</p><h4>Continuidad</h4><p>Los proyectos y retos culturales pueden vincularse con incubación cultural.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="cultura">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+        <div class="stage-media"><img src="assets/escenario%20de%20cultura.webp" alt="Escenario Cultura e Innovación Creativa — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">01</span><h3>Cultura e Innovación Creativa</h3><p>Transforma patrimonio, identidad y creatividad en ideas de emprendimiento cultural. Explora nuevas audiencias, narrativas y modelos de negocio.</p></div>
+        <div class="stage-footer"><p class="venue-label">Ciencias Políticas y Sociales / Ágora del Cénide</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Storytelling · Patrimonio · IA y transmedia · Economía creativa · Financiamiento</p><h4>Cultura Disruptiva (Cult-D)</h4><p>Narrativas de impacto, mapa transmedia y rutas de ingresos para proyectos culturales.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes de humanidades, diseño, artes, comunicación y turismo; docentes, gestores culturales y proyectos con vocación social.</p><h4>Continuidad</h4><p>Los proyectos y retos culturales pueden vincularse con incubación cultural.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="cultura">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-deporte">
-        <div class="stage-media"><span class="stage-big-num">02</span><span class="stage-function">Enseñar haciendo</span></div>
-        <div class="stage-content"><div><span class="stage-kicker">Alto Rendimiento Lab</span><h3>Deporte</h3><p>Conecta disciplina, resiliencia y liderazgo con la creación de servicios y negocios deportivos. Del entrenamiento a la gestión de oportunidades.</p><p class="stage-topics">Liderazgo · Marketing deportivo · Patrocinios · Servicios deportivos · Propiedad intelectual</p></div>
-        <div><p class="venue-label">Estadio Universitario</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><h4>Del entrenamiento al emprendimiento</h4><p>Warm-up emprendedor, modelos de servicios deportivos y pitch para conseguir patrocinio.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes deportistas, entrenadores, docentes, equipos representativos, gestores y emprendedores deportivos.</p><h4>Continuidad</h4><p>Posible vinculación con Demo Day, showroom o podcast.</p><p class="content-note">Consulta el espacio de tu actividad dentro del estadio.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="deporte">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+        <div class="stage-media"><img src="assets/escenario%20de%20deporte.webp" alt="Escenario Deporte — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">02</span><h3>Deporte</h3><p>Conecta disciplina, resiliencia y liderazgo con la creación de servicios y negocios deportivos. Del entrenamiento a la gestión de oportunidades.</p></div>
+        <div class="stage-footer"><p class="venue-label">Estadio Universitario</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Liderazgo · Marketing deportivo · Patrocinios · Servicios deportivos · Propiedad intelectual</p><h4>Del entrenamiento al emprendimiento</h4><p>Warm-up emprendedor, modelos de servicios deportivos y pitch para conseguir patrocinio.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes deportistas, entrenadores, docentes, equipos representativos, gestores y emprendedores deportivos.</p><h4>Continuidad</h4><p>Posible vinculación con Demo Day, showroom o podcast.</p><p class="content-note">Consulta el espacio de tu actividad dentro del estadio.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="deporte">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-tecnologia">
-        <div class="stage-media"><span class="stage-big-num">03</span><span class="stage-function">Resolver problemas reales</span></div>
-        <div class="stage-content"><div><span class="stage-kicker">Tech Playground 365</span><h3>Tecnología</h3><p>Usa IA, datos y herramientas digitales para desarrollar soluciones a retos del campus, las empresas y la comunidad.</p><p class="stage-topics">IA · No-code · Automatización · Robótica · Movilidad · Software</p></div>
-        <div><p class="venue-label">Facultad de Ingeniería</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><h4>Crear, automatizar y prototipar el futuro</h4><p>Prototipos, demos, flujos automatizados y experiencias como AI Playground, Demo Alley y Reto Innovatics.</p><h4>¿A quién está dirigido?</h4><p>Talento universitario interesado en tecnología, prototipado y soluciones digitales.</p><h4>Continuidad</h4><p>Banco de Retos, Emprende Academy 365, Bootcamp e incubación o aceleración tecnológica.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="tecnologia">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+        <div class="stage-media"><img src="assets/escenario%20de%20tecnologia.webp" alt="Escenario Tecnología — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">03</span><h3>Tecnología</h3><p>Usa IA, datos y herramientas digitales para desarrollar soluciones a retos del campus, las empresas y la comunidad.</p></div>
+        <div class="stage-footer"><p class="venue-label">Facultad de Ingeniería</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">IA · No-code · Automatización · Robótica · Movilidad · Software</p><h4>Crear, automatizar y prototipar el futuro</h4><p>Prototipos, demos, flujos automatizados y experiencias como AI Playground, Demo Alley y Reto Innovatics.</p><h4>¿A quién está dirigido?</h4><p>Talento universitario interesado en tecnología, prototipado y soluciones digitales.</p><h4>Continuidad</h4><p>Banco de Retos, Emprende Academy 365, Bootcamp e incubación o aceleración tecnológica.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="tecnologia">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-diseno">
-        <div class="stage-media"><span class="stage-big-num">04</span><span class="stage-function">Conectar estudiantes con empresas</span></div>
-        <div class="stage-content"><div><span class="stage-kicker">Design Market Lab</span><h3>Diseño</h3><p>Convierte retos empresariales en propuestas visuales, servicios, experiencias y prototipos con valor de mercado.</p><p class="stage-topics">Design Thinking · IA y no-code · Diseño sostenible · UX · Realidad aumentada · Biomateriales</p></div>
-        <div><p class="venue-label">Facultad de Arquitectura y Diseño</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><h4>Disrupción por Diseño (DxD)</h4><p>Prototipado de modelos de negocio y experiencias inmersivas. Explora la co-creación, los aprendizajes compartidos y las cápsulas de pitch de El Lienzo Vivo del Ecosistema.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes de diseño, arquitectura, comunicación y mercadotecnia; emprendedores, empresas, docentes y aliados creativos.</p><h4>Continuidad</h4><p>Banco de Retos, mentoría, incubación, prácticas profesionales y proyectos de vinculación.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="diseno">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+        <div class="stage-media"><img src="assets/escenario%20de%20dise%C3%B1o.webp" alt="Escenario Diseño — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">04</span><h3>Diseño</h3><p>Convierte retos empresariales en propuestas visuales, servicios, experiencias y prototipos con valor de mercado.</p></div>
+        <div class="stage-footer"><p class="venue-label">Facultad de Arquitectura y Diseño</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Design Thinking · IA y no-code · Diseño sostenible · UX · Realidad aumentada · Biomateriales</p><h4>Disrupción por Diseño (DxD)</h4><p>Prototipado de modelos de negocio y experiencias inmersivas. Explora la co-creación, los aprendizajes compartidos y las cápsulas de pitch de El Lienzo Vivo del Ecosistema.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes de diseño, arquitectura, comunicación y mercadotecnia; emprendedores, empresas, docentes y aliados creativos.</p><h4>Continuidad</h4><p>Banco de Retos, mentoría, incubación, prácticas profesionales y proyectos de vinculación.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="diseno">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-investigacion">
-        <div class="stage-media"><span class="stage-big-num">05</span><span class="stage-function">Construir proyectos</span></div>
-        <div class="stage-content"><div><span class="stage-kicker">Impact &amp; IP Lab</span><h3>Investigación aplicada</h3><p>Explora cómo transformar investigación, evidencia y conocimiento en soluciones aplicadas y oportunidades de transferencia.</p><p class="stage-topics">Innovación social · Propiedad intelectual · Patentes · Validación · Modelos de negocio</p></div>
-        <div><p class="venue-label">Facultad de Economía / Facultad de Contaduría y Administración</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><h4>De conocimiento a impacto</h4><p>Rutas de aplicación, protección, validación y salida al mercado de desarrollos universitarios.</p><h4>¿A quién está dirigido?</h4><p>Investigadores, docentes, tesistas, estudiantes con prototipos, unidades de emprendimiento y aliados empresariales.</p><h4>Continuidad</h4><p>Validación con empresas, protección de propiedad intelectual y pasarela de Negocios.</p><p class="content-note">Consulta la sede indicada en cada actividad.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="investigacion">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+        <div class="stage-media"><img src="assets/escenario%20investigaci%C3%B3n%20aplicada.webp" alt="Escenario Investigación Aplicada — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">05</span><h3>Investigación Aplicada</h3><p>Explora cómo transformar investigación, evidencia y conocimiento en soluciones aplicadas y oportunidades de transferencia.</p></div>
+        <div class="stage-footer"><p class="venue-label">Facultad de Economía / Facultad de Contaduría y Administración</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Innovación social · Propiedad intelectual · Patentes · Validación · Modelos de negocio</p><h4>De conocimiento a impacto</h4><p>Rutas de aplicación, protección, validación y salida al mercado de desarrollos universitarios.</p><h4>¿A quién está dirigido?</h4><p>Investigadores, docentes, tesistas, estudiantes con prototipos, unidades de emprendimiento y aliados empresariales.</p><h4>Continuidad</h4><p>Validación con empresas, protección de propiedad intelectual y pasarela de Negocios.</p><p class="content-note">Consulta la sede indicada en cada actividad.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="investigacion">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-gobernanza">
-        <div class="stage-media"><span class="stage-big-num">06</span><span class="stage-function">Acelerar oportunidades</span></div>
-        <div class="stage-content"><div><span class="stage-kicker">Trust &amp; Opportunity Lab</span><h3>Gobernanza</h3><p>Identifica pasos para formalizar y proteger tu proyecto. Conecta legalidad, datos y confianza con nuevas oportunidades.</p><p class="stage-topics">Contratos · Fiscalidad · Ciberseguridad · Protección de datos · Legaltech · Innovación pública</p></div>
-        <div><p class="venue-label">Facultad de Derecho</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><h4>GovLab: confianza, legalidad e innovación pública</h4><p>Checklist legal, ruta fiscal, plan de ciberseguridad, matriz de riesgos y prototipo de servicio público.</p><h4>¿A quién está dirigido?</h4><p>Comunidad universitaria y emprendedores interesados en formalización, protección y servicios públicos digitales.</p><h4>Continuidad</h4><p>Herramientas para convertir proyectos en oportunidades viables mediante formalización, protección y cumplimiento.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="gobernanza">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+        <div class="stage-media"><img src="assets/escenario%20gobernanza%20(2).webp" alt="Escenario Gobernanza — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">06</span><h3>Gobernanza</h3><p>Identifica pasos para formalizar y proteger tu proyecto. Conecta legalidad, datos y confianza con nuevas oportunidades.</p></div>
+        <div class="stage-footer"><p class="venue-label">Facultad de Derecho</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Contratos · Fiscalidad · Ciberseguridad · Protección de datos · Legaltech · Innovación pública</p><h4>GovLab: confianza, legalidad e innovación pública</h4><p>Checklist legal, ruta fiscal, plan de ciberseguridad, matriz de riesgos y prototipo de servicio público.</p><h4>¿A quién está dirigido?</h4><p>Comunidad universitaria y emprendedores interesados en formalización, protección y servicios públicos digitales.</p><h4>Continuidad</h4><p>Herramientas para convertir proyectos en oportunidades viables mediante formalización, protección y cumplimiento.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="gobernanza">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-bienestar">
-        <div class="stage-media"><span class="stage-big-num">07</span><span class="stage-function">Proyectar el futuro</span></div>
-        <div class="stage-content"><div><span class="stage-kicker">Future Wellbeing Campus</span><h3>Bienestar Integral</h3><p>Conecta bienestar, propósito y experiencias globales con tu desarrollo personal y emprendedor.</p><p class="stage-topics">Bienestar emocional · Viajes · Idiomas · Internacionalización · Gastronomía · Propósito</p></div>
-        <div><p class="venue-label">Facultad de Turismo y Gastronomía · C.U. y El Rosedal</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><h4>El futuro se diseña desde el bienestar</h4><p>Ruta personal de internacionalización, mapa emocional y experiencias de alimentación y bienestar.</p><h4>¿A quién está dirigido?</h4><p>Comunidad universitaria interesada en bienestar, movilidad, turismo, gastronomía y proyecto de vida.</p><h4>Continuidad</h4><p>Programa Emprendedor, Emprende Academy 365, Bootcamp, incubación y seguimiento institucional.</p><p class="content-note">La sede varía según actividad.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="bienestar">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+        <div class="stage-media"><img src="assets/escenario%20bienestar%20integral.webp" alt="Escenario Bienestar Integral — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">07</span><h3>Bienestar Integral</h3><p>Conecta bienestar, propósito y experiencias globales con tu desarrollo personal y emprendedor.</p></div>
+        <div class="stage-footer"><p class="venue-label">Facultad de Turismo y Gastronomía · C.U. y El Rosedal</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Bienestar emocional · Viajes · Idiomas · Internacionalización · Gastronomía · Propósito</p><h4>El futuro se diseña desde el bienestar</h4><p>Ruta personal de internacionalización, mapa emocional y experiencias de alimentación y bienestar.</p><h4>¿A quién está dirigido?</h4><p>Comunidad universitaria interesada en bienestar, movilidad, turismo, gastronomía y proyecto de vida.</p><h4>Continuidad</h4><p>Programa Emprendedor, Emprende Academy 365, Bootcamp, incubación y seguimiento institucional.</p><p class="content-note">La sede varía según actividad.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="bienestar">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article></div></div></section>
 
     <section class="section speakers" id="ponentes"><div class="container">
@@ -1248,13 +1270,6 @@
           // Only the desktop hero needs a scroll-linked animation.
           gsap.to(".parallax-slow",{yPercent:4,ease:"none",scrollTrigger:{trigger:".hero",start:"top top",end:"bottom top",scrub:true}});
           const cleanups = [];
-          document.querySelectorAll(".stage").forEach(stage => {
-            const target = stage.querySelector(".stage-media");
-            const enter = () => context.add(()=>gsap.to(target,{scale:1.025,duration:.7,ease:"power3.out",overwrite:"auto"}));
-            const leave = () => context.add(()=>gsap.to(target,{scale:1,duration:.7,ease:"power3.out",overwrite:"auto"}));
-            stage.addEventListener("mouseenter",enter);stage.addEventListener("mouseleave",leave);
-            cleanups.push(()=>{stage.removeEventListener("mouseenter",enter);stage.removeEventListener("mouseleave",leave);});
-          });
           document.querySelectorAll("details").forEach(detail=>detail.addEventListener("toggle",refreshAnimations));
           return () => {
             observer.disconnect();cleanups.forEach(cleanup=>cleanup());

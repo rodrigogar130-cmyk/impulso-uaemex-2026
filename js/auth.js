@@ -1,5 +1,6 @@
 import { client } from './supabase-client.js?v=20260921-4';
 import { confirmationPath, googleReturnPath } from './return-to.js?v=20260921-4';
+import { getAuthCaptchaToken } from './auth-turnstile.js?v=20260921-4';
 export const landing = 'index.html';
 export function localUrl(page) { return new URL(page, window.location.href).href; }
 let localSession, localPromise, verifiedPromise, subscription;
@@ -79,15 +80,17 @@ export async function requireUser() {
   return session.user;
 }
 export async function signUp(email, password, profile) {
+  const captchaToken=await getAuthCaptchaToken('signup');
   const { data, error } = await client().auth.signUp({ email, password,
-    options: { data: profile, emailRedirectTo: localUrl(confirmationPath()) } });
+    options: { captchaToken, data: profile, emailRedirectTo: localUrl(confirmationPath()) } });
   if (error) throw error;
   // No permitir que una configuración remota sin confirmación inicie una sesión aquí.
   if (data.session) await signOut();
   return data;
 }
 export async function signInWithPassword(email, password) {
-  const { data, error } = await client().auth.signInWithPassword({ email, password });
+  const captchaToken=await getAuthCaptchaToken('login');
+  const { data, error } = await client().auth.signInWithPassword({ email, password,options:{captchaToken} });
   if (error) throw error;
   if (!data.user.email_confirmed_at) { await signOut(); throw new Error('Confirma tu correo antes de iniciar sesión.'); }
   return data;
@@ -110,12 +113,14 @@ export function onAuthStateChange(callback) {
   return { data: { subscription: { unsubscribe() { authListeners.delete(callback); } } } };
 }
 export async function requestRecovery(email) {
-  const { error } = await client().auth.resetPasswordForEmail(email, { redirectTo: localUrl('recuperar-password.html?mode=reset') });
+  const captchaToken=await getAuthCaptchaToken('recovery');
+  const { error } = await client().auth.resetPasswordForEmail(email, { captchaToken,redirectTo: localUrl('recuperar-password.html?mode=reset') });
   if (error) throw error;
 }
 export async function resendConfirmation(email) {
+  const captchaToken=await getAuthCaptchaToken('resend');
   const { error } = await client().auth.resend({ type: 'signup', email,
-    options: { emailRedirectTo: localUrl(confirmationPath()) } });
+    options: { captchaToken,emailRedirectTo: localUrl(confirmationPath()) } });
   if (error) throw error;
 }
 export async function updatePassword(password) {

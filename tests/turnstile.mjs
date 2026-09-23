@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import {parseHTML} from '../.test-runtime/node_modules/linkedom/esm/index.js';
+const {document}=parseHTML('<html><head></head><body><main><form aria-busy="true"></form></main></body></html>');
+const timers=new Map();let timerId=0,mode='success',serial=0,removed=0;
+const window={turnstile:{render(container,options){
+ assert.equal(options.sitekey,'public-test-key');
+ queueMicrotask(()=>mode==='success'?options.callback('token-'+(++serial)):mode==='empty'?options.callback(''):options[mode+'-callback']());
+ return serial;
+},remove(){removed++;}}};
+const context=vm.createContext({window,document,Error,setTimeout:fn=>{timers.set(++timerId,fn);return timerId;},clearTimeout:id=>timers.delete(id)});
+const mod=new vm.SourceTextModule(fs.readFileSync('js/auth-turnstile.js','utf8'),{context});
+await mod.link(()=>new vm.SyntheticModule(['TURNSTILE_SITE_KEY'],function(){this.setExport('TURNSTILE_SITE_KEY','public-test-key');},{context}));await mod.evaluate();
+const get=mod.namespace.getAuthCaptchaToken;
+assert.notEqual(await get('login'),await get('login'));
+for(mode of ['empty','error','expired','timeout'])await assert.rejects(get('signup'),{code:'captcha_failed'});
+assert.equal(removed,6);assert.equal(timers.size,0);assert.equal(document.querySelector('form').children.length,0);
+delete window.turnstile;
+const blocked=get('login');document.querySelector('script').onerror();await assert.rejects(blocked,{code:'captcha_failed'});
+const timed=get('login');[...timers.values()][0]();await assert.rejects(timed,{code:'captcha_failed'});
+assert.equal(document.querySelector('script'),null);assert.equal(timers.size,0);
+console.log('PASS Turnstile: fresh tokens, empty/error/expired/timeout rejection, blocked script, load timeout, cleanup and retry.');

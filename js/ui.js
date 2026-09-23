@@ -6,6 +6,7 @@ export function message(text, error = false, target = document.querySelector('[d
 }
 export function errorText(error) {
   const codes = { invalid_credentials: 'Correo o contraseña incorrectos.', email_not_confirmed: 'Confirma tu correo antes de iniciar sesión.',
+    captcha_failed: 'No pudimos completar la verificación de seguridad. Inténtalo nuevamente.',
     user_already_exists: 'Revisa tu correo electrónico. Si ya tienes una cuenta, inicia sesión o recupera tu contraseña.',
     email_exists: 'Revisa tu correo electrónico. Si ya tienes una cuenta, inicia sesión o recupera tu contraseña.',
     weak_password: 'La contraseña no cumple los requisitos de seguridad.',

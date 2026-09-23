@@ -46,4 +46,10 @@ try {
   await (await import('./admin-create-delete.mjs')).testAdminCreateDelete(db);
   await db.exec(await readFile('supabase/migrations/007_privacy_notice_acknowledgement.sql','utf8'));
   await (await import('./privacy-notice.mjs')).testPrivacyNotice(db);
+  await db.exec(`create role service_role nologin bypassrls;
+    grant usage on schema public,auth to service_role;
+    grant select,update on all tables in schema public to service_role;
+    grant select on auth.users to service_role;`);
+  await db.exec(await readFile('supabase/migrations/20260923001237_nfc_attendance.sql','utf8'));
+  await (await import('./nfc-database.mjs')).testNfcDatabase(db);
 } finally { await db.close(); }

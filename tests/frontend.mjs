@@ -28,6 +28,9 @@ function backend(session = null, privacyCurrent = true) {
         return {data:{id:profile.id,privacy_acknowledged_at:profile.privacy_acknowledged_at,privacy_notice_version:profile.privacy_notice_version}};
       }
       if(name==='list_impulso_activities')return {data:state.activities};
+      if(name==='get_my_impulso_attendances')return {data:state.attendances||[]};
+      if(name==='get_attendance_activity')return {data:state.activities.filter(a=>a.scenario===args.p_scenario&&a.slug===args.p_slug)};
+      if(name==='get_my_passport_status'){const n=new Set((state.attendances||[]).map(a=>a.activity_id)).size;return {data:{attendance_count:n,badge_unlocked:n>=12}};}
       if(name==='get_my_impulso_route')return {data:state.route.filter(r=>r.status==='registered').map(r=>({...r,activity:state.activities.find(a=>a.id===r.activity_id)||null}))};
       if(name==='set_my_activity_registration'){
         let row=state.route.find(r=>r.activity_id===args.p_activity_id);
@@ -104,7 +107,7 @@ async function load(page, script, state, search='', options={}) {
     const result=await state.client.rpc('list_impulso_activities');
     return {ok:!result.error,json:async()=>result.data};
   };
-  const context = vm.createContext({fetch:publicFetch,AbortController,clearTimeout,setTimeout:options.setTimeout||setTimeout,localStorage:options.storage,sessionStorage:options.storage,TextEncoder,CustomEvent:document.defaultView.CustomEvent,document,location,window:{location,scrollY:0,addEventListener:windowEvents.addEventListener.bind(windowEvents),dispatchEvent:windowEvents.dispatchEvent.bind(windowEvents),matchMedia:options.matchMedia||(()=>({matches:false,addEventListener(){}}))},URL,URLSearchParams,console:options.console||console,Error,Date:testDate,FormData:class {
+  const context = vm.createContext({fetch:publicFetch,AbortController,AbortSignal,Event,clearTimeout,setTimeout:options.setTimeout||setTimeout,localStorage:options.storage,sessionStorage:options.storage,TextEncoder,CustomEvent:document.defaultView.CustomEvent,document,location,window:{location,scrollY:0,addEventListener:windowEvents.addEventListener.bind(windowEvents),dispatchEvent:windowEvents.dispatchEvent.bind(windowEvents),matchMedia:options.matchMedia||(()=>({matches:false,addEventListener(){}}))},URL,URLSearchParams,console:options.console||console,Error,Date:testDate,FormData:class {
     constructor(form){this.values=new Map([...form.querySelectorAll('[name]')].filter(el=>!el.disabled).map(el=>[el.name,el.value]));}
     get(key){return this.values.get(key)??null;}
   }});
@@ -113,7 +116,9 @@ async function load(page, script, state, search='', options={}) {
     file=file.split('?')[0];
     if(cache.has(file))return cache.get(file);
     let mod;
-    if(file.endsWith('supabase-client.js')){
+    if(file.endsWith('auth-turnstile.js')){
+      mod = new vm.SyntheticModule(['getAuthCaptchaToken'],function(){this.setExport('getAuthCaptchaToken',async action=>{if(options.captchaError)throw Object.assign(new Error('captcha'),{code:'captcha_failed'});return 'test-captcha-'+action;});},{context,identifier:file});
+    } else if(file.endsWith('supabase-client.js')){
       state.clientLoads++;
       mod = new vm.SyntheticModule(['client','supabase'],function(){this.setExport('client',()=>{if(options.sdkUnavailable)throw Error('SDK unavailable');return state.client;});this.setExport('supabase',options.sdkUnavailable?null:state.client);},{context,identifier:file});
     } else mod = new vm.SourceTextModule(fs.readFileSync(file,'utf8'),{context,identifier:file,importModuleDynamically:async(specifier,parent)=>{
@@ -161,7 +166,7 @@ assert.equal(state.registrations.length,1);assert.equal(state.calls.filter(c=>c[
 await page.submit('#profile-form',{nombre:'Ana editada'});assert.equal(state.profiles[0].nombre,'Ana editada');ok('perfil editable');
 state.listeners.forEach(fn=>fn('SIGNED_IN',{user:{id:'user-b'}}));assert.equal(page.location.reloaded,true);assert.equal(page.document.querySelector('[data-private]').hidden,true);ok('cambio de usuario oculta datos anteriores');
 
-page=await load('pasaporte.html','passport.js',state);assert.equal(page.document.querySelector('#passport-content').hidden,false);assert.match(page.document.querySelector('#passport-content').textContent,/0 \/ 12/);ok('pasaporte confirmado muestra 0 / 12');
+page=await load('pasaporte.html','passport.js',state);assert.equal(page.document.querySelector('#passport-content').hidden,false);assert.equal(page.document.querySelector('[data-attendance-count]').textContent,'0');ok('pasaporte confirmado muestra asistencias reales');
 state=backend({user});page=await load('pasaporte.html','passport.js',state);assert.equal(page.document.querySelector('#passport-content').hidden,false);assert.equal(state.registrations.length,1);ok('acceso directo al pasaporte garantiza inscripción automática');
 
 state=backend();page=await load('recuperar-password.html','recovery.js',state);
@@ -175,7 +180,15 @@ state.session={user};state.listeners.forEach(fn=>fn('SIGNED_IN',{user}));await n
 
 const before=parseHTML(fs.readFileSync('backups/landing-antes-auth.html','utf8')).document;
 const after=parseHTML(fs.readFileSync('index.html','utf8')).document;
-for(const id of ['pasaporte','escenarios','ponentes','mapa'])assert.equal(after.getElementById(id).outerHTML,before.getElementById(id).outerHTML);
+for(const id of ['pasaporte','ponentes','mapa'])assert.equal(after.getElementById(id).outerHTML,before.getElementById(id).outerHTML);
+// El rediseño aprobado de escenarios conserva descripciones, sedes y filtros, no su HTML anterior.
+assert.equal(after.querySelectorAll('#escenarios .stage').length,7);
+for(const old of before.querySelectorAll('#escenarios .stage')){
+ const card=after.getElementById(old.id);
+ assert.equal(card.querySelector('.stage-content p').textContent,old.querySelector('.stage-content p').textContent);
+ assert.equal(card.querySelector('.venue-label').textContent,old.querySelector('.venue-label').textContent);
+ assert.equal(card.querySelector('.stage-link').outerHTML,old.querySelector('.stage-link').outerHTML);
+}
 const preservedCatalog=JSON.parse(fs.readFileSync('data/activities-catalog.json','utf8'));
 assert.equal(preservedCatalog.length,67);
 assert.deepEqual(preservedCatalog.map(a=>a.title),[...before.querySelectorAll('.agenda-title strong')].map(x=>x.textContent));
@@ -186,7 +199,7 @@ for(const file of ['index.html','registro.html','login.html','mi-cuenta.html','p
  for(const el of doc.querySelectorAll('[src],[href]')){
   const value=el.getAttribute('src')||el.getAttribute('href');
   if(!value||/^(https?:|#|data:)/.test(value))continue;
-  assert.ok(fs.existsSync(path.resolve(root,value.split(/[?#]/)[0])),`${file}: ${value}`);
+  assert.ok(fs.existsSync(path.resolve(root,decodeURIComponent(value.split(/[?#]/)[0]))),`${file}: ${value}`);
  }
 }
 ok('enlaces y recursos locales existen');
@@ -288,7 +301,7 @@ state=backend();state.activities=[{...openActivity,}];page=await load('index.htm
 state=backend();page=await load('login.html','login.js',state,'?activity='+openActivity.slug);await page.submit('form',{email:user.email,password:'password123'});assert.equal(page.location.destination,'index.html?activity='+openActivity.slug+'#arma-tu-ruta');ok('login regresa a actividad sin seleccionarla automáticamente');
 state=backend();page=await load('registro.html','registro.js',state,'?activity='+openActivity.slug);await page.submit('form',signupValues);assert.match(state.calls[0][1].options.emailRedirectTo,/confirmed=1&activity=/);ok('confirmación conserva destino de actividad');
 state=backend();page=await load('login.html','login.js',state,'?activity=https%3A%2F%2Fevil.example');await page.submit('form',{email:user.email,password:'password123'});assert.equal(page.location.destination,'mi-cuenta.html');ok('destinos externos rechazados');
-state=backend({user});state.activities=[{...openActivity,end_time:'10:00:00'}];state.route=[{id:'r1',activity_id:'activity-1',status:'registered'}];page=await load('pasaporte.html','passport.js',state);assert.match(page.document.querySelector('[data-route-count]').textContent,/1 ACTIVIDADES/);assert.match(page.document.querySelector('.metrics').textContent,/0 \/ 12/);assert.ok(page.document.querySelector('[data-route-list] a[href^="https://calendar.google.com"]'));ok('Mi ruta cuenta selecciones sin sumar asistencias y ofrece calendarios');
+state=backend({user});state.activities=[{...openActivity,end_time:'10:00:00'}];state.route=[{id:'r1',activity_id:'activity-1',status:'registered'}];page=await load('pasaporte.html','passport.js',state);assert.match(page.document.querySelector('[data-route-count]').textContent,/1 ACTIVIDADES/);assert.equal(page.document.querySelector('[data-attendance-count]').textContent,'0');assert.ok(page.document.querySelector('[data-route-list] a[href^="https://calendar.google.com"]'));ok('Mi ruta cuenta selecciones sin sumar asistencias y ofrece calendarios');
 console.log('Total fase 2 frontend: '+passed+' comprobaciones aprobadas.');
 
 page.document.querySelector('[data-export-route]').click();assert.equal(page.document.querySelector('[data-export-options]').hidden,false);assert.ok(page.document.querySelector('[data-export-options] a[href^="https://calendar.google.com"]'));assert.match(page.document.querySelector('[data-export-options] button').textContent,/APPLE/);ok('exportación completa muestra ICS y enlaces Google por actividad');
@@ -1248,19 +1261,19 @@ for(const role of ['super_admin','staff']){
 for(const file of ['registro.html','completar-registro.html','aceptar-privacidad.html']){
  const doc=parseHTML(fs.readFileSync(file,'utf8')).document;
  const checkbox=doc.querySelector('[name="privacy_acknowledged"]');
- assert.equal(checkbox.type,'checkbox');assert.equal(checkbox.required,true);assert.equal(checkbox.hasAttribute('checked'),false);
+ assert.equal(checkbox.type,'checkbox');assert.equal(checkbox.hasAttribute('required'),true);assert.equal(checkbox.hasAttribute('checked'),false);
  assert.ok(doc.querySelector('label[for="'+checkbox.id+'"]'));
- const link=doc.querySelector('main a[href="privacidad.html"]');
+ const link=doc.querySelector('main a[href="privacidad.html"],main a[href="https://controlescolar.uaemex.mx/AvisoPrivacidadSCE.pdf"]');
  assert.equal(link.getAttribute('target'),'_blank');assert.equal(link.getAttribute('rel'),'noopener noreferrer');
  assert.ok(doc.querySelector('[data-message][role="status"][aria-live="polite"]'));
  ok(file+': reconocimiento obligatorio sin premarcar, label asociado, enlace accesible y mensajes anunciables');
 }
 for(const file of fs.readdirSync('.').filter(f=>f.endsWith('.html'))){
  const doc=parseHTML(fs.readFileSync(file,'utf8')).document;
- assert.ok(doc.querySelector('footer a[href="privacidad.html"]'),file);
+ assert.ok(doc.querySelector('footer a[href="privacidad.html"],footer a[href="https://controlescolar.uaemex.mx/AvisoPrivacidadSCE.pdf"]'),file);
 }
 const privacyDoc=fs.readFileSync('privacidad.html','utf8');
-assert.match(privacyDoc,/septiembre de 2026/);assert.match(privacyDoc,/debe validarse/);
+assert.match(privacyDoc,/https:\/\/controlescolar\.uaemex\.mx\/AvisoPrivacidadSCE\.pdf/);
 assert.doesNotMatch(privacyDoc,/supabase-js|navbar-auth/);
 ok('aviso público disponible sin SDK ni sesión y enlazado desde todos los footers');
 assert.equal(hasCurrentPrivacyAcknowledgement(null),false);
@@ -1391,5 +1404,93 @@ ok('reconocimiento descarta destinos externos, nombres heredados y slugs inváli
  const guest=await load('aceptar-privacidad.html','aceptar-privacidad.js',backend(null,false),'?next=passport');
  assert.equal(guest.location.destination,'login.html?next=passport');
  ok('reconocimiento verifica sesión remotamente y bloquea ausencia/cambio de identidad sin perder destino');
+}
+{
+ const activity={...openActivity,scenario:'tecnologia',attendance_enabled:true};
+ const checkin='tecnologia/'+activity.slug;
+ const query='?checkin='+encodeURIComponent(checkin)+'&t='+'a'.repeat(64);
+ const nfcState=backend({user});nfcState.activities=[activity];
+ let nfcPage=await load('actividad.html','activity-page.js',nfcState,'?checkin='+encodeURIComponent(checkin));
+ assert.equal(nfcPage.document.querySelector('#activity-title').textContent,activity.title);
+ assert.match(nfcPage.document.querySelector('#attendance-status').textContent,/Enlace de asistencia inválido/);
+ assert.equal(nfcState.route.length,0);
+ nfcPage=await load('actividad.html','activity-page.js',nfcState,query);
+ const captchaScript=nfcPage.document.querySelector('script[src*="challenges.cloudflare.com"]');
+ assert.ok(captchaScript);captchaScript.onerror();
+ assert.match(nfcPage.document.querySelector('#attendance-status').textContent,/verificación/);
+ nfcState.attendances=[{activity_id:activity.id,title:activity.title,method:'NFC',attended_at:'2026-10-15T16:00:00Z'}];
+ nfcPage=await load('actividad.html','activity-page.js',nfcState,query);
+ assert.match(nfcPage.document.querySelector('#attendance-status').textContent,/ya fue completada/);
+ nfcPage=await load('pasaporte.html','passport.js',nfcState);
+ assert.equal(nfcPage.document.querySelector('[data-attendance-count]').textContent,'1');
+ assert.equal(nfcState.route.length,0);
+ assert.match(nfcPage.document.querySelector('[data-attendance-progress]').textContent,/1 de 12/);
+ assert.equal(nfcPage.document.querySelector('[data-attendance-badge]').textContent,'BLOQUEADA');
+ assert.match(nfcPage.document.querySelector('[data-attendance-list]').textContent,/Asistencia confirmada/);
+ const guest=backend();guest.activities=[activity];
+ nfcPage=await load('actividad.html','activity-page.js',guest,query);
+ assert.match(nfcPage.document.querySelector('#attendance-actions a').href,/login.html\?checkin=/);
+ const authPage=await load('login.html','login.js',backend({user}),query);
+ assert.equal(authPage.location.destination,'actividad.html'+query);
+ const redirects=await authPage.moduleFor(path.resolve('js/return-to.js'));
+ assert.equal(redirects.namespace.googleReturnPath().includes('checkin='),true);
+ assert.equal(redirects.namespace.confirmationPath().includes('checkin='),true);
+ assert.equal(redirects.namespace.privacyLink('actividad.html'+query),'aceptar-privacidad.html'+query);
+ assert.ok(redirects.namespace.googleReturnPath().includes('&t='+'a'.repeat(64)));
+ assert.ok(redirects.namespace.confirmationPath().includes('&t='+'a'.repeat(64)));
+ nfcState.attendances=Array.from({length:12},(_,i)=>({activity_id:'attended-'+i,title:'Actividad '+i,attended_at:'2026-10-15T16:00:00Z'}));
+ nfcPage=await load('pasaporte.html','passport.js',nfcState);
+ assert.equal(nfcPage.document.querySelector('[data-attendance-count]').textContent,'12');
+ assert.match(nfcPage.document.querySelector('[data-attendance-badge]').textContent,/DESBLOQUEADA/);
+ const invalid=await load('login.html','login.js',backend({user}),'?checkin=https://evil.example');
+ assert.equal(invalid.location.destination,'mi-cuenta.html');
+ ok('NFC: token requerido, sin ruta previa, pasaporte e insignia 12, login/OAuth/privacidad conservan token');
+}
+for(const blocked of [false,true]){
+ const authState=backend();const authPage=await load('login.html','login.js',authState,'',{captchaError:blocked});
+ const authModule=await authPage.moduleFor(path.resolve('js/auth.js'));
+ for(const [name,args,operation,action] of [
+  ['signUp',[user.email,'password123',{}],'signUp','signup'],
+  ['signInWithPassword',[user.email,'password123'],'signIn','login'],
+  ['requestRecovery',[user.email],'reset','recovery'],
+  ['resendConfirmation',[user.email],'resend','resend']
+ ]){
+  if(blocked)await assert.rejects(authModule.namespace[name](...args),{code:'captcha_failed'});
+  else {await authModule.namespace[name](...args);const call=authState.calls.find(c=>c[0]===operation);assert.equal((operation==='reset'?call[2]:call[1].options).captchaToken,'test-captcha-'+action);}
+ }
+ if(blocked)assert.equal(authState.calls.length,0);
+}
+ok('Auth: signup/login/recovery/resend envían token; fallo CAPTCHA impide llamadas');
+{
+ const adminState=backend({user});let enabled=false,writes=0,fail=false;
+ const control=()=>({attendance_enabled:enabled,point_token:'b'.repeat(64),audit:[]});
+ adminState.client.rpc=async(name,args)=>{
+  if(name==='admin_get_attendance_control')return {data:control()};
+  if(name==='admin_set_attendance_enabled'){writes++;if(fail)return {error:{message:'ADMIN_REQUIRED'}};enabled=args.p_enabled;return {data:control()};}
+  throw Error(name);
+ };
+ const p=await load('login.html',[] ,adminState);
+ const m=await p.moduleFor(path.resolve('js/admin-attendance.js'));await m.evaluate();
+ const panel=m.namespace.attendancePanel({...openActivity,scenario:'deporte'},()=>true);p.document.querySelector('main').append(panel);
+ const settle=async()=>{for(let i=0;i<8;i++)await new Promise(setImmediate);};await settle();
+ const button=text=>[...panel.querySelectorAll('button')].find(b=>b.textContent===text&&!b.hidden);
+ assert.match(panel.textContent,/ASISTENCIA CERRADA/);assert.ok(panel.querySelector('input').value.includes('&t='+'b'.repeat(64)));
+ button('HABILITAR ASISTENCIA').click();assert.equal(writes,0);assert.match(panel.textContent,/¿Habilitar el registro/);
+ button('CANCELAR').click();assert.equal(writes,0);
+ button('HABILITAR ASISTENCIA').click();button('HABILITAR').click();button('HABILITAR').click();await settle();assert.equal(writes,1);assert.match(panel.textContent,/ASISTENCIA ACTIVA/);
+ button('CERRAR ASISTENCIA').click();assert.match(panel.textContent,/¿Cerrar el registro/);button('CERRAR ASISTENCIA').click();await settle();assert.equal(enabled,false);
+ button('HABILITAR ASISTENCIA').click();button('HABILITAR').click();await settle();assert.equal(enabled,true);
+ fail=true;button('CERRAR ASISTENCIA').click();button('CERRAR ASISTENCIA').click();await settle();assert.equal(enabled,true);assert.match(panel.textContent,/No tienes permisos/);
+ ok('panel de asistencia: confirmación, cancelar, doble clic, cerrar, reabrir y denegación backend');
+}
+{
+ const activity={...openActivity,scenario:'deporte',attendance_enabled:false};const query='?checkin='+encodeURIComponent('deporte/'+activity.slug)+'&t='+'a'.repeat(64);
+ const s=backend({user,access_token:'test-session'});s.activities=[activity];
+ let p=await load('actividad.html','activity-page.js',s,query);assert.match(p.document.querySelector('#attendance-status').textContent,/asistencia está cerrada/);assert.equal(p.document.querySelector('script[src*="challenges.cloudflare.com"]'),null);
+ activity.attendance_enabled=true;let sent;
+ p=await load('actividad.html','activity-page.js',s,query,{fetch:async(url,options)=>{sent=JSON.parse(options.body);return {ok:true,json:async()=>({code:'RECORDED'})};}});
+ let challenge;p.context.window.turnstile={render(selector,options){challenge=options;return 1;}};p.document.querySelector('script[src*="challenges.cloudflare.com"]').onload();
+ await challenge.callback('turnstile-test-token');assert.equal(sent.point_token,'a'.repeat(64));assert.equal(sent.token,'turnstile-test-token');assert.equal(s.route.length,0);assert.match(p.document.querySelector('#attendance-status').textContent,/Asistencia registrada/);
+ ok('check-in: cerrada bloquea interfaz; activa envía ambos tokens sin selección previa');
 }
 console.log('TOTAL: '+passed+' comprobaciones de interfaz.');

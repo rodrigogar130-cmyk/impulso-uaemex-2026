@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><base href="/impulso-uaemex-2026/"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Actividad | Impulso UAEMéx</title></head><body>
+<p id="route-status">Página no encontrada.</p>
+<a href="/impulso-uaemex-2026/index.html">Volver a IMPULSO UAEMéx</a>
+<footer><a href="privacidad.html">Aviso de Privacidad</a></footer>
+<script type="module">
+ // GitHub Pages no tiene rewrites. Solo estas rutas internas pasan a la vista única.
+ import {nfcDestination} from '/impulso-uaemex-2026/js/nfc-path.js?v=20260921-4';
+ const prefix='/impulso-uaemex-2026/';
+ const path=location.pathname.startsWith(prefix)?location.pathname.slice(prefix.length).replace(/\/$/,''):'';
+ const destination=nfcDestination(path,new URLSearchParams(location.search).get('t'));
+ if(destination){document.getElementById('route-status').textContent='Abriendo actividad…';location.replace(prefix+destination);}
+</script></body></html>
