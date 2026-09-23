@@ -112,6 +112,12 @@ async function load(page, script, state, search='', options={}) {
     get(key){return this.values.get(key)??null;}
   }});
   const cache=new Map();
+  context.window.removeEventListener=windowEvents.removeEventListener.bind(windowEvents);
+  context.window.requestAnimationFrame=options.requestAnimationFrame||(callback=>setImmediate(callback));
+  context.window.requestIdleCallback=Object.hasOwn(options,'requestIdleCallback')?options.requestIdleCallback:(callback=>setImmediate(callback));
+  if(options.IntersectionObserver)context.window.IntersectionObserver=options.IntersectionObserver;
+  context.window.innerHeight=options.innerHeight||844;
+  if(options.agendaBounds)document.getElementById('agenda').getBoundingClientRect=()=>options.agendaBounds;
   function sourceModule(file) {
     file=file.split('?')[0];
     if(cache.has(file))return cache.get(file);
@@ -1492,5 +1498,63 @@ ok('Auth: signup/login/recovery/resend envían token; fallo CAPTCHA impide llama
  let challenge;p.context.window.turnstile={render(selector,options){challenge=options;return 1;}};p.document.querySelector('script[src*="challenges.cloudflare.com"]').onload();
  await challenge.callback('turnstile-test-token');assert.equal(sent.point_token,'a'.repeat(64));assert.equal(sent.token,'turnstile-test-token');assert.equal(s.route.length,0);assert.match(p.document.querySelector('#attendance-status').textContent,/Asistencia registrada/);
  ok('check-in: cerrada bloquea interfaz; activa envía ambos tokens sin selección previa');
+}
+// Production entrypoint defers the entire agenda module; direct module fixtures above test its loaded behavior.
+for(const authenticated of [false,true]){
+ let observe,observed,margin,disconnected=false;
+ class Observer{constructor(callback,options){observe=callback;margin=options.rootMargin;}observe(target){observed=target;}disconnect(){disconnected=true;}}
+ const s=backend(authenticated?{user}:null);s.activities=[{...openActivity}];
+ const p=await load('index.html','agenda-loader.js',s,'',{IntersectionObserver:Observer});
+ assert.equal(s.calls.length,0);assert.equal(s.clientLoads,0);assert.equal(s.authCalls.session,0);
+ assert.equal(p.document.getElementById('agendaList').dataset.catalogState,'idle');assert.equal(p.document.getElementById('agendaResults').textContent,'');
+ assert.equal(margin,'1000px 0px');assert.equal(observed.id,'agenda');
+ fireWindow(p,'focus');fireVisible(p);fireWindow(p,'impulso-activities-changed');s.emit('SIGNED_IN',authenticated?{user}:null);await flush();assert.equal(s.calls.length,0);
+ observe([{isIntersecting:false}]);await flush();assert.equal(s.calls.length,0);
+ observe([{isIntersecting:true}]);for(let i=0;i<5;i++)observe([{isIntersecting:true}]);
+ const m=await p.moduleFor(path.resolve('js/agenda-loader.js'));await m.namespace.requestAgenda();await flush();
+ assert.equal(rpcCount(s,'list_impulso_activities'),1);assert.equal(disconnected,true);
+ assert.equal(rpcCount(s,'get_my_impulso_route'),authenticated?1:0);
+ assert.equal(p.document.getElementById('agendaList').dataset.catalogState,'loaded');
+ await m.namespace.requestAgenda();assert.equal(rpcCount(s,'list_impulso_activities'),1);
+ const attend=p.document.querySelector('.route-controls button');attend.click();await flush();
+ if(authenticated)assert.equal(s.route.length,1);else assert.match(p.location.href,/login.html\?activity=/);
+ ok((authenticated?'con sesión':'sin sesión')+': hero no carga catálogo/perfil/ruta, IO importa una vez y ASISTIR funciona');
+}
+for(const trigger of ['hash','return','link','hashchange','legacy-scroll']){
+ const s=backend();s.activities=[{...openActivity}];let bounds={top:20000,bottom:22000};
+ class Observer{observe(){}disconnect(){}}
+ const p=await load('index.html','agenda-loader.js',s,trigger==='return'?'?activity='+openActivity.slug:'',{
+  hash:trigger==='hash'?'#agenda':'',IntersectionObserver:trigger==='legacy-scroll'?undefined:Observer,agendaBounds:bounds
+ });
+ if(trigger==='link')p.document.querySelector('[data-agenda-stage]').click();
+ if(trigger==='hashchange'){p.location.hash='#agenda';fireWindow(p,'hashchange');}
+ if(trigger==='legacy-scroll'){assert.equal(s.calls.length,0);bounds.top=1500;bounds.bottom=3000;fireWindow(p,'scroll');}
+ await flush();const m=await p.moduleFor(path.resolve('js/agenda-loader.js'));await m.namespace.requestAgenda();
+ assert.equal(rpcCount(s,'list_impulso_activities'),1);assert.equal(p.document.getElementById('agendaList').dataset.catalogState,'loaded');
+ ok('agenda bajo demanda: '+trigger);
+}
+{
+ let idle;const s=backend({user});s.client.rpc=async(name)=>{s.calls.push(['rpc',name]);return {data:'super_admin'};};
+ const p=await load('index.html','navbar-auth.js',s,'',{requestIdleCallback:callback=>{idle=callback;}});
+ assert.equal(rpcCount(s,'admin_get_access'),0);assert.equal(p.document.querySelector('[data-auth-user]').hidden,false);assert.equal(p.document.querySelector('[data-admin-link]').hidden,true);
+ assert.equal(typeof idle,'function');idle();await flush();assert.equal(rpcCount(s,'admin_get_access'),1);assert.equal(p.document.querySelector('[data-admin-link]').hidden,false);
+ ok('Administración espera idle después del render; navegación de sesión disponible antes de permisos');
+}
+{
+ let fallback;const s=backend({user});s.client.rpc=async name=>{s.calls.push(['rpc',name]);return {data:'staff'};};
+ const p=await load('index.html','navbar-auth.js',s,'',{requestIdleCallback:undefined,setTimeout:(callback,delay)=>{if(delay===1200){fallback=callback;return 1;}return setTimeout(callback,delay);}});
+ assert.equal(rpcCount(s,'admin_get_access'),0);assert.equal(typeof fallback,'function');fallback();await flush();assert.equal(rpcCount(s,'admin_get_access'),1);
+ ok('Safari sin requestIdleCallback usa fallback diferido y conserva acceso administrativo');
+}
+{
+ const doc=parseHTML(fs.readFileSync('index.html','utf8')).document;
+ const preloads=[...doc.querySelectorAll('link[rel="preload"][as="image"]')];assert.equal(preloads.length,2);
+ assert.ok(preloads.every(link=>link.getAttribute('fetchpriority')==='high'));
+ assert.equal(preloads[0].getAttribute('media'),'(max-width: 820px)');assert.equal(preloads[1].getAttribute('media'),'not all and (max-width: 820px)');
+ assert.ok(preloads[0].getAttribute('href').endsWith('-mobile.webp'));assert.ok(preloads[1].getAttribute('href').endsWith('2026.webp'));
+ for(const img of doc.querySelectorAll('main img')){assert.equal(img.getAttribute('loading'),'lazy');assert.equal(img.getAttribute('decoding'),'async');assert.ok(img.getAttribute('alt'));}
+ assert.equal(doc.querySelector('link[href*="fonts.googleapis.com/css2"]').getAttribute('media'),'print');
+ assert.ok(doc.querySelector('script[src^="js/agenda-loader.js"]'));assert.equal(doc.querySelector('script[src^="js/agenda-route.js"]'),null);
+ ok('preloads excluyentes, imágenes secundarias lazy/async, DM Sans no bloqueante y entrypoint diferido');
 }
 console.log('TOTAL: '+passed+' comprobaciones de interfaz.');

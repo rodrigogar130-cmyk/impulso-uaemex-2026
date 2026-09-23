@@ -18,6 +18,19 @@ if (supabase) {
   let accessUser = null, accessPromise = null;
   let accessInFlight = null, accessExpiresAt = 0;
   const accessTTL = 120000;
+  let idleAccess=null;
+  function afterFirstRender(){
+    if(!idleAccess)idleAccess=new Promise(resolve=>{
+      const schedule=()=>{
+        if(window.requestIdleCallback)window.requestIdleCallback(resolve,{timeout:2000});
+        else setTimeout(resolve,1200);
+      };
+      // Two frames leave an opportunity to paint the header before any remote permission check.
+      if(window.requestAnimationFrame)window.requestAnimationFrame(()=>window.requestAnimationFrame(schedule));
+      else setTimeout(schedule,0);
+    });
+    return idleAccess;
+  }
   function resetAccess(session) {
     const id = session?.user.id || null;
     if (id !== accessUser) {
@@ -32,6 +45,8 @@ if (supabase) {
       if (current !== revision) return;
       resetAccess(session); render(session);
       if(session){
+        await afterFirstRender();
+        if(current!==revision)return;
         // UI hint only. admin.html always checks its own permissions remotely.
         // Finish any previous user's request before starting another one.
         if (accessInFlight && !accessPromise) {
@@ -62,5 +77,5 @@ if (supabase) {
   }
   window.addEventListener('focus', refreshOnReturn);
   document.addEventListener('visibilitychange', refreshOnReturn);
-  await refresh();
+  void refresh();
 }

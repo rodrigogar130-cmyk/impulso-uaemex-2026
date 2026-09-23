@@ -10,7 +10,10 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.onload=null;this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+  <link rel="preload" as="image" type="image/webp" href="assets/hero-impulso-uaemex-2026-mobile.webp" media="(max-width: 820px)" fetchpriority="high">
+  <link rel="preload" as="image" type="image/webp" href="assets/hero-impulso-uaemex-2026.webp" media="not all and (max-width: 820px)" fetchpriority="high">
 
   <style>
     /* HERO */
@@ -20,11 +23,37 @@
       color:var(--text-primary);
       background:
         linear-gradient(90deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.58) 34%, rgba(0,0,0,.20) 64%, rgba(0,0,0,.08) 100%),
-        linear-gradient(0deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.18) 42%, transparent 70%),
-        url("assets/hero-impulso-uaemex-2026.webp") center / cover no-repeat;
+        linear-gradient(0deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.18) 42%, transparent 70%);
       background-color:#06251d;
       overflow:hidden;
       isolation:isolate;
+    }
+
+    @media not all and (max-width:820px){
+      .hero{background:
+        linear-gradient(90deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.58) 34%, rgba(0,0,0,.20) 64%, rgba(0,0,0,.08) 100%),
+        linear-gradient(0deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.18) 42%, transparent 70%),
+        url("assets/hero-impulso-uaemex-2026.webp") center / cover no-repeat;
+        background-color:#06251d;
+      }
+    }
+    @supports (content-visibility:auto){
+      #evento,#pasaporte,#escenarios,#ponentes,#agenda,#mapa{content-visibility:auto;contain-intrinsic-size:auto 1000px;}
+      #evento{contain-intrinsic-size:auto 1800px;}
+      #escenarios{contain-intrinsic-size:auto 3300px;}
+      #ponentes{contain-intrinsic-size:auto 3600px;}
+      #agenda{contain-intrinsic-size:auto 1600px;}
+      #evento:target,#pasaporte:target,#escenarios:target,#ponentes:target,#agenda:target,#mapa:target,
+      #evento:focus-within,#pasaporte:focus-within,#escenarios:focus-within,#ponentes:focus-within,#agenda:focus-within,#mapa:focus-within,
+      #evento:has(:target),#evento:has(details[open]),#escenarios:has(details[open]),#ponentes:has(details[open]){content-visibility:visible;}
+      @media (max-width:820px){
+        #evento{contain-intrinsic-size:auto 2300px;}
+        #pasaporte{contain-intrinsic-size:auto 1100px;}
+        #escenarios{contain-intrinsic-size:auto 6200px;}
+        #ponentes{contain-intrinsic-size:auto 6500px;}
+        #agenda{contain-intrinsic-size:auto 2600px;}
+        #mapa{contain-intrinsic-size:auto 1700px;}
+      }
     }
 
     .hero::before,
@@ -971,9 +1000,9 @@
       <span class="eyebrow reveal">Agenda</span><h2 class="section-title reveal">ARMA TU RUTA.</h2><p class="section-copy">Explora por día, escenario o participante y organiza tu recorrido. Consulta la hora y la sede de cada actividad.</p>
       <div class="agenda-toolbar"><div class="agenda-days" role="group" aria-label="Filtrar por día"><button class="filter-btn active" data-day="all" aria-pressed="true">TODOS LOS DÍAS</button><button class="filter-btn" data-day="15" aria-pressed="false">DÍA 1 · 15 OCT</button><button class="filter-btn" data-day="16" aria-pressed="false">DÍA 2 · 16 OCT</button><button class="filter-btn" data-day="pending" aria-pressed="false">PRÓXIMAMENTE</button></div><input class="agenda-search" id="agendaSearch" type="search" placeholder="Buscar actividad, ponente o sede…" aria-label="Buscar actividad, ponente o sede" /></div>
       <div class="agenda-filters" role="group" aria-label="Filtrar por escenario"><button class="filter-btn active" data-stage="all" aria-pressed="true">TODOS</button><button class="filter-btn" data-stage="cultura" aria-pressed="false">Cultura</button><button class="filter-btn" data-stage="deporte" aria-pressed="false">Deporte</button><button class="filter-btn" data-stage="tecnologia" aria-pressed="false">Tecnología</button><button class="filter-btn" data-stage="diseno" aria-pressed="false">Diseño</button><button class="filter-btn" data-stage="investigacion" aria-pressed="false">Investigación aplicada</button><button class="filter-btn" data-stage="gobernanza" aria-pressed="false">Gobernanza</button><button class="filter-btn" data-stage="bienestar" aria-pressed="false">Bienestar Integral</button></div>
-      <p class="agenda-results" id="agendaResults" role="status" aria-live="polite">Cargando actividades…</p>
+      <p class="agenda-results" id="agendaResults" role="status" aria-live="polite"></p>
       <p id="catalog-status" class="content-note" role="status" aria-live="polite"></p>
-      <p id="route-status" class="content-note" role="status" aria-live="polite"></p><span id="arma-tu-ruta"></span><div class="agenda-list" id="agendaList" data-catalog-state="loading" aria-busy="true">Cargando actividades…</div>
+      <p id="route-status" class="content-note" role="status" aria-live="polite"></p><span id="arma-tu-ruta"></span><div class="agenda-list" id="agendaList" data-catalog-state="idle" aria-busy="false"></div>
       <div class="agenda-more-wrap"><button class="btn btn-outline" id="agendaMore" hidden>VER MÁS ACTIVIDADES <span class="arrow">↓</span></button></div>
       <div class="agenda-empty" id="agendaEmpty" hidden><h3>No hay actividades con estos filtros.</h3><p>Prueba otro día, escenario o término de búsqueda.</p><button class="btn btn-outline" id="resetAgenda">VER TODAS LAS ACTIVIDADES <span class="arrow">↗</span></button></div>
       
@@ -1117,7 +1146,7 @@
         document.getElementById('agendaEmpty').hidden = true;
         document.getElementById('agendaMore').hidden = true;
         document.getElementById('agendaResults').textContent = document.getElementById('agendaList').dataset.catalogState === 'error'
-          ? 'No pudimos cargar la agenda en este momento.' : 'Cargando actividades…';
+          ? 'No pudimos cargar la agenda en este momento.' : document.getElementById('agendaList').dataset.catalogState === 'loading' ? 'Cargando actividades…' : '';
         return;
       }
       if(resetLimit) agendaLimit = 12;
@@ -1289,6 +1318,6 @@
   <script src="vendor/supabase-js-2.57.4/supabase.js?v=20260921-4"></script>
 <script type="module" src="js/site-header.js?v=20260921-4"></script>
   <script type="module" src="js/navbar-auth.js?v=20260921-4"></script>
-<script type="module" src="js/agenda-route.js?v=20260921-4"></script>
+<script type="module" src="js/agenda-loader.js?v=20260921-4"></script>
 </body>
 </html>
