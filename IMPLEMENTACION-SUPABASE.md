@@ -35,7 +35,7 @@ Si una cuenta antigua no tiene los datos necesarios, se solicita completar el pe
 3. Ejecutar `supabase/tests/phase1.sql` como postgres para verificar aislamiento con dos usuarios temporales. Revierte las filas de prueba; los números de secuencia consumidos no se reciclan. Una excepción FAIL indica que hay que corregir antes de abrir registros.
 4. `js/config.js` ya contiene la URL HTTPS del proyecto y su Publishable Key. No hay claves privadas ni se necesitan para las consultas frontend.
 5. Mantener Email habilitado, confirmación obligatoria y usuarios anónimos deshabilitados. Establecer contraseña mínima de al menos 8 caracteres.
-6. Site URL: la URL base del sitio con barra final; por ejemplo `http://127.0.0.1:5500/` en local o `https://rodrigogar130-cmyk.github.io/impulso-uaemex-2026/` en producción. No terminarla en `index.html`: la plantilla de confirmación concatena `confirmar.html`.
+6. Site URL: la URL base del sitio con barra final; por ejemplo `http://127.0.0.1:5500/` en local o `https://impulsouaemex2026.cineticocre.com.mx/` en producción. No terminarla en `index.html`: la plantilla de confirmación concatena `confirmar.html`.
 7. Redirect URLs: `http://127.0.0.1:5500/**` y `http://localhost:5500/**`. No incluir barras invertidas delante de los asteriscos.
 8. Después de publicar `confirmar.html`, cambiar manualmente únicamente el enlace de **Confirm signup** como se indica abajo. Confirmación vuelve a `login.html?confirmed=1`; recuperación conserva su plantilla y vuelve a `recuperar-password.html?mode=reset`.
 9. Abrir la landing con Live Server. Usar el mismo origen de forma consistente: localhost y 127.0.0.1 tienen almacenamientos de sesión diferentes.

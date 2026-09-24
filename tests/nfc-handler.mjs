@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {createHandler} from '../supabase/functions/nfc-attendance/handler.mjs';
 import {parseNfcRoute,nfcDestination} from '../js/nfc-path.js';
 const user='88888888-8888-4888-8888-888888888888',id='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
-const settings={NFC_ALLOWED_ORIGINS:'https://rodrigogar130-cmyk.github.io',SUPABASE_URL:'https://test.supabase.co',NFC_PUBLISHABLE_KEY:'public',SUPABASE_SERVICE_ROLE_KEY:'server-only',TURNSTILE_SECRET_KEY:'secret'};
+const settings={NFC_ALLOWED_ORIGINS:'https://impulsouaemex2026.cineticocre.com.mx',SUPABASE_URL:'https://test.supabase.co',NFC_PUBLISHABLE_KEY:'public',SUPABASE_SERVICE_ROLE_KEY:'server-only',TURNSTILE_SECRET_KEY:'secret'};
 async function run({origin=settings.NFC_ALLOWED_ORIGINS,auth=true,rate=true,verify={},body={activity_id:id,token:'test'},method='POST',userResponse,fail,missingSecret=false,verifyFailure}={}){
  const calls=[];const handler=createHandler({env:k=>missingSecret&&k==='TURNSTILE_SECRET_KEY'?undefined:settings[k],log:()=>{},fetchImpl:async(url,options)=>{
   calls.push({url,options});if(fail)throw Error('SECRET_INTERNAL_ERROR');

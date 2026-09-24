@@ -1,6 +1,6 @@
 # Integración Turnstile — 22/09/2026
 
-Preparada localmente, sin commit, push ni despliegue. Site key pública configurada: `0x4AAAAAAFAdAaOu84ToJ37E`. Widget Managed para `rodrigogar130-cmyk.github.io`. No se recibió ni incorporó ninguna Secret key.
+Preparada localmente, sin commit, push ni despliegue. Site key pública configurada: `0x4AAAAAAFAdAaOu84ToJ37E`. Widget Managed para `impulsouaemex2026.cineticocre.com.mx`; localhost y 127.0.0.1 permanecen autorizados para pruebas locales. No se recibió ni incorporó ninguna Secret key.
 
 ## Cambios de esta fase
 

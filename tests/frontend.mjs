@@ -794,7 +794,7 @@ assert.doesNotMatch(fs.readFileSync('js/registro.js','utf8'),/localStorage|sessi
 ok('SMTP y rate limit mantienen formulario y reintento sin anunciar envío; tokens y contraseñas no se guardan');
 // Google uses the same SDK/session and only an allowlisted local callback.
 const oauthErrorText='No pudimos iniciar sesión con Google. Inténtalo nuevamente o utiliza tu correo y contraseña.';
-const oauthBase='https://rodrigogar130-cmyk.github.io/impulso-uaemex-2026/';
+const oauthBase='https://impulsouaemex2026.cineticocre.com.mx/';
 const oauthStorageValues=new Map(),oauthWrites=[];
 const oauthStorage={getItem:key=>oauthStorageValues.get(key)||null,setItem(key,value){oauthWrites.push([key,value]);oauthStorageValues.set(key,value);},removeItem:key=>oauthStorageValues.delete(key)};
 for(const [file,script] of [['login.html','login.js'],['registro.html','registro.js']]){
@@ -809,7 +809,7 @@ for(const [file,script] of [['login.html','login.js'],['registro.html','registro
  assert.equal(state.calls.length,1);assert.equal(state.calls[0][0],'oauth');assert.equal(accidentalSubmit,0);
  const payload=state.calls[0][1];assert.equal(payload.provider,'google');
  const redirect=new URL(payload.options.redirectTo);
- assert.equal(redirect.origin,new URL(oauthBase).origin);assert.equal(redirect.pathname,'/impulso-uaemex-2026/completar-registro.html');
+ assert.equal(redirect.origin,new URL(oauthBase).origin);assert.equal(redirect.pathname,'/completar-registro.html');
  assert.equal(redirect.searchParams.get('activity'),openActivity.slug);assert.equal(redirect.searchParams.get('next'),'admin');
  assert.equal(payload.options.skipBrowserRedirect,undefined);
  assert.equal(googleButton.disabled,true);assert.match(googleButton.textContent,/CONECTANDO CON GOOGLE/);
