@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Mi pasaporte | Impulso UAEMéx 2026</title>
+
+  <link rel="stylesheet" href="css/account.css">
+  <link rel="stylesheet" href="css/route.css">
+</head>
+
+<body>
+
+  <div id="site-navigation"></div>
+
+  <main class="container">
+
+    <span class="eyebrow">
+      Festival de Emprendimiento · 2026
+    </span>
+
+    <div
+      data-message
+      class="message"
+      role="status"
+      aria-live="polite"
+    >
+      Cargando tu cuenta…
+    </div>
+
+    <noscript>
+      <p>Activa JavaScript para utilizar tu cuenta.</p>
+    </noscript>
+
+
+    <div data-private hidden>
+
+      <h1>MI PASAPORTE</h1>
+
+
+      <!-- CUENTA NO ACTIVA -->
+      <section
+        id="passport-locked"
+        class="panel"
+        hidden
+      >
+        <p>
+          Tu inscripción no está activa.
+          Consulta el estado en Mi cuenta.
+        </p>
+
+        <a
+          class="btn"
+          href="mi-cuenta.html"
+        >
+          IR A MI CUENTA ↗
+        </a>
+      </section>
+
+
+      <!-- PASAPORTE ACTIVO -->
+      <section
+        id="passport-content"
+        hidden
+      >
+
+        <div class="private-passport-heading">
+
+          <p class="private-passport-meta">
+            IMPULSO UAEMéx 2026 · Folio
+            <strong id="passport-folio">—</strong>
+          </p>
+
+          <span
+            class="eyebrow"
+            data-passport-preview-label
+            hidden
+          >
+            MODO SIMULACIÓN
+          </span>
+
+        </div>
+
+
+        <!-- PASAPORTE + INSIGNIA -->
+        <section class="private-passport-showcase">
+
+          <!-- PASAPORTE -->
+          <article class="private-passport-card">
+
+            <div class="private-passport-card-top">
+              <span>IMPULSO UAEMéx 2026</span>
+              <span aria-hidden="true">↗</span>
+            </div>
+
+
+            <h2>Tu Pasaporte</h2>
+
+
+            <!-- CONTADOR -->
+            <div class="private-passport-count">
+
+              <strong data-passport-count>
+                0
+              </strong>
+
+              <span>/ 12</span>
+
+            </div>
+
+
+            <p class="private-passport-label">
+              Actividades completadas
+            </p>
+
+
+            <!-- 12 SELLOS -->
+            <div
+              class="private-passport-stamps"
+              data-passport-stamps
+              aria-label="Progreso del pasaporte"
+            >
+
+              <span data-passport-stamp="1">01</span>
+              <span data-passport-stamp="2">02</span>
+              <span data-passport-stamp="3">03</span>
+              <span data-passport-stamp="4">04</span>
+              <span data-passport-stamp="5">05</span>
+              <span data-passport-stamp="6">06</span>
+
+              <span data-passport-stamp="7">07</span>
+              <span data-passport-stamp="8">08</span>
+              <span data-passport-stamp="9">09</span>
+              <span data-passport-stamp="10">10</span>
+              <span data-passport-stamp="11">11</span>
+              <span data-passport-stamp="12">12</span>
+
+            </div>
+
+
+            <!-- BARRA DE PROGRESO -->
+            <div
+              class="private-passport-progress"
+              data-passport-progressbar
+              role="progressbar"
+              aria-valuemin="0"
+              aria-valuemax="12"
+              aria-valuenow="0"
+            >
+              <span data-passport-progress-fill></span>
+            </div>
+
+
+            <div class="private-passport-footer">
+
+              <p data-passport-progress-text>
+                Consultando tus asistencias…
+              </p>
+
+              <span data-passport-percent>
+                0% completado
+              </span>
+
+            </div>
+
+          </article>
+
+
+          <!-- CONECTOR -->
+          <div
+            class="private-passport-connector"
+            aria-hidden="true"
+          >
+            <span></span>
+            <strong>→</strong>
+          </div>
+
+
+          <!-- INSIGNIA -->
+          <aside
+            class="private-passport-badge"
+            data-passport-badge-card
+          >
+
+            <span
+              class="private-passport-badge-state"
+              data-passport-badge-state
+            >
+              BLOQUEADA
+            </span>
+
+
+            <!-- SÍMBOLO -->
+            <div
+              class="private-passport-badge-symbol"
+              aria-hidden="true"
+            >
+              <span class="private-passport-star"></span>
+              <span class="private-passport-star-center"></span>
+            </div>
+
+
+            <h2>
+              Insignia IMPULSO UAEMéx
+              <br>
+              2026
+            </h2>
+
+
+            <p data-passport-badge-copy>
+              Se personaliza al completar 12 actividades.
+            </p>
+
+
+            <small>
+              Mostrará tu nombre, folio y datos de cumplimiento.
+            </small>
+
+
+            <!-- DATOS DE INSIGNIA -->
+            <div
+              class="private-passport-badge-person"
+              data-passport-badge-person
+              hidden
+            >
+
+              <div>
+                <span>OTORGADA A</span>
+                <strong data-passport-badge-name>
+                  —
+                </strong>
+              </div>
+
+              <div>
+                <span>FOLIO</span>
+                <strong data-passport-badge-folio>
+                  —
+                </strong>
+              </div>
+
+              <div
+                data-passport-badge-date-row
+                hidden
+              >
+                <span>
+                  FECHA DE CUMPLIMIENTO
+                </span>
+
+                <strong data-passport-badge-date>
+                  —
+                </strong>
+              </div>
+
+            </div>
+
+          </aside>
+
+        </section>
+
+
+        <p class="private-passport-note">
+          Cada actividad cuenta una sola vez.
+          Tu asistencia se confirma mediante QR o NFC.
+        </p>
+
+
+        <!-- MI RUTA -->
+        <section
+          class="panel private-passport-route"
+          id="my-route"
+          aria-labelledby="my-route-title"
+        >
+
+          <span class="eyebrow">
+            TU SELECCIÓN
+          </span>
+
+          <h2 id="my-route-title">
+            MI RUTA
+          </h2>
+
+
+          <p data-route-count>
+            Cargando tus actividades…
+          </p>
+
+
+          <p>
+            Seleccionar una actividad no confirma tu asistencia.
+            Escanea el NFC o QR de la actividad cuando el responsable
+            habilite la asistencia.
+            No necesitas seleccionarla previamente.
+          </p>
+
+
+          <p
+            data-route-message
+            role="status"
+            aria-live="polite"
+          ></p>
+
+
+          <div data-route-list></div>
+
+
+          <div class="actions">
+
+            <a
+              class="btn btn-outline"
+              href="index.html#agenda"
+            >
+              EXPLORAR ACTIVIDADES ↗
+            </a>
+
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-export-route
+              hidden
+            >
+              AGREGAR TODA MI RUTA AL CALENDARIO
+            </button>
+
+          </div>
+
+
+          <div
+            data-export-options
+            hidden
+          ></div>
+
+        </section>
+
+
+        <!-- ASISTENCIAS -->
+        <section
+          class="panel private-passport-attendances"
+        >
+
+          <span class="eyebrow">
+            REGISTRO
+          </span>
+
+          <h2>
+            MIS ASISTENCIAS
+          </h2>
+
+
+          <div data-attendance-list>
+            <p>
+              Cargando asistencias…
+            </p>
+          </div>
+
+        </section>
+
+      </section>
+
+
+      <a href="mi-cuenta.html">
+        Volver a Mi cuenta
+      </a>
+
+
+      <form
+        method="post"
+        id="logout-form"
+        class="panel"
+      >
+        <button
+          class="session-exit"
+          type="submit"
+        >
+          CERRAR SESIÓN
+        </button>
+      </form>
+
+    </div>
+
+  </main>
+
+
+  <footer>
+    Universidad Autónoma del Estado de México ·
+    Dirección de Desarrollo Empresarial
+
+    <p>
+      <a href="privacidad.html">
+        Aviso de Privacidad
+      </a>
+    </p>
+  </footer>
+
+
+  <script
+    src="vendor/supabase-js-2.57.4/supabase.js?v=20260921-4"
+  ></script>
+
+  <script
+    type="module"
+    src="js/site-header.js?v=20260921-4"
+  ></script>
+
+  <script
+    type="module"
+    src="js/navbar-auth.js?v=20260921-4"
+  ></script>
+
+  <script
+    type="module"
+    src="js/passport.js?v=20260921-4"
+  ></script>
+
+</body>
+</html>

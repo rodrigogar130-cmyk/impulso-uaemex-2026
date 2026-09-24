@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Impulso UAEMéx 2026 | Festival de Emprendimiento</title>
+  <meta name="description" content="Impulso UAEMéx 2026 — Festival de Emprendimiento. 15 y 16 de octubre de 2026 en Ciudad Universitaria UAEMéx." />
+  <meta name="theme-color" content="#050505" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.onload=null;this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+  <link rel="preload" as="image" type="image/png" href="assets/hero-impulso-uaemex-2026-mobile.png" media="(max-width: 820px)" fetchpriority="high">
+  <link rel="preload" as="image" type="image/png" href="assets/hero-impulso-uaemex-2026-desktop.png?v=2" media="not all and (max-width: 820px)" fetchpriority="high">
+
+  <style>
+    /* HERO */
+    .hero{
+      position:relative;
+      min-height:100svh;
+      color:var(--text-primary);
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.58) 34%, rgba(0,0,0,.20) 64%, rgba(0,0,0,.08) 100%),
+        linear-gradient(0deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.18) 42%, transparent 70%);
+      background-color:#06251d;
+      overflow:hidden;
+      isolation:isolate;
+    }
+
+    @media not all and (max-width:820px){
+      .hero{background:
+        linear-gradient(90deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.58) 34%, rgba(0,0,0,.20) 64%, rgba(0,0,0,.08) 100%),
+        linear-gradient(0deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.18) 42%, transparent 70%),
+        url("assets/hero-impulso-uaemex-2026-desktop.png?v=2") center / cover no-repeat;
+        background-color:#06251d;
+      }
+    }
+    @supports (content-visibility:auto){
+      #evento,#pasaporte,#escenarios,#ponentes,#agenda,#mapa{content-visibility:auto;contain-intrinsic-size:auto 1000px;}
+      #evento{contain-intrinsic-size:auto 1800px;}
+      #escenarios{contain-intrinsic-size:auto 3300px;}
+      #ponentes{contain-intrinsic-size:auto 3600px;}
+      #agenda{contain-intrinsic-size:auto 1600px;}
+      #evento:target,#pasaporte:target,#escenarios:target,#ponentes:target,#agenda:target,#mapa:target,
+      #evento:focus-within,#pasaporte:focus-within,#escenarios:focus-within,#ponentes:focus-within,#agenda:focus-within,#mapa:focus-within,
+      #evento:has(:target),#evento:has(details[open]),#escenarios:has(details[open]),#ponentes:has(details[open]){content-visibility:visible;}
+      @media (max-width:820px){
+        #evento{contain-intrinsic-size:auto 2300px;}
+        #pasaporte{contain-intrinsic-size:auto 1100px;}
+        #escenarios{contain-intrinsic-size:auto 6200px;}
+        #ponentes{contain-intrinsic-size:auto 6500px;}
+        #agenda{contain-intrinsic-size:auto 2600px;}
+        #mapa{contain-intrinsic-size:auto 1700px;}
+      }
+    }
+
+    .hero::before,
+    .hero-orbit,
+    .hero-dot{
+      display:none;
+    }
+
+    .hero-noise{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:-1;
+      opacity:.035;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+    }
+
+    .hero-inner{
+      min-height:100svh;
+      padding-top:calc(var(--header-h) + 120px);
+      padding-bottom:72px;
+      display:grid;
+      grid-template-columns:minmax(0,1.65fr) minmax(280px,.75fr);
+      align-items:end;
+      gap:clamp(32px,6vw,90px);
+    }
+    .hero-title,
+    .hero-description,
+    .hero-bottom{
+      text-shadow:0 2px 24px rgba(0,0,0,.45);
+    }
+    .hero-topline{
+      margin-bottom:36px;
+      font-size:12px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:rgba(255,255,255,.9);
+      line-height:1.6;
+    }
+    .hero-title{
+      margin:0;
+      font-size:clamp(64px,7vw,110px);
+      line-height:.92;
+      letter-spacing:-.055em;
+      font-weight:600;
+      text-transform:uppercase;
+    }
+    .hero-title .line{
+      display:block;
+      padding-bottom:.06em;
+    }
+    .hero-title .line > span{
+      display:block;
+    }
+    .hero-title .line:nth-child(2){ font-size:clamp(64px,7.5vw,115px); }
+    .hero-title .line:nth-child(3){ font-size:clamp(52px,6vw,90px); color:#e5d3a3; }
+    .hero-title .accent{
+      color:var(--text-primary);
+    }
+    .hero-bottom{
+      padding-top:30px;
+      border-top:1px solid var(--border);
+    }
+    .hero-description{
+      max-width:700px;
+      margin:32px 0 0;
+      font-size:clamp(18px,1.5vw,24px);
+      line-height:1.45;
+      color:rgba(255,255,255,.9);
+    }
+    .hero-info{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:14px;
+    }
+    .hero-date{
+      text-align:left;
+      margin-bottom:24px;
+    }
+    .hero-date strong{
+      display:block;
+      font-size:1.02rem;
+    }
+    .hero-date span{
+      display:block;
+      margin-top:12px;
+      max-width:250px;
+      font-size:14px;
+      line-height:1.6;
+      color:rgba(255,255,255,.9);
+    }
+
+    /* COUNTDOWN */
+    .countdown-section{
+      position:relative;
+      background:var(--surface);
+      color:var(--text-primary);
+      border-block:1px solid var(--border);
+      padding:44px 0;
+    }
+    .countdown-wrap{
+      display:grid;
+      grid-template-columns:.9fr 1.1fr;
+      align-items:center;
+      gap:30px;
+    }
+    .countdown-label{
+      max-width:430px;
+    }
+    .countdown-label span{
+      display:block;
+      font-size:.72rem;
+      font-weight:700;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      margin-bottom:8px;
+    }
+    .countdown-label strong{
+      display:block;
+      font-size:clamp(1.6rem, 3vw, 3.1rem);
+      line-height:.95;
+      letter-spacing:-.05em;
+    }
+    .countdown-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+    }
+    .time-box{
+      text-align:center;
+      padding:18px 10px;
+      border-left:1px solid var(--border);
+    }
+    .time-box strong{
+      display:block;
+      font-size:clamp(2.4rem, 5vw, 5.5rem);
+      line-height:.85;
+      letter-spacing:-.06em;
+    }
+    .time-box span{
+      display:block;
+      margin-top:11px;
+      font-size:.68rem;
+      font-weight:700;
+      letter-spacing:.12em;
+    }
+
+    /* STATS */
+    .stats{
+      background:var(--background);
+      color:var(--text-primary);
+      padding:38px 0 24px;
+    }
+    .stats + #evento{ padding-top:40px; }
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+    }
+    .stat{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      min-width:0;
+      text-align:center;
+      padding:24px 16px;
+      border-right:1px solid var(--border);
+    }
+    .stat:last-child{ border-right:0; }
+    .stat-number{
+      display:block;
+      font-size:clamp(2.8rem, 5vw, 5.5rem);
+      line-height:.85;
+      letter-spacing:-.06em;
+      font-weight:700;
+      color:var(--text-primary);
+    }
+    .stat-label{
+      display:block;
+      margin-top:12px;
+      font-size:.68rem;
+      font-weight:700;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      opacity:.68;
+    }
+
+    /* INTRO */
+    .intro{
+      background:var(--background);
+    }
+    .intro-grid{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:clamp(40px,8vw,120px);
+      align-items:start;
+    }
+    .intro-sticky{
+      position:sticky;
+      top:120px;
+    }
+    .intro-content{
+      padding-top:8px;
+    }
+    .intro-content p{
+      font-size:clamp(1.1rem,1.7vw,1.45rem);
+      line-height:1.7;
+      color:var(--text-secondary);
+      margin:0 0 24px;
+    }
+    .audience-cloud{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:40px;
+    }
+    .chip{
+      padding:11px 16px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      font-size:.82rem;
+      background:var(--surface-light);
+    }
+
+    /* STAGES */
+    .stages{
+      background:var(--surface);
+    }
+    .stages-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:end;
+      gap:40px;
+      margin-bottom:70px;
+    }
+    .stages-head .section-copy{
+      max-width:470px;
+      margin:0 0 6px;
+    }
+    #escenarios .stage-list{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:24px;
+      align-items:stretch;
+    }
+    #escenarios .stage{
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+      background:#0b0b0b;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;
+      overflow:hidden;
+      transition:transform .35s ease,border-color .35s ease;
+    }
+    #escenarios .stage-media{
+      position:relative;
+      overflow:hidden;
+      aspect-ratio:4 / 3;
+      flex:none;
+      padding:0;
+    }
+    #escenarios .stage-media img{
+      display:block;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center 15%;
+      transition:transform .35s ease;
+    }
+    #escenarios .stage-content{
+      display:flex;
+      flex-direction:column;
+      flex:1;
+      gap:22px;
+      padding:24px;
+    }
+    #escenarios .stage-big-num{ font-size:12px; letter-spacing:.12em; color:#a6a6a6; }
+    #escenarios .stage h3{
+      margin:10px 0 16px;
+      font-size:clamp(23px,2vw,29px);
+      line-height:1.15;
+      letter-spacing:-.035em;
+      font-weight:600;
+      overflow-wrap:anywhere;
+    }
+    #escenarios .stage p{ margin:0; font-size:14px; line-height:1.65; color:#a6a6a6; }
+    #escenarios .stage .venue-label{ color:#e4e4e4; font-size:13px; }
+    #escenarios .stage-footer{ display:flex; flex-direction:column; flex:1; gap:16px; }
+    #escenarios .editorial-details{ margin:0 0 8px; }
+    #escenarios .editorial-details summary{ min-height:44px; }
+    #escenarios .stage .stage-topics{ font-size:12px; margin:12px 0; }
+    #escenarios .stage-link{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-top:auto;
+      min-height:44px;
+      padding-top:12px;
+      border-top:1px solid rgba(255,255,255,.12);
+      font-size:12px;
+      font-weight:700;
+    }
+    #escenarios .stage-link:focus-visible{ outline-offset:-3px; border-radius:3px; }
+    @media (min-width:1400px){
+      #escenarios > .container{ max-width:1760px; }
+      #escenarios .stage-list{ grid-template-columns:repeat(8,minmax(0,1fr)); }
+      #escenarios .stage{ grid-column:span 2; }
+      #escenarios .stage:nth-child(5){ grid-column:2 / span 2; }
+    }
+    @media (min-width:701px) and (max-width:1000px){
+      #escenarios .stage-list{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width:700px){
+      #escenarios .stage-list{ grid-template-columns:minmax(0,1fr); }
+      #escenarios .stage-content{ padding:22px; }
+    }
+    @media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+      #escenarios .stage:hover{ transform:translateY(-5px); border-color:rgba(255,255,255,.3); }
+      #escenarios .stage:hover .stage-media img{ transform:scale(1.03); }
+    }
+
+    /* SPEAKERS */
+    .speakers{
+      background:var(--background);
+      color:var(--text-primary);
+    }
+    .speakers .section-copy{ color:rgba(255,255,255,.62); }
+    .speakers-grid{
+      margin:0;
+      padding:24px 0 40px;
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:32px;
+    }
+    .speaker{
+      min-width:0;
+      border-top:1px solid var(--border);
+      padding-top:24px;
+    }
+
+    /* AGENDA */
+    .agenda{
+      background:var(--background);
+    }
+    .agenda-toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      gap:18px;
+      align-items:center;
+      margin:50px 0 28px;
+      padding-bottom:24px;
+      border-bottom:1px solid var(--border);
+    }
+    .agenda-days,
+    .agenda-filters{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .filter-btn{
+      border:1px solid var(--border);
+      background:transparent;
+      padding:10px 15px;
+      border-radius:999px;
+      cursor:pointer;
+      font-size:.76rem;
+      font-weight:700;
+      transition:.25s ease;
+    }
+    .filter-btn:hover,
+    .filter-btn.active{
+      background:var(--text-primary);
+      color:var(--background);
+      border-color:var(--text-primary);
+    }
+    .agenda-search{
+      width:min(100%, 340px);
+      border:0;
+      border-bottom:1px solid var(--border);
+      padding:12px 0;
+
+      background:transparent;
+    }
+    .agenda-list{
+      display:grid;
+    }
+    .agenda-item{
+      display:grid;
+      grid-template-columns:112px minmax(0,1.6fr) minmax(0,1fr) 112px;
+      gap:24px;
+      padding:28px 0;
+      border-bottom:1px solid var(--border);
+      align-items:start;
+      transition:opacity .25s ease;
+    }
+    .agenda-item[hidden]{ display:none; }
+    .agenda-time{
+      font-size:1.05rem;
+      font-weight:600;
+      letter-spacing:-.02em;
+      font-variant-numeric:tabular-nums;
+    }
+    .agenda-title strong{
+      display:block;
+      font-size:1.14rem;
+    }
+    .agenda-title span,
+    .agenda-place,
+    .agenda-type{
+      font-size:.78rem;
+      color:var(--text-secondary);
+    }
+    .agenda-type{
+      justify-self:end;
+      border:1px solid var(--border);
+      padding:8px 10px;
+      border-radius:999px;
+    }
+
+    /* MAP */
+    .map-section{
+      background:var(--surface);
+      color:var(--text-primary);
+      overflow:hidden;
+    }
+    .map-grid{
+      display:grid;
+      grid-template-columns:.8fr 1.2fr;
+      gap:60px;
+      align-items:center;
+    }
+    .map-copy p{
+      color:rgba(255,255,255,.62);
+      line-height:1.7;
+    }
+
+    /* CTA */
+    .final-cta{
+      position:relative;
+      color:var(--text-primary);
+      background:var(--surface-light);
+      border-top:1px solid var(--border);
+      overflow:hidden;
+    }
+    .final-cta .container{
+      position:relative;
+      z-index:2;
+    }
+    .final-cta h2{
+      margin:12px 0 32px;
+      max-width:1050px;
+      font-size:clamp(2.8rem,6vw,6rem);
+      line-height:.95;
+      letter-spacing:-.075em;
+    }
+    .final-cta p{
+      max-width:620px;
+      font-size:1.1rem;
+      line-height:1.55;
+    }
+    .final-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:34px;
+    }
+    .btn-dark{
+      background:var(--text-primary);
+      color:var(--background);
+    }
+    .btn-light-outline{
+      border-color:rgba(255,255,255,.25);
+      color:var(--text-primary);
+      background:transparent;
+    }
+
+    /* FOOTER */
+    footer{
+      background:var(--background);
+      color:var(--text-primary);
+      padding:70px 0 32px;
+    }
+    .footer-top{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:60px;
+      padding-bottom:60px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+    }
+    .footer-brand{
+      font-size:clamp(2.4rem,5vw,5rem);
+      font-weight:700;
+      letter-spacing:-.06em;
+      line-height:.92;
+    }
+    .footer-brand span{ color:var(--text-primary); }
+    .footer-links{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px 30px;
+      align-content:start;
+    }
+    .footer-links a{
+      color:rgba(255,255,255,.66);
+      font-size:.88rem;
+    }
+    .footer-links a:hover{ color:white; }
+    .footer-bottom{
+      padding-top:24px;
+      display:flex;
+      justify-content:space-between;
+      gap:24px;
+      font-size:.72rem;
+      color:rgba(255,255,255,.45);
+    }
+
+    /* REVEAL STATES */
+    .reveal{
+      opacity:1;
+    }
+    .clip-reveal{
+      clip-path:none;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1100px){
+      .nav-links{ display:none; }
+      .menu-toggle{ display:grid; place-items:center; }
+      .nav-actions .btn{ display:none; }
+      .speakers-grid{ grid-template-columns:repeat(2,1fr); }
+      .map-grid{ grid-template-columns:1fr; }
+    }
+
+    @media (max-width: 820px){
+      .stats + #evento{ padding-top:24px; }
+      .stats-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .stat:nth-child(2){ border-right:0; }
+      .stat:nth-child(-n+2){ border-bottom:1px solid var(--border); }
+      :root{
+        --header-h:74px;
+      }
+      .section{ padding:84px 0; }
+      .countdown-wrap{
+        grid-template-columns:1fr;
+      }
+      .countdown-grid{
+        grid-template-columns:repeat(4,1fr);
+      }
+      .time-box{ padding:16px 5px; }
+      .intro-grid,
+      .footer-top{
+        grid-template-columns:1fr;
+      }
+      .intro-sticky{ position:static; }
+      .stages-head{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .agenda-place,
+      .agenda-type{
+        grid-column:2;
+        justify-self:start;
+      }
+    }
+
+    @media (max-width: 560px){
+      .brand-logo{ width:140px; }
+      .countdown-grid{
+        gap:0;
+      }
+      .time-box:first-child{ border-left:0; }
+      .time-box strong{
+        font-size:clamp(2rem,12vw,3.6rem);
+      }
+      .stat{ padding:24px 12px; }
+      .stat-number{ font-size:clamp(2.4rem,10vw,2.8rem); }
+      .speakers-grid{ grid-template-columns:1fr; }
+      .agenda-toolbar{ align-items:flex-start; }
+      .agenda-search{ width:100%; }
+        .footer-bottom{
+        flex-direction:column;
+      }
+    }
+
+    .btn-dark:hover{ background:#DCDCDC; }
+    .btn-light-outline:hover{ background:rgba(255,255,255,.07); }
+    .agenda-search,.filter-btn{ color:var(--text-primary); }
+    .mobile-menu{ visibility:hidden; transition:transform .6s var(--ease),visibility .6s; }
+    .mobile-menu.open{ visibility:visible; }
+    @media (max-width:820px){
+      .hero{
+        min-height:100svh;
+        background:
+          linear-gradient(180deg, rgba(0,0,0,.08) 0%, rgba(0,0,0,.10) 28%, rgba(0,0,0,.42) 58%, rgba(0,0,0,.92) 100%),
+          url("assets/hero-impulso-uaemex-2026-mobile.png") center center / cover no-repeat;
+        background-color:#06251d;
+      }
+      .hero-inner{
+        min-height:100svh;
+        padding-top:calc(var(--header-h) + 70px);
+        padding-bottom:42px;
+        display:flex;
+        flex-direction:column;
+        justify-content:flex-end;
+        align-items:flex-start;
+        gap:0;
+      }
+      .hero-title{
+        font-size:clamp(52px,16vw,76px);
+        line-height:.9;
+        max-width:100%;
+      }
+      .hero-title .line:nth-child(2),
+      .hero-title .line:nth-child(3){ font-size:inherit; }
+      .hero-description{
+        margin-top:22px;
+        max-width:34rem;
+        font-size:17px;
+        line-height:1.45;
+        color:rgba(255,255,255,.88);
+      }
+      .hero-bottom{
+        width:100%;
+        margin-top:28px;
+        padding-top:22px;
+        border-top:1px solid rgba(255,255,255,.25);
+      }
+      .hero-topline{ margin-bottom:18px; }
+      .hero-info{ width:100%; flex-direction:column; gap:12px; }
+      .hero-date{ width:100%; margin-bottom:8px; }
+      .hero-date span{ max-width:100%; margin-top:8px; }
+      .hero-info .btn{ width:100%; justify-content:space-between; }
+    }
+    @media (max-width:560px){
+      .container{ padding-inline:24px; }
+      .hero-topline{ letter-spacing:.08em; }
+      .hero-info{ flex-direction:column; }
+      .brand{ gap:10px; }
+      .nav{ gap:12px; }
+      .menu-toggle{ flex-shrink:0; }
+      .agenda-item{ gap:16px; grid-template-columns:68px minmax(0,1fr); }
+    }
+
+
+    /* Editorial content and accessible disclosure components */
+    [hidden]{ display:none !important; }
+    .micro-label,.status-label{ font-size:11px; line-height:1.6; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--text-secondary); }
+    .experience-grid{ display:grid; gap:26px; margin:36px 0; }
+    .experience-grid article{ border-top:1px solid var(--border); padding-top:24px; }
+    .experience-grid h3{ margin:8px 0 10px; font-size:22px; font-weight:500; letter-spacing:-.03em; }
+    .experience-grid p,.intro-content .editorial-details p{ font-size:15px; line-height:1.65; margin:0; }
+    .intro-content .audience-cloud{ margin-top:16px; }
+    .editorial-details{ border-top:1px solid var(--border); margin-top:28px; }
+    .editorial-details summary{ padding:20px 0; display:flex; align-items:center; justify-content:space-between; gap:20px; cursor:pointer; font-size:14px; list-style:none; }
+    summary::-webkit-details-marker{ display:none; }
+    .editorial-details summary > span,.group-action{ transition:transform .3s var(--ease); font-size:22px; font-weight:400; }
+    details[open] > summary > span:last-child{ transform:rotate(45deg); }
+    .editorial-details p{ font-size:14px; line-height:1.7; color:var(--text-secondary); margin:0 0 18px; }
+    .editorial-details h4{ font-size:14px; margin:16px 0 8px; font-weight:600; }
+    .stage-function{ max-width:125px; font-size:11px; line-height:1.6; text-transform:uppercase; letter-spacing:.08em; color:var(--text-secondary); }
+    .stage .stage-topics{ margin-top:22px; font-size:12px; line-height:1.8; color:#bcbcbc; }
+    .stage .venue-label{ font-size:14px; color:var(--text-primary); }
+    .stage-link{ margin-top:18px; }
+    .content-note{ color:var(--text-secondary); font-size:12px; line-height:1.6; }
+    .stage .content-note{ font-size:12px; }
+    .speaker-groups{ margin-top:48px; }
+    .speaker-group{ border-top:1px solid var(--border); }
+    .speaker-group:last-child{ border-bottom:1px solid var(--border); }
+    .speaker-group > summary{ display:flex; align-items:center; gap:24px; padding:26px 0; list-style:none; cursor:pointer; }
+    .speaker-group h3{ margin:0; font-size:clamp(20px,2.5vw,30px); font-weight:500; letter-spacing:-.03em; }
+    .group-index{ font-size:12px; font-variant-numeric:tabular-nums; color:var(--text-secondary); }
+    .group-action{ margin-left:auto; }
+    .speaker h4{ font-size:21px; line-height:1.25; font-weight:500; letter-spacing:-.02em; margin:12px 0; }
+    .speaker p{ font-size:13px; line-height:1.65; color:var(--text-secondary); }
+    .speaker .speaker-profile{ color:#d0d0d0; }
+    .text-link{ font-size:13px; display:inline-block; padding:12px 0; text-decoration:none; }
+    .text-link:hover{ opacity:.75; }
+    .group-footnote{ font-size:13px; color:var(--text-secondary); padding-bottom:24px; }
+    .agenda-filters{ padding-bottom:12px; }
+    .agenda-day-heading{ font-size:13px; letter-spacing:.08em; font-weight:600; margin:40px 0 0; padding:20px 0; border-block:1px solid var(--border); }
+    .agenda-results{ font-size:12px; color:var(--text-secondary); margin:20px 0 0; }
+    .agenda-item > *{ min-width:0; }
+    .agenda-title strong{ font-weight:500; line-height:1.45; }
+    .agenda-title > span{ display:block; margin-top:10px; line-height:1.6; }
+    .agenda-title .content-note{ margin:12px 0 0; }
+    .agenda-place{ line-height:1.6; }
+    .agenda-place strong{ display:block; color:#d0d0d0; font-weight:500; margin-bottom:6px; }
+    .agenda-place span{ display:block; }
+    .agenda-type{ text-align:center; font-size:11px; }
+    .time-pending{ display:block; font-size:12px; line-height:1.6; color:var(--text-secondary); font-weight:400; }
+    .agenda-more-wrap{ margin-top:32px; }
+    .agenda-empty{ padding:48px 0; }
+    .agenda-empty p{ color:var(--text-secondary); }
+    .venue-row{ display:grid; grid-template-columns:24px minmax(0,1fr); gap:20px; padding:24px 0; border-top:1px solid var(--border); }
+    .venue-row h3{ margin:0; font-size:18px; font-weight:500; }
+    .venue-row p{ font-size:14px; line-height:1.6; margin:8px 0; }
+    .map-copy .section-title{ font-size:clamp(32px,3.5vw,56px); line-height:1.05; letter-spacing:-.045em; }
+    .venue-location{ display:flex; align-items:flex-start; gap:10px; }
+    .location-icon{ width:18px; height:18px; flex:0 0 18px; margin-top:2px; color:var(--text-secondary); }
+    .collaborators{ margin-top:64px; }
+    .collaborator-list{ display:grid; grid-template-columns:1fr 1fr; gap:16px 48px; padding-left:18px; color:var(--text-secondary); font-size:14px; line-height:1.7; margin-bottom:28px; }
+    .registration-status{ border-top:1px solid var(--border); padding-top:24px; color:var(--text-secondary); }
+    a[aria-disabled="true"]{ opacity:.65; cursor:default; }
+    a[aria-disabled="true"]:hover{ transform:none; }
+    @media (max-width:1100px){
+      .stage{ grid-template-columns:96px minmax(0,1fr); }
+      .stage-content{ padding-left:24px; grid-template-columns:1fr; gap:24px; }
+      .stage-function{ font-size:10px; }
+      .speakers-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .agenda-item{ grid-template-columns:96px minmax(0,1.4fr) minmax(0,1fr); gap:20px; }
+      .agenda-type{ grid-column:2; justify-self:start; }
+    }
+    @media (max-width:820px){
+      .stage{ grid-template-columns:76px minmax(0,1fr); }
+      .agenda-item{ grid-template-columns:90px minmax(0,1fr); }
+      .agenda-place,.agenda-type{ grid-column:2; }
+      .collaborator-list{ grid-template-columns:1fr; }
+      .map-grid{ gap:36px; }
+    }
+    @media (max-width:560px){
+      .stage{ grid-template-columns:1fr; }
+      .stage-media{ flex-direction:row; align-items:center; padding:28px 0 0; gap:24px; }
+      .stage-media .stage-big-num{ font-size:52px; }
+      .stage-function{ max-width:none; font-size:11px; }
+      .stage-content{ padding:24px 0 36px; }
+      .speakers-grid{ grid-template-columns:1fr; gap:24px; }
+      .speaker-group > summary{ gap:16px; }
+      .agenda-item{ grid-template-columns:1fr; gap:12px; }
+      .agenda-place,.agenda-type{ grid-column:1; }
+      .agenda-time{ font-size:14px; }
+      .agenda-title strong{ font-size:17px; }
+      .agenda-type{ margin-top:4px; }
+      .agenda-days{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; }
+      .filter-btn{ padding:11px 12px; min-height:44px; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      html{ scroll-behavior:auto; }
+      *,*::before,*::after{
+        animation:none !important;
+        transition:none !important;
+      }
+      .reveal{
+        opacity:1 !important;
+        transform:none !important;
+      }
+      .clip-reveal{
+        clip-path:none !important;
+      }
+      .hero-title .line > span{
+        transform:none !important;
+      }
+    }
+    [hidden]{ display:none!important; }
+    .nav-login{ font-size:14px; white-space:nowrap; }
+    @media (min-width:1101px) and (max-width:1390px){ .nav-links{gap:12px;font-size:13px} .nav{gap:16px} .nav-actions .btn{padding-inline:16px} }
+    @media (max-width:1100px){ .nav-login{display:none} }
+  </style>
+  <link rel="stylesheet" href="css/site.css?v=20260923-evento-2">
+<link rel="stylesheet" href="css/route.css">
+  <link rel="stylesheet" href="css/map.css?v=20260923-6">
+  <style>
+    /* Compact spacing between the home content sections. */
+    main > .section{ padding-block:32px; }
+    main > #agenda + #mapa{ border-top:1px solid var(--border); }
+    @media (max-width:820px){
+      main > .section{ padding-block:24px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="site-navigation"></div>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-noise"></div>
+      <div class="hero-orbit parallax-slow"></div>
+      <div class="hero-dot"></div>
+
+      <div class="container hero-inner">
+        <div>
+          <h1 class="hero-title" aria-label="Impulso UAEMéx 2026">
+            <span class="line"><span>IMPULSO</span></span>
+            <span class="line"><span class="accent">UAEMéx</span></span>
+            <span class="line"><span>2026</span></span>
+          </h1>
+          <p class="hero-description">
+            Una experiencia universitaria para conectar talento, emprendimiento,
+            innovación, conocimiento y oportunidades dentro de Ciudad Universitaria.
+          </p>
+        </div>
+
+        <div class="hero-bottom hero-fade">
+          <div class="hero-topline">15 — 16 octubre 2026</div>
+
+          <div class="hero-info">
+            <div class="hero-date">
+              <strong>FESTIVAL DE EMPRENDIMIENTO</strong>
+              <span>Ciudad Universitaria · Toluca, Estado de México</span>
+            </div>
+
+            <a class="btn btn-primary magnetic" href="registro.html" data-auth-guest>
+              REGÍSTRATE <span class="arrow">↗</span>
+            </a>
+            <a class="btn btn-primary magnetic" href="mi-cuenta.html" data-auth-user hidden>MI CUENTA <span class="arrow">↗</span></a>
+
+            <a class="btn btn-outline" href="#evento">
+              DESCUBRE EL EVENTO <span class="arrow">↓</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="countdown-section" aria-label="Cuenta regresiva">
+      <div class="container countdown-wrap">
+        <div class="countdown-label">
+          <span>La cuenta regresiva ya comenzó</span>
+          <strong id="countdownMessage">Nos vemos en C.U Toluca, México</strong>
+        </div>
+        <div class="countdown-grid">
+          <div class="time-box"><strong id="days">00</strong><span>DÍAS</span></div>
+          <div class="time-box"><strong id="hours">00</strong><span>HORAS</span></div>
+          <div class="time-box"><strong id="minutes">00</strong><span>MIN</span></div>
+          <div class="time-box"><strong id="seconds">00</strong><span>SEG</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat reveal">
+            <strong class="stat-number" data-target="7">7</strong>
+            <span class="stat-label">Escenarios</span>
+          </div>
+          <div class="stat reveal">
+            <strong class="stat-number" data-target="2">2</strong>
+            <span class="stat-label">Días</span>
+          </div>
+          <div class="stat reveal">
+            <strong class="stat-number" data-target="56">56</strong>
+            <span class="stat-label">Ponentes</span>
+          </div>
+          <div class="stat reveal">
+            <strong class="stat-number" data-target="67">67</strong>
+            <span class="stat-label">Actividades</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section intro" id="evento">
+      <div class="container event-glass">
+        <div class="event-intro" data-event-reveal>
+          <span class="eyebrow">EL EVENTO</span>
+          <h2 class="section-title"><span class="event-title-line"><span>NO VIENES A VERLO.</span></span> <span class="event-title-line"><span>VIENES A VIVIRLO.</span></span></h2>
+          <p class="event-lead">Dos días para probar ideas, conocer personas y descubrir qué puede venir después. Tú eliges cómo recorrer IMPULSO UAEMéx 2026.</p>
+          <ul class="event-pills" aria-label="La experiencia IMPULSO">
+            <li style="--event-delay:80ms">7 ESCENARIOS</li>
+            <li style="--event-delay:160ms">67 ACTIVIDADES</li>
+            <li style="--event-delay:240ms">2 DÍAS</li>
+          </ul>
+        </div>
+        <div class="event-cards">
+          <article class="event-card" data-event-reveal style="--event-delay:0ms">
+            <div class="event-card-top"><span class="micro-label">01 / EXPLORA</span><span class="event-symbol" aria-hidden="true"><span>↗</span></span></div>
+            <h3>Encuentra lo que te mueve.</h3>
+            <p>Muévete entre siete escenarios, descubre nuevas ideas y entra a las experiencias que más conecten contigo.</p>
+          </article>
+          <article class="event-card" data-event-reveal style="--event-delay:100ms">
+            <div class="event-card-top"><span class="micro-label">02 / CONSTRUYE</span><span class="event-symbol" aria-hidden="true"><span>＋</span></span></div>
+            <h3>Pasa de la idea a la acción.</h3>
+            <p>Prueba, crea, pregunta y experimenta. Aquí no vienes solo a escuchar.</p>
+          </article>
+          <article class="event-card" data-event-reveal style="--event-delay:200ms">
+            <div class="event-card-top"><span class="micro-label">03 / CONECTA</span><span class="event-symbol" aria-hidden="true"><span>↔</span></span></div>
+            <h3>Haz que no termine aquí.</h3>
+            <p>Conoce personas, proyectos y oportunidades que pueden convertirse en tu siguiente paso.</p>
+          </article>
+        </div>
+        <article class="event-passport" data-event-reveal aria-labelledby="eventPassportTitle">
+          <div class="event-passport-copy">
+            <span class="event-passport-eyebrow">TU EXPERIENCIA EN IMPULSO</span>
+            <h3 id="eventPassportTitle">Explora. Participa.<br>Desbloquea tu insignia.</h3>
+            <p>Participa en actividades, registra tu asistencia y avanza hacia tu insignia digital.</p>
+          </div>
+          <div class="event-passport-progress">
+            <strong class="event-passport-count" aria-label="0 de 12 actividades">0 <span>/ 12</span></strong>
+            <span class="event-passport-label">ACTIVIDADES</span>
+            <div class="event-passport-track" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <p class="event-passport-note">Vista ilustrativa · Tu progreso estará en tu cuenta.</p>
+          </div>
+          <div class="event-passport-reward">
+            <span class="event-passport-badge"><span aria-hidden="true">✳</span> BLOQUEADA</span>
+            <p>Completa 12 actividades</p>
+            <a class="event-passport-link" href="#pasaporte">CONOCE TU PASAPORTE <span aria-hidden="true">↗</span></a>
+          </div>
+          <ol class="event-passport-steps" aria-label="Tu recorrido hacia la insignia">
+            <li style="--event-delay:100ms">Explora escenarios</li>
+            <li style="--event-delay:180ms">Registra asistencia</li>
+            <li style="--event-delay:260ms">Desbloquea insignia</li>
+          </ol>
+        </article>
+      </div>
+      <div class="container">
+        <aside class="passport" id="pasaporte" aria-labelledby="passportTitle">
+          <div class="passport-intro">
+            <span class="micro-label">TU RECORRIDO POR IMPULSO</span>
+            <h3 id="passportTitle">PASAPORTE DIGITAL</h3>
+            <p class="passport-lead">Participa en actividades, confirma tu asistencia y desbloquea una insignia única de IMPULSO UAEMéx 2026.</p>
+            <p>Cada asistencia confirmada se suma a tu Pasaporte Digital. Al completar 12 actividades distintas, tu cuenta desbloqueará una insignia personalizada con tu nombre, folio y fecha.</p>
+            <p class="passport-highlight">12 actividades · Asistencia por QR o NFC · Insignia digital personalizada</p>
+          </div>
+          <figure class="passport-preview" aria-labelledby="passportPreviewCaption">
+            <div class="passport-composition">
+              <div class="passport-card">
+                <div class="passport-card-top"><span>IMPULSO UAEMéx 2026</span><span aria-hidden="true">↗</span></div>
+                <h4>Tu Pasaporte</h4>
+                <div class="passport-counter" aria-label="0 de 12 actividades completadas">0 <span>/ 12</span></div>
+                <p class="passport-counter-label">Actividades completadas</p>
+                <div class="passport-stamps" aria-hidden="true">
+                  <span style="--stamp:0">01</span><span style="--stamp:1">02</span><span style="--stamp:2">03</span><span style="--stamp:3">04</span><span style="--stamp:4">05</span><span style="--stamp:5">06</span>
+                  <span style="--stamp:6">07</span><span style="--stamp:7">08</span><span style="--stamp:8">09</span><span style="--stamp:9">10</span><span style="--stamp:10">11</span><span style="--stamp:11">12</span>
+                </div>
+                <p class="passport-card-footer">Asiste, registra y suma experiencias</p>
+              </div>
+              <div class="passport-connection" aria-hidden="true"><span>→</span></div>
+              <div class="passport-badge">
+                <span class="passport-lock">BLOQUEADA</span>
+                <div class="passport-emblem" aria-hidden="true">
+                  <svg viewBox="0 0 100 100" fill="none" focusable="false"><path d="M50 8 59 34 83 17 66 41 92 50 66 59 83 83 59 66 50 92 41 66 17 83 34 59 8 50 34 41 17 17 41 34Z" fill="currentColor"/><circle cx="50" cy="50" r="9" fill="#141414"/></svg>
+                </div>
+                <h4>Insignia IMPULSO UAEMéx 2026</h4>
+                <p>Se personaliza al completar 12 actividades</p>
+                <p class="passport-badge-detail">Mostrará tu nombre, folio y fecha de cumplimiento</p>
+              </div>
+            </div>
+            <figcaption id="passportPreviewCaption">Vista ilustrativa · Tu progreso real estará en tu cuenta.</figcaption>
+          </figure>
+          <ol class="passport-steps">
+            <li><div><h4>CREA TU CUENTA</h4><p>Tu recorrido comienza con tu registro.</p></div></li>
+            <li><div><h4>VIVE LAS ACTIVIDADES</h4><p>Elige tus experiencias y participa.</p></div></li>
+            <li><div><h4>CONFIRMA TU ASISTENCIA</h4><p>Registra tu asistencia por QR o NFC.</p></div></li>
+            <li><div><h4>DESBLOQUEA TU INSIGNIA</h4><p>Completa 12 actividades distintas.</p></div></li>
+          </ol>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section stages" id="escenarios"><div class="container">
+      <div class="stages-head"><div><span class="eyebrow reveal">Explora</span><h2 class="section-title reveal">7 ESCENARIOS.<br>TU PROPIA RUTA.</h2></div><p class="section-copy reveal">Cada escenario conecta una disciplina con retos, experiencias y oportunidades. Descubre qué te interesa y encuentra tu próxima actividad.</p></div>
+      <div class="stage-list"><article class="stage reveal" id="escenario-cultura">
+        <div class="stage-media"><img src="assets/escenario%20de%20cultura.png" alt="Escenario Cultura e Innovación Creativa — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">01</span><h3>Cultura e Innovación Creativa</h3><p>Transforma patrimonio, identidad y creatividad en ideas de emprendimiento cultural. Explora nuevas audiencias, narrativas y modelos de negocio.</p></div>
+        <div class="stage-footer"><p class="venue-label">Ciencias Políticas y Sociales / Ágora de Cénide</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Storytelling · Patrimonio · IA y transmedia · Economía creativa · Financiamiento</p><h4>Cultura Disruptiva (Cult-D)</h4><p>Narrativas de impacto, mapa transmedia y rutas de ingresos para proyectos culturales.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes de humanidades, diseño, artes, comunicación y turismo; docentes, gestores culturales y proyectos con vocación social.</p><h4>Continuidad</h4><p>Los proyectos y retos culturales pueden vincularse con incubación cultural.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="cultura">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+      </article>
+<article class="stage reveal" id="escenario-deporte">
+        <div class="stage-media"><img src="assets/escenario%20de%20deporte.png" alt="Escenario Deporte — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">02</span><h3>Deporte</h3><p>Conecta disciplina, resiliencia y liderazgo con la creación de servicios y negocios deportivos. Del entrenamiento a la gestión de oportunidades.</p></div>
+        <div class="stage-footer"><p class="venue-label">Estadio Universitario</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Liderazgo · Marketing deportivo · Patrocinios · Servicios deportivos · Propiedad intelectual</p><h4>Del entrenamiento al emprendimiento</h4><p>Warm-up emprendedor, modelos de servicios deportivos y pitch para conseguir patrocinio.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes deportistas, entrenadores, docentes, equipos representativos, gestores y emprendedores deportivos.</p><h4>Continuidad</h4><p>Posible vinculación con Demo Day, showroom o podcast.</p><p class="content-note">Consulta el espacio de tu actividad dentro del estadio.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="deporte">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+      </article>
+<article class="stage reveal" id="escenario-tecnologia">
+        <div class="stage-media"><img src="assets/escenario%20de%20tecnologia.png" alt="Escenario Tecnología — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">03</span><h3>Tecnología</h3><p>Usa IA, datos y herramientas digitales para desarrollar soluciones a retos del campus, las empresas y la comunidad.</p></div>
+        <div class="stage-footer"><p class="venue-label">Facultad de Ingeniería</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">IA · No-code · Automatización · Robótica · Movilidad · Software</p><h4>Crear, automatizar y prototipar el futuro</h4><p>Prototipos, demos, flujos automatizados y experiencias como AI Playground, Demo Alley y Reto Innovatics.</p><h4>¿A quién está dirigido?</h4><p>Talento universitario interesado en tecnología, prototipado y soluciones digitales.</p><h4>Continuidad</h4><p>Banco de Retos, Emprende Academy 365, Bootcamp e incubación o aceleración tecnológica.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="tecnologia">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+      </article>
+<article class="stage reveal" id="escenario-diseno">
+        <div class="stage-media"><img src="assets/escenario%20de%20dise%C3%B1o.png" alt="Escenario Diseño — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">04</span><h3>Diseño</h3><p>Convierte retos empresariales en propuestas visuales, servicios, experiencias y prototipos con valor de mercado.</p></div>
+        <div class="stage-footer"><p class="venue-label">Facultad de Arquitectura y Diseño</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Design Thinking · IA y no-code · Diseño sostenible · UX · Realidad aumentada · Biomateriales</p><h4>Disrupción por Diseño (DxD)</h4><p>Prototipado de modelos de negocio y experiencias inmersivas. Explora la co-creación, los aprendizajes compartidos y las cápsulas de pitch de El Lienzo Vivo del Ecosistema.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes de diseño, arquitectura, comunicación y mercadotecnia; emprendedores, empresas, docentes y aliados creativos.</p><h4>Continuidad</h4><p>Banco de Retos, mentoría, incubación, prácticas profesionales y proyectos de vinculación.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="diseno">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+      </article>
+<article class="stage reveal" id="escenario-investigacion">
+        <div class="stage-media"><img src="assets/escenario%20investigaci%C3%B3n%20aplicada.png" alt="Escenario Investigación Aplicada — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">05</span><h3>Investigación Aplicada</h3><p>Explora cómo transformar investigación, evidencia y conocimiento en soluciones aplicadas y oportunidades de transferencia.</p></div>
+        <div class="stage-footer"><p class="venue-label">Facultad de Economía / Facultad de Contaduría y Administración</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Innovación social · Propiedad intelectual · Patentes · Validación · Modelos de negocio</p><h4>De conocimiento a impacto</h4><p>Rutas de aplicación, protección, validación y salida al mercado de desarrollos universitarios.</p><h4>¿A quién está dirigido?</h4><p>Investigadores, docentes, tesistas, estudiantes con prototipos, unidades de emprendimiento y aliados empresariales.</p><h4>Continuidad</h4><p>Validación con empresas, protección de propiedad intelectual y pasarela de Negocios.</p><p class="content-note">Consulta la sede indicada en cada actividad.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="investigacion">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+      </article>
+<article class="stage reveal" id="escenario-gobernanza">
+        <div class="stage-media"><img src="assets/escenario%20gobernanza%20(2).png" alt="Escenario Gobernanza — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">06</span><h3>Gobernanza</h3><p>Identifica pasos para formalizar y proteger tu proyecto. Conecta legalidad, datos y confianza con nuevas oportunidades.</p></div>
+        <div class="stage-footer"><p class="venue-label">Facultad de Derecho</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Contratos · Fiscalidad · Ciberseguridad · Protección de datos · Legaltech · Innovación pública</p><h4>GovLab: confianza, legalidad e innovación pública</h4><p>Checklist legal, ruta fiscal, plan de ciberseguridad, matriz de riesgos y prototipo de servicio público.</p><h4>¿A quién está dirigido?</h4><p>Comunidad universitaria y emprendedores interesados en formalización, protección y servicios públicos digitales.</p><h4>Continuidad</h4><p>Herramientas para convertir proyectos en oportunidades viables mediante formalización, protección y cumplimiento.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="gobernanza">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+      </article>
+<article class="stage reveal" id="escenario-bienestar">
+        <div class="stage-media"><img src="assets/escenario%20bienestar%20integral.png" alt="Escenario Bienestar Integral — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-content"><div><span class="stage-big-num">07</span><h3>Bienestar Integral</h3><p>Conecta bienestar, propósito y experiencias globales con tu desarrollo personal y emprendedor.</p></div>
+        <div class="stage-footer"><p class="venue-label">Facultad de Turismo y Gastronomía · C.U. y El Rosedal</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Bienestar emocional · Viajes · Idiomas · Internacionalización · Gastronomía · Propósito</p><h4>El futuro se diseña desde el bienestar</h4><p>Ruta personal de internacionalización, mapa emocional y experiencias de alimentación y bienestar.</p><h4>¿A quién está dirigido?</h4><p>Comunidad universitaria interesada en bienestar, movilidad, turismo, gastronomía y proyecto de vida.</p><h4>Continuidad</h4><p>Programa Emprendedor, Emprende Academy 365, Bootcamp, incubación y seguimiento institucional.</p><p class="content-note">La sede varía según actividad.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="bienestar">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+      </article></div></div></section>
+
+    <section class="section speakers" id="ponentes"><div class="container">
+      <span class="eyebrow reveal">Ponentes y participantes</span><h2 class="section-title reveal">PERSONAS.<br>IDEAS. ENCUENTROS.</h2>
+      <p class="section-copy reveal">Descubre las voces invitadas a compartir ideas, experiencias y conocimiento en los siete escenarios.</p>
+      <div class="speaker-groups"><details class="speaker-group"><summary><span class="group-index">01</span><h3>Cultura</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Catalina Hermina Azuara Santillana</h4><p class="speaker-profile">Artista egresada de la UAEMéx, tallerista y emprendedora. Participa en Casa Espora, espacio cultural y ecológico.</p><p>Hackear la Tradición: El patrimonio cultural como la startup del futuro</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Catalina Hermina Azuara Santillana">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Irma Bastida Herrera</h4><p class="speaker-profile">Ilustradora reconocida con la Manzana de Oro de la Bienal de Ilustración de Bratislava.</p><p>Inteligencia Artificial y Narrativas Transmedia para Proyectos Culturales</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Irma Bastida Herrera">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Tomas Rivero Soteno</h4><p>Ecosistemas Creativos: ¿Cómo innovar, impulsar y trascender en la cultura?</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Tomas Rivero Soteno">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Irma Gloria Gabriela Ortiz Garrido</h4><p>Ecosistemas Creativos: ¿Cómo innovar, impulsar y trascender en la cultura?</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Irma Gloria Gabriela Ortiz Garrido">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Omar Jaimes Esquivel</h4><p>Ecosistemas Creativos: ¿Cómo innovar, impulsar y trascender en la cultura?</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Omar Jaimes Esquivel">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Carlos Badillo Cruz</h4><p class="speaker-profile">Diseñador gráfico egresado de la UAEMéx; artista, pintor, muralista e ilustrador.</p><p>De un colectivo local a una plataforma global de entretenimiento cultural</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Carlos Badillo Cruz">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Tania Arzaluz</h4><p>Monedas Creativas: El valor intangible que el mercado está desesperado por comprar</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Tania Arzaluz">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Estefania González Espinoza</h4><p class="speaker-profile">Egresada de la Universidad Intercultural del Estado de México. Artista y editora en el taller Calli; encabeza el proyecto Códice Morado.</p><p>Inmersión Total: El museo/galería interactiva que reinventó el consumo cultural urbano</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Estefania González Espinoza">Ver actividad <span aria-hidden="true">↗</span></a></article></div></details><details class="speaker-group" ><summary><span class="group-index">02</span><h3>Deporte</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">TED Talk</span><h4>Marco Cancino</h4><p>El deporte y las empresas deportivas. Caso TUDN y Galacticos</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Marco Cancino">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Margarita Hernández</h4><p>Disciplina en el deporte</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Margarita Hernández">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Víctor Pineda</h4><p>Pitch para ganar Sponsors</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Víctor Pineda">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Activación</span><h4>Edwin</h4><p class="speaker-profile">Gestor deportivo.</p><p>Warm-up</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Edwin">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">TED Talk</span><h4>Yisus</h4><p>Empresas deportivas. Caso Azteca e ESPN</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Yisus">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Atzimba</h4><p>Dirección y trabajo en equipo</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Atzimba">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>La Roca Zamora</h4><p>Dirección y trabajo en equipo</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="La Roca Zamora">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Edgar Madrigal</h4><p>Dirección y trabajo en equipo</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Edgar Madrigal">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Los trikis</h4><p>Cómo crear tu academia</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Los trikis">Ver actividad <span aria-hidden="true">↗</span></a></article></div><p class="group-footnote">Moderación: María Esther Sánchez Coyote y Ricardo Tellez Recillas.</p></details><details class="speaker-group" ><summary><span class="group-index">03</span><h3>Tecnología</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">Workshop</span><h4>Rodrigo Lugo</h4><p class="speaker-profile">WRO · Facultad de Ingeniería.</p><p>Robótica Educativa</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Rodrigo Lugo">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Belem Gamboa</h4><p class="speaker-profile">Empresaria, consultoría e instrucción digital.</p><p>Automatizar para crecer</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Belem Gamboa">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Manuel Jasso Sandoval</h4><p class="speaker-profile">Lic. en Administración · Unidades de Emprendimiento.</p><p>IA en 90 minutos: de idea a prototipo</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Manuel Jasso Sandoval">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Ramon González Rodrígez</h4><p class="speaker-profile">Enterprise Agile Coach.</p><p>Tribus ágiles y multiverso ágil</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Ramon González Rodrígez">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Victor Andrés Alvaréz Domingue</h4><p>Startup universitario basada en software o IA</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Victor Andrés Alvaréz Domingue">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Jesús Javier Vallejo Silva</h4><p>Campus inteligente, campus vivo</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Jesús Javier Vallejo Silva">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Carlos Rodrigo García Álvarez</h4><p class="speaker-profile">Lic. en Administración · Unidades de Emprendimiento.</p><p>No-Code Challenge: crea una app sin programar</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Carlos Rodrigo García Álvarez">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Abraham García Aguilar</h4><p>La IA no te reemplaza, te reta</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Abraham García Aguilar">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>César Juárez Chávez</h4><p class="speaker-profile">Fundador y director de Zooner.</p><p>Automatiza tu emprendimiento con CRM y dashboards</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="César Juárez Chávez">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Pablo Goméz Lagunas</h4><p>Movilidad universitaria</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Pablo Goméz Lagunas">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Guillermina Pérez Martínez</h4><p>Del prototipo al mercado: cómo escalar software universitario</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Guillermina Pérez Martínez">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Euclydes Cadena Olivares</h4><p class="speaker-profile">Líder en programas de TI con trayectoria en empresas como IBM, HSBC y Banamex-Citi.</p><p>Egresado tech en empresa global</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Euclydes Cadena Olivares">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Regina Gorostieta</h4><p class="speaker-profile">Muevetex.</p><p>App de movilidad</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Regina Gorostieta">Ver actividad <span aria-hidden="true">↗</span></a></article></div><p class="group-footnote">Moderación: Guillermina Pérez Martínez y Crishtian Jonatan Guarneros Vázquez.</p></details><details class="speaker-group" ><summary><span class="group-index">04</span><h3>Diseño</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Eduardo Victoria</h4><p>Romper el molde: Del diseñador reactivo al creador disruptivo</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Eduardo Victoria">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Santiago Navarrete Flores</h4><p>Prototipado rápido de modelos de negocio con IA y No-Code</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Santiago Navarrete Flores">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>María Trinidad Contreras González</h4><p class="speaker-profile">Directora de Innovación Cultural.</p><p>La Triple Hélice y el Talento Joven: ¿Cómo financiamos y escalamos la innovación creativa?</p><p class="content-note">También participa en: Presentación de libro “Navegar con Viento Propio” y Esencial para Diseñadores Emprendedores</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="María Trinidad Contreras González">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Alejandro Razo</h4><p class="speaker-profile">IME.</p><p>La Triple Hélice y el Talento Joven: ¿Cómo financiamos y escalamos la innovación creativa?</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Alejandro Razo">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Mitzi Yareli Reyes Ramos</h4><p>De render a realidad: Cómo fundamos un estudio de arquitectura modular sostenible y rentable</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Mitzi Yareli Reyes Ramos">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Luis Anwar Albarran</h4><p>Diseñar para el fin del mundo (o el inicio de uno nuevo)</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Luis Anwar Albarran">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Víctor Juaréz</h4><p>Diseño de Experiencias Inmersivas y Espacios Híbridos</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Víctor Juaréz">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Omar Huerta</h4><p>Fungitek: Diseño industrial y nuevos materiales, la clave para nuevos mercados</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Omar Huerta">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Presentación</span><h4>Joaquin Trinidad Iduarte</h4><p>Presentación de libro “Navegar con Viento Propio” y Esencial para Diseñadores Emprendedores</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Joaquin Trinidad Iduarte">Ver actividad <span aria-hidden="true">↗</span></a></article></div></details><details class="speaker-group" ><summary><span class="group-index">05</span><h3>Investigación aplicada</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">Conferencia</span><h4>Humberto Alejandro Rosales Valbuena</h4><p class="speaker-profile">Colombia.</p><p>Innovación social</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Humberto Alejandro Rosales Valbuena">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Sesión de expertos</span><h4>William E. Mosquera Laverde</h4><p class="speaker-profile">Colombia.</p><p>Innovación social</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="William E. Mosquera Laverde">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Sesión de expertos</span><h4>Alejandro García Garnica</h4><p class="speaker-profile">UAEM, Morelos.</p><p>Innovación social</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Alejandro García Garnica">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Sesión de expertos</span><h4>Abel Anibal del Río Cortina</h4><p class="speaker-profile">Colombia.</p><p>Innovación social</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Abel Anibal del Río Cortina">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Sesión de expertos</span><h4>Felipe López</h4><p class="speaker-profile">Colombia.</p><p>Innovación social</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Felipe López">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Sesión de expertos</span><h4>Carlos Santamaria</h4><p class="speaker-profile">Guadalajara.</p><p>Innovación social</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Carlos Santamaria">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Conferencia</span><h4>Ricardo Carvalho</h4><p class="speaker-profile">Brasil.</p><p>Educación para el emprendimiento</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Ricardo Carvalho">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Conferencia</span><h4>Maestro Gudiño</h4><p>Ecosistema o Modelo de Negocios</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Maestro Gudiño">Ver actividad <span aria-hidden="true">↗</span></a></article></div></details><details class="speaker-group" ><summary><span class="group-index">06</span><h3>Gobernanza</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Alberto Cedillo</h4><p class="speaker-profile">Alteza Corporativo.</p><p>La legalidad también escala negocios</p><a href="#agenda" class="text-link" data-agenda-stage="gobernanza" data-agenda-query="Alberto Cedillo">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Eva Sales</h4><p class="speaker-profile">Consejera Jurídica.</p><p>Del trámite al servicio: el derecho centrado en personas</p><a href="#agenda" class="text-link" data-agenda-stage="gobernanza" data-agenda-query="Eva Sales">Ver actividad <span aria-hidden="true">↗</span></a></article></div></details><details class="speaker-group" ><summary><span class="group-index">07</span><h3>Bienestar Integral</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">Workshop</span><h4>Cyndi Hinojosa Frias</h4><p>Emprendiendo a través de los viajes</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Cyndi Hinojosa Frias">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Charla</span><h4>Leslie Pastrana</h4><p>Experiencias de viaje a tu medida</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Leslie Pastrana">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Nico</h4><p class="speaker-profile">Nutrición.</p><p>Gastro Wellness Lab. Comer bien para pensar mejor</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Nico">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Mónica del Valle Pérez</h4><p class="speaker-profile">Doctora.</p><p>Del burnout al propósito</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Mónica del Valle Pérez">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Gloria Georgina Icaza Castro</h4><p class="speaker-profile">Maestra.</p><p>Del burnout al propósito</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Gloria Georgina Icaza Castro">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Yolanda SEDECO</h4><p>Formalización inteligente para emprendedores</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Yolanda SEDECO">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Charla</span><h4>Nancy Bravo</h4><p>Interculturalidad</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Nancy Bravo">Ver actividad <span aria-hidden="true">↗</span></a></article></div></details></div>
+    </div></section>
+
+    <section class="section agenda" id="agenda"><div class="container">
+      <span class="eyebrow reveal">Agenda</span><h2 class="section-title reveal">ARMA TU RUTA.</h2><p class="section-copy">Explora por día, escenario o participante y organiza tu recorrido. Consulta la hora y la sede de cada actividad.</p>
+      <details class="editorial-details agenda-disclosure" id="agendaDisclosure">
+        <summary>EXPLORAR ACTIVIDADES <span aria-hidden="true">+</span></summary>
+      <div class="agenda-toolbar"><div class="agenda-days" role="group" aria-label="Filtrar por día"><button class="filter-btn active" data-day="all" aria-pressed="true">TODOS LOS DÍAS</button><button class="filter-btn" data-day="15" aria-pressed="false">DÍA 1 · 15 OCT</button><button class="filter-btn" data-day="16" aria-pressed="false">DÍA 2 · 16 OCT</button><button class="filter-btn" data-day="pending" aria-pressed="false">PRÓXIMAMENTE</button></div><input class="agenda-search" id="agendaSearch" type="search" placeholder="Buscar actividad, ponente o sede…" aria-label="Buscar actividad, ponente o sede" /></div>
+      <div class="agenda-filters" role="group" aria-label="Filtrar por escenario"><button class="filter-btn active" data-stage="all" aria-pressed="true">TODOS</button><button class="filter-btn" data-stage="cultura" aria-pressed="false">Cultura</button><button class="filter-btn" data-stage="deporte" aria-pressed="false">Deporte</button><button class="filter-btn" data-stage="tecnologia" aria-pressed="false">Tecnología</button><button class="filter-btn" data-stage="diseno" aria-pressed="false">Diseño</button><button class="filter-btn" data-stage="investigacion" aria-pressed="false">Investigación aplicada</button><button class="filter-btn" data-stage="gobernanza" aria-pressed="false">Gobernanza</button><button class="filter-btn" data-stage="bienestar" aria-pressed="false">Bienestar Integral</button></div>
+      <p class="agenda-results" id="agendaResults" role="status" aria-live="polite"></p>
+      <p id="catalog-status" class="content-note" role="status" aria-live="polite"></p>
+      <p id="route-status" class="content-note" role="status" aria-live="polite"></p><span id="arma-tu-ruta"></span><div class="agenda-list" id="agendaList" data-catalog-state="idle" aria-busy="false"></div>
+      <div class="agenda-more-wrap"><button class="btn btn-outline" id="agendaMore" hidden>VER MÁS ACTIVIDADES <span class="arrow">↓</span></button></div>
+      <div class="agenda-empty" id="agendaEmpty" hidden><h3>No hay actividades con estos filtros.</h3><p>Prueba otro día, escenario o término de búsqueda.</p><button class="btn btn-outline" id="resetAgenda">VER TODAS LAS ACTIVIDADES <span class="arrow">↗</span></button></div>
+      
+      </details>
+    </div></section>
+
+    <div id="ubicacion" aria-hidden="true"></div>
+<section class="section map-section" id="mapa"><div class="container">
+      <div class="map-grid">
+        <div class="map-copy">
+          <span class="eyebrow reveal">Ubicación</span>
+          <h2 class="section-title reveal">SEDES DEL EVENTO.</h2>
+          <p>Ciudad Universitaria UAEMéx · Toluca, Estado de México.</p>
+          <p>Encuentra actividades en Ciudad Universitaria y El Rosedal. Consulta la sede de cada actividad para organizar tu recorrido.</p>
+        </div>
+        <object class="map-pdf" data="assets/mapa-cu-2026.pdf#toolbar=0&navpanes=0&view=FitH" type="application/pdf" aria-label="Mapa de Ciudad Universitaria en PDF"><p><a href="assets/mapa-cu-2026.pdf" target="_blank" rel="noopener">Abrir el mapa en PDF</a></p></object>
+        <button class="map-preview" type="button" data-map-open aria-haspopup="dialog" aria-controls="map-dialog" aria-label="Ampliar mapa de Ciudad Universitaria"><img src="assets/mapa-cu-pdf-preview.jpg?v=1" width="2400" height="1350" loading="lazy" decoding="async" alt="Mapa de Ciudad Universitaria UAEMéx con facultades, accesos y sedes de IMPULSO UAEMéx 2026"></button>
+        <a class="btn btn-outline map-action" href="assets/mapa-cu-2026.pdf" target="_blank" rel="noopener">ABRIR MAPA PDF <span class="arrow" aria-hidden="true">&#8599;</span></a>
+      </div>
+      <div class="map-caption"><span>CIUDAD UNIVERSITARIA · UAEMéx</span><span>Abre el PDF para explorar las ubicaciones</span></div>
+      <div class="venue-directory"><article class="venue-row"><span class="group-index">01</span><div><h3>Cultura</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Ciencias Políticas y Sociales / Ágora de Cénide</span></p></div></article><article class="venue-row"><span class="group-index">02</span><div><h3>Deporte</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Estadio Universitario</span></p><span class="content-note">Consulta el espacio de tu actividad dentro del estadio.</span></div></article><article class="venue-row"><span class="group-index">03</span><div><h3>Tecnología</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Ingeniería</span></p></div></article><article class="venue-row"><span class="group-index">04</span><div><h3>Diseño</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Arquitectura y Diseño</span></p></div></article><article class="venue-row"><span class="group-index">05</span><div><h3>Investigación aplicada</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Economía / Facultad de Contaduría y Administración</span></p><span class="content-note">Consulta la sede indicada en cada actividad.</span></div></article><article class="venue-row"><span class="group-index">06</span><div><h3>Gobernanza</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Derecho</span></p></div></article><article class="venue-row"><span class="group-index">07</span><div><h3>Bienestar Integral</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Turismo y Gastronomía · C.U. y El Rosedal</span></p><span class="content-note">La sede varía según actividad.</span></div></article></div>
+      <details class="editorial-details collaborators"><summary>Colaboración universitaria y vinculación <span aria-hidden="true">+</span></summary><p>Explora las áreas universitarias y redes de vinculación del ecosistema emprendedor.</p><ul class="collaborator-list"><li>Dirección de Tecnologías de la Información</li><li>Facultad de Economía</li><li>Red Internacional de Colaboración en Temas de Innovación, Emprendimiento y Competitividad para el Desarrollo Económico y Social</li><li>Red Global Sault Entrepreneurship &amp; Innovation Research Network</li><li>Facultad de Ciencias Políticas y Sociales</li><li>Dirección de Cultura Física UAEMéx</li><li>Facultad de Humanidades</li><li>Facultad de Derecho</li><li>Facultad de Arquitectura y Diseño</li><li>Facultad de Ingeniería</li><li>Dirección de Innovación Cultural</li><li>Dirección de Promoción Artístico</li><li>Facultad de Turismo y Gastronomía</li><li>Facultad de Contaduría y Administración</li></ul></details>
+    </div></section>
+
+    <section class="section final-cta" id="registro">
+      <div class="container">
+        <span class="eyebrow reveal">15 — 16 octubre 2026</span>
+        <h2 class="reveal">EL FUTURO NO SE ESPERA. SE CONSTRUYE.</h2>
+        <p class="reveal">
+          Forma parte de Impulso UAEMéx 2026 y descubre dos días de talento,
+          innovación, emprendimiento y conexión en Ciudad Universitaria.
+        </p>
+        <p class="registration-status" role="note">Crea tu cuenta y confirma tu correo. Al iniciar sesión recibirás automáticamente tu folio para el festival.</p>
+        <div class="final-actions reveal">
+          <a href="registro.html" class="btn btn-dark magnetic" data-auth-guest>REGÍSTRATE <span class="arrow">↗</span></a>
+          <a href="mi-cuenta.html" class="btn btn-dark magnetic" data-auth-user hidden>MI CUENTA <span class="arrow">↗</span></a>
+          <a href="#agenda" class="btn btn-light-outline">CONOCE LA AGENDA <span class="arrow">↓</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          IMPULSO<br><span>UAEMéx 2026</span>
+        </div>
+        <div class="footer-links">
+          <a href="#inicio">Inicio</a>
+          <a href="#evento">El evento</a>
+          <a href="#pasaporte">Pasaporte digital</a>
+          <a href="#escenarios">Escenarios</a>
+          <a href="#ponentes">Ponentes</a>
+          <a href="#agenda">Agenda</a>
+          <a href="#mapa">Ubicación</a>
+          <a href="registro.html">Registro</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>Universidad Autónoma del Estado de México · Dirección de Desarrollo Empresarial</span>
+        <span>© 2026 UAEMéx</span>
+      </div>
+    </div>
+  <p><a href="privacidad.html">Aviso de Privacidad</a></p></footer>
+
+  <script>
+    /* =========================================================
+       CONFIGURACIÓN GENERAL
+    ========================================================= */
+    const eventConfig = {
+      startDate: new Date("2026-10-15T08:00:00-06:00"),
+      endDate: new Date("2026-10-16T18:00:00-06:00")
+    };
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let prefersReducedMotion = reducedMotion.matches;
+    const motionChanged = event => { prefersReducedMotion = event.matches; };
+    if(reducedMotion.addEventListener) reducedMotion.addEventListener("change", motionChanged);
+    else reducedMotion.addListener(motionChanged);
+    const desktopMotionQuery = "(min-width: 821px) and (hover: hover) and (pointer: fine) and (any-pointer: fine) and (prefers-reduced-motion: no-preference)";
+    const desktopMotion = window.matchMedia(desktopMotionQuery);
+    const touchInput = window.matchMedia("(any-pointer: coarse)");
+
+    /* =========================================================
+       COUNTDOWN
+    ========================================================= */
+    const d = document.getElementById("days");
+    const h = document.getElementById("hours");
+    const m = document.getElementById("minutes");
+    const s = document.getElementById("seconds");
+    const countdownMessage = document.getElementById("countdownMessage");
+
+    function updateCountdown(){
+      const now = new Date();
+      const distance = eventConfig.startDate - now;
+
+      if(distance <= 0){
+        d.textContent = "00";
+        h.textContent = "00";
+        m.textContent = "00";
+        s.textContent = "00";
+
+        if(now <= eventConfig.endDate){
+          countdownMessage.textContent = "IMPULSO UAEMéx 2026 ESTÁ SUCEDIENDO AHORA.";
+        }else{
+          countdownMessage.textContent = "GRACIAS POR SER PARTE DE IMPULSO UAEMéx 2026.";
+        }
+        return;
+      }
+
+      const days = Math.floor(distance / 86400000);
+      const hours = Math.floor((distance % 86400000) / 3600000);
+      const minutes = Math.floor((distance % 3600000) / 60000);
+      const seconds = Math.floor((distance % 60000) / 1000);
+
+      d.textContent = String(days).padStart(2,"0");
+      h.textContent = String(hours).padStart(2,"0");
+      m.textContent = String(minutes).padStart(2,"0");
+      s.textContent = String(seconds).padStart(2,"0");
+    }
+
+    let countdownTimer;
+    function resumeCountdown(){
+      clearInterval(countdownTimer);
+      if(document.hidden) return;
+      updateCountdown();
+      if(Date.now() < eventConfig.endDate.getTime()) countdownTimer = setInterval(updateCountdown,1000);
+    }
+    resumeCountdown();
+    document.addEventListener("visibilitychange", resumeCountdown);
+
+    /* =========================================================
+       AGENDA FILTERS
+    ========================================================= */
+    let selectedDay = "all";
+    let selectedStage = "all";
+    let animationRefreshPending = false;
+    function refreshAnimations(){
+      if(!window.ScrollTrigger || prefersReducedMotion || !desktopMotion.matches || touchInput.matches || animationRefreshPending) return;
+      animationRefreshPending = true;
+      requestAnimationFrame(() => { animationRefreshPending = false; ScrollTrigger.refresh(); });
+    }
+    let catalogReady = false;
+    let agendaItems = [];
+    const searchInput = document.getElementById("agendaSearch");
+    const normalizeSearch = text => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
+    let agendaLimit = 12;
+    function applyAgendaFilters(resetLimit = true){
+      if(!catalogReady){
+        document.getElementById('agendaEmpty').hidden = true;
+        document.getElementById('agendaMore').hidden = true;
+        document.getElementById('agendaResults').textContent = document.getElementById('agendaList').dataset.catalogState === 'error'
+          ? 'No pudimos cargar la agenda en este momento.' : document.getElementById('agendaList').dataset.catalogState === 'loading' ? 'Cargando actividades…' : '';
+        return;
+      }
+      if(resetLimit) agendaLimit = 12;
+      const query = normalizeSearch(searchInput.value);
+      let visible = 0;
+      agendaItems.forEach(item => {
+        const dayMatch = selectedDay === "all" || item.dataset.day === selectedDay;
+        const stageMatch = selectedStage === "all" || item.dataset.stage === selectedStage;
+        const searchMatch = !query || normalizeSearch(item.dataset.search + " " + item.textContent).includes(query);
+        const matches = item.dataset.routeOpen !== "false" && dayMatch && stageMatch && searchMatch;
+        if(matches) visible++;
+        item.hidden = !matches || visible > agendaLimit;
+      });
+      document.querySelectorAll(".agenda-day-group").forEach(group => {
+        group.hidden = ![...group.querySelectorAll(".agenda-item")].some(item => !item.hidden);
+      });
+      document.getElementById("agendaEmpty").hidden = visible > 0;
+      document.getElementById("agendaMore").hidden = visible <= agendaLimit;
+      document.getElementById("agendaResults").textContent = "Mostrando " + Math.min(visible, agendaLimit) + " de " + visible + (visible === 1 ? " actividad" : " actividades");
+      document.querySelectorAll("button[data-day]").forEach(button => {
+        const active = button.dataset.day === selectedDay;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      document.querySelectorAll("button[data-stage]").forEach(button => {
+        const active = button.dataset.stage === selectedStage;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      refreshAnimations();
+    }
+    document.querySelectorAll("button[data-day]").forEach(button => {
+      button.addEventListener("click", () => { selectedDay = button.dataset.day; applyAgendaFilters(); });
+    });
+    document.querySelectorAll("button[data-stage]").forEach(button => {
+      button.addEventListener("click", () => { selectedStage = button.dataset.stage; applyAgendaFilters(); });
+    });
+    document.querySelectorAll("[data-agenda-stage]").forEach(link => {
+      link.addEventListener("click", event => {
+        event.preventDefault();
+        document.getElementById('agendaDisclosure').open = true;
+        selectedDay = "all";
+        selectedStage = link.dataset.agendaStage;
+        searchInput.value = link.dataset.agendaQuery || "";
+        applyAgendaFilters();
+        const agenda = document.getElementById("agenda");
+        agenda.setAttribute("tabindex", "-1");
+        requestAnimationFrame(() => {
+          const offset = document.getElementById("siteHeader").getBoundingClientRect().height + 20;
+          agenda.focus({ preventScroll:true });
+          window.scrollTo({
+            top:Math.max(0, agenda.getBoundingClientRect().top + window.scrollY - offset),
+            behavior:prefersReducedMotion ? "auto" : "smooth"
+          });
+          if(window.location.hash !== "#agenda"){
+            history.pushState(null, "", "#agenda");
+          }
+        });
+      });
+    });
+    document.getElementById("resetAgenda").addEventListener("click", () => {
+      selectedDay = "all";
+      selectedStage = "all";
+      searchInput.value = "";
+      applyAgendaFilters();
+      searchInput.focus({ preventScroll:true });
+    });
+    document.querySelectorAll("[data-unavailable]").forEach(link => {
+      link.addEventListener("click", event => event.preventDefault());
+    });
+    document.getElementById("agendaMore").addEventListener("click", () => {
+      agendaLimit += 12;
+      applyAgendaFilters(false);
+    });
+    searchInput.addEventListener("input", () => applyAgendaFilters());
+    function syncAgendaCatalog(){
+      catalogReady = document.getElementById('agendaList').dataset.catalogLoaded === 'true';
+      agendaItems = catalogReady ? [...document.querySelectorAll('.agenda-item')] : [];
+      applyAgendaFilters(false);
+    }
+    document.addEventListener('impulso:agenda-updated', syncAgendaCatalog);
+    // Recover a catalog whose first event arrived before this script initialized.
+    syncAgendaCatalog();
+    document.addEventListener('impulso:reveal-activity', event => {
+      const target = agendaItems.find(item => item.dataset.activitySlug === event.detail);
+      if (!target) return;
+      document.getElementById('agendaDisclosure').open = true;
+      selectedDay = 'all'; selectedStage = 'all'; searchInput.value = '';
+      agendaLimit = agendaItems.length; applyAgendaFilters(false);
+      target.setAttribute('tabindex', '-1');
+      requestAnimationFrame(() => { target.scrollIntoView({block:'start',behavior:prefersReducedMotion ? 'auto' : 'smooth'}); target.focus({preventScroll:true}); });
+    });
+
+    /* Keep only one disclosure open within each section. */
+    document.querySelectorAll("main section").forEach(section => {
+      const disclosures = [...section.querySelectorAll("details")];
+      disclosures.forEach(detail => {
+        detail.addEventListener("toggle", () => {
+          if(!detail.open) return;
+          disclosures.forEach(other => {
+            if(other !== detail && other.open) other.open = false;
+          });
+        });
+      });
+    });
+
+    /* Event glass: visible without JS; each panel animates only on its first entry. */
+    (() => {
+      if (!('IntersectionObserver' in window)) return;
+      const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (motion.matches) return;
+      const observer = new IntersectionObserver(entries => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          if (!motion.matches) entry.target.classList.add('event-entered');
+          observer.unobserve(entry.target);
+        }
+      }, { threshold: 0.12 });
+      document.querySelectorAll('#evento .event-glass [data-event-reveal]').forEach(panel => observer.observe(panel));
+
+      // A central viewport band selects one panel, without scroll or pointer tracking.
+      const cards = [...document.querySelectorAll('#evento .event-card')];
+      const visible = new Set();
+      let focusObserver;
+      const connectFocus = () => {
+        focusObserver?.disconnect();
+        visible.clear();
+        cards.forEach(card => card.classList.remove('event-current'));
+        if (motion.matches) return;
+        const inset = Math.round(window.innerHeight * .4);
+        focusObserver = new IntersectionObserver(entries => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) visible.add(entry.target);
+            else visible.delete(entry.target);
+          }
+          const center = window.innerHeight / 2;
+          let current = null, distance = Infinity;
+          for (const card of visible) {
+            const rect = card.getBoundingClientRect();
+            const next = Math.abs((rect.top + rect.bottom) / 2 - center);
+            if (next < distance) { current = card; distance = next; }
+          }
+          cards.forEach(card => card.classList.toggle('event-current', card === current));
+        }, { rootMargin: `-${inset}px 0px -${inset}px 0px`, threshold: [0, .25, .5, .75, 1] });
+        cards.forEach(card => focusObserver.observe(card));
+      };
+      connectFocus();
+      window.addEventListener('resize', connectFocus, { passive: true });
+      motion.addEventListener('change', () => {
+        if (motion.matches) observer.disconnect();
+        connectFocus();
+      });
+    })();
+
+    /* Public preview: one-shot animation, independent of account data and GSAP. */
+    (() => {
+      const preview = document.querySelector('#pasaporte .passport-composition');
+      if (!preview || !('IntersectionObserver' in window)) return;
+      const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (motion.matches) return;
+      const observer = new IntersectionObserver(entries => {
+        if (!entries.some(entry => entry.isIntersecting)) return;
+        if (!motion.matches) preview.classList.add('passport-entered');
+        observer.disconnect();
+      }, { threshold: 0.15 });
+      observer.observe(preview);
+    })();
+
+    /* Desktop motion is optional; content is visible before scripts load. */
+    let animationLoading = false;
+    function loadAnimationScript(src){
+      return new Promise((resolve,reject) => {
+        const script = document.createElement("script");
+        script.src = src; script.async = true;
+        script.onload = resolve; script.onerror = reject;
+        document.head.append(script);
+      });
+    }
+    async function enableDesktopMotion(){
+      if(animationLoading || !desktopMotion.matches || touchInput.matches || !("IntersectionObserver" in window)) return;
+      animationLoading = true;
+      let media;
+      try{
+        await loadAnimationScript("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js");
+        await loadAnimationScript("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js");
+        gsap.registerPlugin(ScrollTrigger);
+        media = gsap.matchMedia();
+        media.add({desktop:desktopMotionQuery,touch:"(any-pointer: coarse)"}, context => {
+          if(!context.conditions.desktop || context.conditions.touch) return;
+          const counters = [...document.querySelectorAll(".stat-number[data-target]")];
+          const originals = counters.map(counter => counter.textContent);
+          gsap.fromTo([...document.querySelectorAll('.hero-title .line > span'),document.querySelector('.hero-description'),document.querySelector('.hero-bottom')],
+            {opacity:0,y:20},{opacity:1,y:0,duration:.8,stagger:.1,ease:"power3.out",clearProps:"opacity,transform"});
+          // One observer replaces per-element ScrollTriggers. Animate only on entry.
+          const observer = new IntersectionObserver(entries => {
+            if(prefersReducedMotion || !desktopMotion.matches || touchInput.matches) return;
+            for(const entry of entries){
+              if(!entry.isIntersecting) continue;
+              observer.unobserve(entry.target);
+              context.add(() => {
+                const el = entry.target;
+                if(el.matches(".stat-number[data-target]")){
+                  const value = {number:0};
+                  gsap.to(value,{number:Number(el.dataset.target),duration:1.25,ease:"power3.out",onUpdate:()=>{el.textContent=Math.round(value.number);}});
+                }else if(el.matches(".clip-reveal")){
+                  gsap.fromTo(el,{clipPath:"inset(8% 0 0 0)"},{clipPath:"inset(0% 0 0 0)",duration:.8,ease:"power4.inOut",clearProps:"clipPath"});
+                }else{
+                  gsap.fromTo(el,{opacity:0,y:20},{opacity:1,y:0,duration:.9,ease:"power3.out",clearProps:"opacity,transform"});
+                }
+              });
+            }
+          },{rootMargin:"0px 0px -12% 0px"});
+          document.querySelectorAll(".reveal,.clip-reveal,.stat-number[data-target]").forEach(el=>observer.observe(el));
+          // Only the desktop hero needs a scroll-linked animation.
+          gsap.to(".parallax-slow",{yPercent:4,ease:"none",scrollTrigger:{trigger:".hero",start:"top top",end:"bottom top",scrub:true}});
+          const cleanups = [];
+          document.querySelectorAll("details").forEach(detail=>detail.addEventListener("toggle",refreshAnimations));
+          return () => {
+            observer.disconnect();cleanups.forEach(cleanup=>cleanup());
+            counters.forEach((counter,index)=>{counter.textContent=originals[index];});
+            document.querySelectorAll("details").forEach(detail=>detail.removeEventListener("toggle",refreshAnimations));
+          };
+        });
+      }catch{
+        // CDN failure must never hide content or block filters/authentication.
+        media?.revert();
+      }
+    }
+    if(desktopMotion.addEventListener) desktopMotion.addEventListener("change",enableDesktopMotion);
+    else desktopMotion.addListener(enableDesktopMotion);
+    void enableDesktopMotion();
+  </script>
+  <script src="vendor/supabase-js-2.57.4/supabase.js?v=20260921-4"></script>
+<script type="module" src="js/site-header.js?v=20260921-4"></script>
+  <script type="module" src="js/navbar-auth.js?v=20260921-4"></script>
+<script type="module" src="js/agenda-loader.js?v=20260921-4"></script>
+  <dialog class="map-dialog" id="map-dialog" role="dialog" aria-modal="true" aria-label="Mapa ampliado de Ciudad Universitaria UAEMéx">
+    <div class="map-dialog-toolbar">
+      <p>Ciudad Universitaria UAEMéx</p>
+      <div class="map-dialog-actions">
+        <button type="button" data-map-zoom aria-pressed="false" aria-controls="map-viewport">Ampliar detalles</button>
+        <button class="map-close" type="button" data-map-close aria-label="Cerrar mapa" autofocus>×</button>
+      </div>
+    </div>
+    <div class="map-dialog-viewport" id="map-viewport" tabindex="0" role="region" aria-label="Mapa: al ampliar, desplázate para explorar los detalles">
+      <img class="map-dialog-image" src="assets/mapa-cu-pdf-preview.jpg?v=1" width="2400" height="1350" loading="lazy" decoding="async" alt="Mapa de Ciudad Universitaria UAEMéx con facultades, accesos y sedes de IMPULSO UAEMéx 2026">
+    </div>
+  </dialog>
+  <script src="js/map-lightbox.js?v=20260923-1" defer></script>
+</body>
+</html>
