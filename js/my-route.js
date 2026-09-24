@@ -49,10 +49,14 @@ export async function loadMyRoute(){
        else for(const a of attendances){const entry=element('article',undefined,'route-card');entry.append(element('h3',a.title),element('p','✓ Asistencia confirmada · '+new Date(a.attended_at).toLocaleString('es-MX',{timeZone:'America/Mexico_City'})+' · Ciudad de México'));history.append(entry);}
       }
       route=rows;message.textContent=routeFailed?'No pudimos cargar tu ruta en este momento.':'';
-      count.textContent=`${route.length} ACTIVIDADES SELECCIONADAS`;
+      count.textContent=routeFailed?'RUTA NO DISPONIBLE':`${route.length} ACTIVIDADES SELECCIONADAS`;
       exportButton.hidden=route.length===0;
       exportPanel.hidden=true;list.replaceChildren();
-      if(!route.length)list.append(element('p','Tu ruta está vacía. Explora la agenda y elige las actividades que te interesan.'));
+      if(routeFailed){
+        const retry=element('button','VOLVER A INTENTAR','btn btn-outline');retry.type='button';
+        retry.addEventListener('click',()=>{retry.disabled=true;void refresh();});
+        list.append(retry);
+      }else if(!route.length)list.append(element('p','Tu ruta está vacía. Explora la agenda y elige las actividades que te interesan.'));
       for(const row of route){
         const a=row.activity;const card=element('article',undefined,'route-card');
         card.append(element('h3',a?.title||'Actividad no disponible'));

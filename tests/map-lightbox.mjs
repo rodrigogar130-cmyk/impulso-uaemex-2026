@@ -8,7 +8,7 @@ const html = fs.readFileSync('index.html','utf8');
 const {document, window} = parseHTML(html);
 const baseline = parseHTML(execFileSync('git',['show','HEAD:index.html'],{encoding:'utf8'})).document;
 for (const id of ['evento','pasaporte','escenarios','ponentes','agenda']) {
-  assert.equal(document.getElementById(id).outerHTML,baseline.getElementById(id).outerHTML,`${id} intacto`);
+  assert.equal(document.getElementById(id).outerHTML,baseline.getElementById(id).outerHTML.replaceAll('Ágora del Cénide','Ágora de Cénide').replaceAll('UAEMÉX','UAEMéx'),`${id}: solo correcciones de contenido autorizadas`);
 }
 assert.equal(document.querySelectorAll('#mapa .venue-row').length,7);
 assert.equal(document.querySelector('#mapa .venue-directory').parentElement.className,'container');

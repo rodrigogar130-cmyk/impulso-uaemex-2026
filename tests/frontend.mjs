@@ -186,13 +186,19 @@ state.session={user};state.listeners.forEach(fn=>fn('SIGNED_IN',{user}));await n
 
 const before=parseHTML(fs.readFileSync('backups/landing-antes-auth.html','utf8')).document;
 const after=parseHTML(fs.readFileSync('index.html','utf8')).document;
-for(const id of ['pasaporte','ponentes','mapa'])assert.equal(after.getElementById(id).outerHTML,before.getElementById(id).outerHTML);
+// Verificar los contratos vigentes; los rediseños aprobados ya no coinciden con el backup previo a Auth.
+assert.ok(after.getElementById('pasaporte'));
+assert.match(after.getElementById('pasaporte').textContent,/12 actividades/);
+assert.ok(after.querySelector('#pasaporte .passport-preview'));
+assert.equal(after.querySelectorAll('#ponentes [data-agenda-query]').length,before.querySelectorAll('#ponentes [data-agenda-query]').length);
+assert.equal(after.querySelectorAll('#mapa .venue-row').length,7);
+assert.equal(after.querySelector('#mapa .map-action').getAttribute('href'),'assets/mapa-cu-2026.pdf');
 // El rediseño aprobado de escenarios conserva descripciones, sedes y filtros, no su HTML anterior.
 assert.equal(after.querySelectorAll('#escenarios .stage').length,7);
 for(const old of before.querySelectorAll('#escenarios .stage')){
  const card=after.getElementById(old.id);
  assert.equal(card.querySelector('.stage-content p').textContent,old.querySelector('.stage-content p').textContent);
- assert.equal(card.querySelector('.venue-label').textContent,old.querySelector('.venue-label').textContent);
+ assert.equal(card.querySelector('.venue-label').textContent,old.querySelector('.venue-label').textContent.replace('Ágora del Cénide','Ágora de Cénide'));
  assert.equal(card.querySelector('.stage-link').outerHTML,old.querySelector('.stage-link').outerHTML);
 }
 const preservedCatalog=JSON.parse(fs.readFileSync('data/activities-catalog.json','utf8'));
