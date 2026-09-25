@@ -16,7 +16,7 @@ function button(text,action){const b=element('button',text,'btn secondary');b.ty
 function table(headers,rows){
   const wrap=element('div',undefined,'admin-table-wrap'),t=element('table'),head=element('thead'),tr=element('tr'),body=element('tbody');
   for(const title of headers){const th=element('th',title);th.scope='col';tr.append(th);}head.append(tr);
-  for(const cells of rows){const row=element('tr');for(const value of cells){const td=element('td');if(value?.nodeType)td.append(value);else td.textContent=value??'—';row.append(td);}body.append(row);}
+  for(const cells of rows){const row=element('tr');cells.forEach((value,index)=>{const td=element('td');td.dataset.label=headers[index]||'';if(value?.nodeType)td.append(value);else td.textContent=value??'—';row.append(td);});body.append(row);}
   t.append(head,body);wrap.append(t);return wrap;
 }
 async function run(load){const current=++revision;say('CARGANDO...');try{const success=await load(()=>current===revision);if(current===revision&&success!==false)say('');}catch(error){if(current===revision)fail(error);}}
@@ -24,7 +24,7 @@ function pager(root,total,offset,load){const bar=element('div',undefined,'action
 async function dashboard(){await run(async current=>{
   const data=await adminCall('admin_get_dashboard_stats');if(!current())return;
   const grid=element('div',undefined,'admin-metrics');
-  for(const [key,label] of [['users','USUARIOS REGISTRADOS'],['routes','RUTAS CREADAS'],['selections','ACTIVIDADES SELECCIONADAS'],['activities','ACTIVIDADES DISPONIBLES'],['attendance','ASISTENCIAS CONFIRMADAS']]){
+  for(const [key,label] of [['users','USUARIOS REGISTRADOS'],['routes','RUTAS CREADAS'],['selections','ACTIVIDADES SELECCIONADAS'],['activities','ACTIVIDADES DISPONIBLES'],['attendance','ASISTENCIAS CONFIRMADAS'],['badges','INSIGNIAS OBTENIDAS']]){
     const card=element('article');card.append(element('strong',String(data[key])),element('span',label));grid.append(card);
   }
   view.replaceChildren(element('h2','Resumen general'),grid,element('p','Las asistencias confirmadas se registran mediante NFC. Las selecciones no confirman asistencia.'));
@@ -56,11 +56,39 @@ async function scenarioActivities(scenario){await run(async current=>{
   }
   search.addEventListener('input',draw);state.addEventListener('change',draw);view.replaceChildren(breadcrumb(editorScenarios[scenario]),button('← VOLVER A ESCENARIOS',activities),element('h2',editorScenarios[scenario]),button('+ AGREGAR ACTIVIDAD',()=>detail(null,scenario)),element('p',`${rows.length} actividades`),search,state,results);draw();
 });}
+function badgeState(unlocked){return element('span',unlocked?'✓ INSIGNIA OBTENIDA':'INSIGNIA BLOQUEADA',`admin-badge-state ${unlocked?'is-unlocked':'is-locked'}`);}
+function passportStamps(completed){const stamps=element('div',undefined,'admin-passport-stamps');stamps.setAttribute('aria-label',`${completed} de 12 actividades completadas`);for(let index=0;index<12;index++){const stamp=element('span');stamp.classList.toggle('is-complete',index<completed);stamps.append(stamp);}return stamps;}
+function attendanceDate(value){return value?new Date(value).toLocaleString('es-MX',{timeZone:'America/Mexico_City'}):'—';}
+function attendanceMethod(value){return value==='NFC_QR'?'NFC / QR':value||'—';}
 async function users(onlyRoutes=false,query='',offset=0){await run(async current=>{
   const data=await adminCall('admin_list_users',{p_search:query,p_offset:offset,p_limit:pageSize,p_only_routes:onlyRoutes});if(!current())return;
   const search=element('form',undefined,'admin-search'),label=element('label','Nombre, correo o folio'),input=element('input');input.type='search';input.value=query;label.append(input);const submit=element('button','BUSCAR','btn secondary');submit.type='submit';search.append(label,submit);search.addEventListener('submit',event=>{event.preventDefault();users(onlyRoutes,input.value,0);});
-  view.replaceChildren(element('h2',onlyRoutes?'Usuarios con ruta creada':'Usuarios'),search,table(['NOMBRE','CORREO','FOLIO','TIPO','ESPACIO ACADÉMICO','SELECCIONES',''],data.rows.map(u=>[`${u.nombre} ${u.apellidos}`,u.email,u.folio,u.tipo_usuario,u.espacio_academico,u.selected_count,button('VER RUTA',()=>userRoute(u))])));
+  const rows=data.rows.map(u=>[`${u.nombre} ${u.apellidos}`,u.email,u.folio,u.tipo_usuario,u.espacio_academico,`${u.attendance_count} / 12`,badgeState(u.badge_unlocked),button(onlyRoutes?'VER RUTA':'VER USUARIO',()=>onlyRoutes?userRoute(u):userPassport(u))]);
+  view.replaceChildren(element('h2',onlyRoutes?'Usuarios con ruta creada':'Usuarios'),search,table(['NOMBRE','CORREO','FOLIO','TIPO','ESPACIO ACADÉMICO','PROGRESO','INSIGNIA','ACCIÓN'],rows));
   pager(view,data.total,offset,next=>users(onlyRoutes,query,next));
+});}
+async function badges(query='',filter='all',offset=0){await run(async current=>{
+  const data=await adminCall('admin_list_badges',{p_search:query,p_offset:offset,p_limit:pageSize,p_filter:filter});if(!current())return;
+  const search=element('form',undefined,'admin-search'),label=element('label','Nombre, correo o folio'),input=element('input');input.type='search';input.value=query;label.append(input);
+  const filterLabel=element('label','Estado'),select=element('select');for(const [value,text] of [['all','Todas'],['obtained','Insignia obtenida'],['pending','Insignia pendiente']]){const option=element('option',text);option.value=value;option.selected=value===filter;select.append(option);}filterLabel.append(select);
+  const submit=element('button','BUSCAR','btn secondary');submit.type='submit';search.append(label,filterLabel,submit);search.addEventListener('submit',event=>{event.preventDefault();badges(input.value,select.value,0);});select.addEventListener('change',()=>badges(input.value,select.value,0));
+  const grid=element('div',undefined,'admin-badge-grid');
+  for(const user of data.rows){const card=element('article',undefined,'admin-badge-card');card.append(element('h3',`${user.nombre} ${user.apellidos}`),element('p',user.folio||'—'),element('p',user.email||'—'),element('p',`${user.attendance_count} / 12 actividades`,'admin-badge-progress'),badgeState(user.badge_unlocked),element('p',user.completed_at?`Fecha: ${attendanceDate(user.completed_at)}`:'Fecha: —'),button('VER DETALLE',()=>userPassport(user)));grid.append(card);}
+  if(!data.rows.length)grid.append(element('p','No hay usuarios que coincidan con el filtro.'));
+  view.replaceChildren(element('h2','Insignias'),element('p','La insignia se obtiene automáticamente al confirmar 12 actividades distintas.'),search,grid);
+  pager(view,data.total,offset,next=>badges(query,filter,next));
+});}
+async function userPassport(user){await run(async current=>{
+  const data=await adminCall('admin_get_user_passport',{p_user_id:user.user_id});if(!current())return;
+  const completed=Math.min(Number(data.attendance_count)||0,12),back=()=>section==='badges'?badges():users(section==='routes');
+  const identity=element('div',undefined,'admin-summary');identity.append(element('p',data.folio||'—'),element('p',data.email||'—'));
+  const status=badgeState(data.badge_unlocked),summary=element('section',undefined,'panel');summary.append(element('h2','Pasaporte del usuario'),element('h3',`${data.nombre} ${data.apellidos}`),identity,element('p',`${completed} / 12 actividades completadas`,'admin-badge-progress'),passportStamps(completed),status);
+  if(data.badge_unlocked)summary.append(element('p','Insignia IMPULSO UAEMéx 2026 obtenida.'));
+  summary.append(element('p',data.completed_at?`Fecha de obtención: ${attendanceDate(data.completed_at)}`:'Fecha de obtención: —'));
+  const evidence=element('section',undefined,'admin-attendance-evidence');evidence.append(element('h3','Asistencias confirmadas'));
+  const rows=(data.attendances||[]).map(a=>[a.title,scenarioName(a.scenario),attendanceDate(a.attended_at),attendanceMethod(a.method)]);
+  evidence.append(rows.length?table(['ACTIVIDAD','ESCENARIO','CONFIRMADA','MÉTODO'],rows):element('p','No hay asistencias confirmadas.'));
+  view.replaceChildren(button('VOLVER',back),summary,evidence,button('VER RUTA',()=>userRoute(data)));
 });}
 async function userRoute(user){await run(async current=>{
   const rows=await adminCall('admin_get_user_route',{p_user_id:user.user_id});if(!current())return;
@@ -140,7 +168,7 @@ async function detail(id,initialScenario=null){await run(async current=>{
   }
   if(adminRole==='super_admin')return await loadParticipants();
 });}
-function navigate(next){section=next;document.querySelectorAll('[data-section]').forEach(b=>b.setAttribute('aria-current',b.dataset.section===next?'page':'false'));view.replaceChildren();return next==='dashboard'?dashboard():next==='activities'?activities():users(next==='routes');}
+function navigate(next){section=next;document.querySelectorAll('[data-section]').forEach(b=>b.setAttribute('aria-current',b.dataset.section===next?'page':'false'));view.replaceChildren();return next==='dashboard'?dashboard():next==='activities'?activities():next==='badges'?badges():users(next==='routes');}
 document.querySelectorAll('[data-section]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.section)));
 let accessPromise=null, checkAgain=false, lastAccessCheck=0;
 function checkAccess(){

@@ -18,5 +18,7 @@ export function adminError(error){
   if(code.includes('ACTIVITY_TITLE_REQUIRED'))return 'El título es obligatorio.';
   if(code.includes('INVALID_ACTIVITY_SCENARIO'))return 'Selecciona un escenario válido.';
   if(code.includes('ACTIVITY_UNAVAILABLE'))return 'No se encontró esta actividad dentro del festival.';
+  if(code.includes('USER_NOT_FOUND'))return 'No se encontró el usuario dentro del festival.';
+  if(code.includes('INVALID_BADGE_FILTER'))return 'Selecciona un filtro de insignias válido.';
   return 'No se pudo completar la operación. Inténtalo de nuevo.';
 }
