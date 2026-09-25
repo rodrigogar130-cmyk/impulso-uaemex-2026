@@ -86,13 +86,24 @@
       text-shadow:0 2px 24px rgba(0,0,0,.45);
     }
     .hero-topline{
-      margin-bottom:36px;
-      font-size:12px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:30px;
+      font-size:clamp(13px,1vw,17px);
       font-weight:600;
       text-transform:uppercase;
-      letter-spacing:.08em;
-      color:rgba(255,255,255,.9);
+      letter-spacing:.13em;
+      color:#fff;
       line-height:1.6;
+      text-shadow:0 2px 18px rgba(0,0,0,.7);
+    }
+    .hero-topline::before{
+      content:"";
+      width:28px;
+      height:1px;
+      flex:0 0 auto;
+      background:rgba(255,255,255,.72);
     }
     .hero-title{
       margin:0;
@@ -146,6 +157,56 @@
       font-size:14px;
       line-height:1.6;
       color:rgba(255,255,255,.9);
+    }
+    .hero-inauguration{
+      width:100%;
+      max-width:360px;
+      display:grid;
+      gap:6px;
+      margin:0 0 6px;
+      padding-top:17px;
+      border-top:1px solid rgba(255,255,255,.28);
+    }
+    .hero-inauguration p{ margin:0; }
+    .hero-inauguration-label,
+    .hero-inauguration-time,
+    .hero-location-link{
+      font-size:11px;
+      font-weight:600;
+      line-height:1.35;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    .hero-inauguration-label{ color:#e5d3a3; }
+    .hero-inauguration-time{ color:rgba(255,255,255,.94); }
+    .hero-inauguration-venue{
+      margin-top:2px !important;
+      font-size:14px;
+      font-weight:600;
+      line-height:1.45;
+      color:#fff;
+    }
+    .hero-inauguration-campus{
+      font-size:12px;
+      line-height:1.5;
+      color:rgba(255,255,255,.78);
+    }
+    .hero-location-link{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      width:max-content;
+      margin-top:4px;
+      color:rgba(255,255,255,.96);
+      text-decoration:underline;
+      text-decoration-color:rgba(255,255,255,.35);
+      text-underline-offset:4px;
+      transition:color .2s ease, text-decoration-color .2s ease;
+    }
+    .hero-location-link:hover,
+    .hero-location-link:focus-visible{
+      color:#e5d3a3;
+      text-decoration-color:currentColor;
     }
 
     /* COUNTDOWN */
@@ -688,10 +749,13 @@
         padding-top:22px;
         border-top:1px solid rgba(255,255,255,.25);
       }
-      .hero-topline{ margin-bottom:18px; }
+      .hero-topline{ gap:10px; margin-bottom:18px; letter-spacing:.1em; }
+      .hero-topline::before{ width:22px; }
       .hero-info{ width:100%; flex-direction:column; gap:12px; }
       .hero-date{ width:100%; margin-bottom:8px; }
       .hero-date span{ max-width:100%; margin-top:8px; }
+      .hero-inauguration{ max-width:none; margin-bottom:6px; padding-top:14px; gap:5px; }
+      .hero-inauguration-venue{ max-width:34rem; }
       .hero-info .btn{ width:100%; justify-content:space-between; }
     }
     @media (max-width:560px){
@@ -736,6 +800,11 @@
     .speaker h4{ font-size:21px; line-height:1.25; font-weight:500; letter-spacing:-.02em; margin:12px 0; }
     .speaker p{ font-size:13px; line-height:1.65; color:var(--text-secondary); }
     .speaker .speaker-profile{ color:#d0d0d0; }
+    .speaker-dynamic{ display:flex; flex-direction:column; align-items:flex-start; }
+    .speaker-photo{ width:96px; height:96px; margin-bottom:18px; border-radius:50%; object-fit:cover; object-position:center; background:#1a1a1a; }
+    .speaker-participations{ width:100%; margin-top:auto; }
+    .speaker-participation{ padding-top:14px; margin-top:14px; border-top:1px solid var(--border); }
+    .speaker-participation p{ margin:0 0 10px; color:#d0d0d0; }
     .text-link{ font-size:13px; display:inline-block; padding:12px 0; text-decoration:none; }
     .text-link:hover{ opacity:.75; }
     .group-footnote{ font-size:13px; color:var(--text-secondary); padding-bottom:24px; }
@@ -788,6 +857,7 @@
       .stage-content{ padding:24px 0 36px; }
       .speakers-grid{ grid-template-columns:1fr; gap:24px; }
       .speaker-group > summary{ gap:16px; }
+      .speaker-photo{ width:76px; height:76px; margin-bottom:14px; }
       .agenda-item{ grid-template-columns:1fr; gap:12px; }
       .agenda-place,.agenda-type{ grid-column:1; }
       .agenda-time{ font-size:14px; }
@@ -855,12 +925,20 @@
         </div>
 
         <div class="hero-bottom hero-fade">
-          <div class="hero-topline">15 — 16 octubre 2026</div>
+          <div class="hero-topline">15 — 16 OCTUBRE 2026</div>
 
           <div class="hero-info">
             <div class="hero-date">
               <strong>FESTIVAL DE EMPRENDIMIENTO</strong>
               <span>Ciudad Universitaria · Toluca, Estado de México</span>
+            </div>
+
+            <div class="hero-inauguration">
+              <p class="hero-inauguration-label">INAUGURACIÓN</p>
+              <p class="hero-inauguration-time">15 OCT · 09:00 H</p>
+              <p class="hero-inauguration-venue">Estadio Universitario Alberto &quot;Chivo&quot; Córdova</p>
+              <p class="hero-inauguration-campus">Ciudad Universitaria UAEMéx · Toluca, Estado de México</p>
+              <a class="hero-location-link" href="#mapa">VER UBICACIÓN <span aria-hidden="true">↗</span></a>
             </div>
 
             <a class="btn btn-primary magnetic" href="registro.html" data-auth-guest>
@@ -1022,7 +1100,7 @@
 <article class="stage reveal" id="escenario-deporte">
         <div class="stage-media"><img src="assets/escenario%20de%20deporte.png" alt="Escenario Deporte — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
         <div class="stage-content"><div><span class="stage-big-num">02</span><h3>Deporte</h3><p>Conecta disciplina, resiliencia y liderazgo con la creación de servicios y negocios deportivos. Del entrenamiento a la gestión de oportunidades.</p></div>
-        <div class="stage-footer"><p class="venue-label">Estadio Universitario</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Liderazgo · Marketing deportivo · Patrocinios · Servicios deportivos · Propiedad intelectual</p><h4>Del entrenamiento al emprendimiento</h4><p>Warm-up emprendedor, modelos de servicios deportivos y pitch para conseguir patrocinio.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes deportistas, entrenadores, docentes, equipos representativos, gestores y emprendedores deportivos.</p><h4>Continuidad</h4><p>Posible vinculación con Demo Day, showroom o podcast.</p><p class="content-note">Consulta el espacio de tu actividad dentro del estadio.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="deporte">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
+        <div class="stage-footer"><p class="venue-label">Estadio Universitario Alberto &quot;Chivo&quot; Córdova</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Liderazgo · Marketing deportivo · Patrocinios · Servicios deportivos · Propiedad intelectual</p><h4>Del entrenamiento al emprendimiento</h4><p>Warm-up emprendedor, modelos de servicios deportivos y pitch para conseguir patrocinio.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes deportistas, entrenadores, docentes, equipos representativos, gestores y emprendedores deportivos.</p><h4>Continuidad</h4><p>Posible vinculación con Demo Day, showroom o podcast.</p><p class="content-note">Consulta el espacio de tu actividad dentro del estadio.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="deporte">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-tecnologia">
         <div class="stage-media"><img src="assets/escenario%20de%20tecnologia.png" alt="Escenario Tecnología — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
@@ -1053,7 +1131,7 @@
     <section class="section speakers" id="ponentes"><div class="container">
       <span class="eyebrow reveal">Ponentes y participantes</span><h2 class="section-title reveal">PERSONAS.<br>IDEAS. ENCUENTROS.</h2>
       <p class="section-copy reveal">Descubre las voces invitadas a compartir ideas, experiencias y conocimiento en los siete escenarios.</p>
-      <div class="speaker-groups"><details class="speaker-group"><summary><span class="group-index">01</span><h3>Cultura</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Catalina Hermina Azuara Santillana</h4><p class="speaker-profile">Artista egresada de la UAEMéx, tallerista y emprendedora. Participa en Casa Espora, espacio cultural y ecológico.</p><p>Hackear la Tradición: El patrimonio cultural como la startup del futuro</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Catalina Hermina Azuara Santillana">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Irma Bastida Herrera</h4><p class="speaker-profile">Ilustradora reconocida con la Manzana de Oro de la Bienal de Ilustración de Bratislava.</p><p>Inteligencia Artificial y Narrativas Transmedia para Proyectos Culturales</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Irma Bastida Herrera">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Tomas Rivero Soteno</h4><p>Ecosistemas Creativos: ¿Cómo innovar, impulsar y trascender en la cultura?</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Tomas Rivero Soteno">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Irma Gloria Gabriela Ortiz Garrido</h4><p>Ecosistemas Creativos: ¿Cómo innovar, impulsar y trascender en la cultura?</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Irma Gloria Gabriela Ortiz Garrido">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Omar Jaimes Esquivel</h4><p>Ecosistemas Creativos: ¿Cómo innovar, impulsar y trascender en la cultura?</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Omar Jaimes Esquivel">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Carlos Badillo Cruz</h4><p class="speaker-profile">Diseñador gráfico egresado de la UAEMéx; artista, pintor, muralista e ilustrador.</p><p>De un colectivo local a una plataforma global de entretenimiento cultural</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Carlos Badillo Cruz">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Tania Arzaluz</h4><p>Monedas Creativas: El valor intangible que el mercado está desesperado por comprar</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Tania Arzaluz">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Estefania González Espinoza</h4><p class="speaker-profile">Egresada de la Universidad Intercultural del Estado de México. Artista y editora en el taller Calli; encabeza el proyecto Códice Morado.</p><p>Inmersión Total: El museo/galería interactiva que reinventó el consumo cultural urbano</p><a href="#agenda" class="text-link" data-agenda-stage="cultura" data-agenda-query="Estefania González Espinoza">Ver actividad <span aria-hidden="true">↗</span></a></article></div></details><details class="speaker-group" ><summary><span class="group-index">02</span><h3>Deporte</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">TED Talk</span><h4>Marco Cancino</h4><p>El deporte y las empresas deportivas. Caso TUDN y Galacticos</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Marco Cancino">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Margarita Hernández</h4><p>Disciplina en el deporte</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Margarita Hernández">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Víctor Pineda</h4><p>Pitch para ganar Sponsors</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Víctor Pineda">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Activación</span><h4>Edwin</h4><p class="speaker-profile">Gestor deportivo.</p><p>Warm-up</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Edwin">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">TED Talk</span><h4>Yisus</h4><p>Empresas deportivas. Caso Azteca e ESPN</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Yisus">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Atzimba</h4><p>Dirección y trabajo en equipo</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Atzimba">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>La Roca Zamora</h4><p>Dirección y trabajo en equipo</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="La Roca Zamora">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Edgar Madrigal</h4><p>Dirección y trabajo en equipo</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Edgar Madrigal">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Los trikis</h4><p>Cómo crear tu academia</p><a href="#agenda" class="text-link" data-agenda-stage="deporte" data-agenda-query="Los trikis">Ver actividad <span aria-hidden="true">↗</span></a></article></div><p class="group-footnote">Moderación: María Esther Sánchez Coyote y Ricardo Tellez Recillas.</p></details><details class="speaker-group" ><summary><span class="group-index">03</span><h3>Tecnología</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">Workshop</span><h4>Rodrigo Lugo</h4><p class="speaker-profile">WRO · Facultad de Ingeniería.</p><p>Robótica Educativa</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Rodrigo Lugo">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Belem Gamboa</h4><p class="speaker-profile">Empresaria, consultoría e instrucción digital.</p><p>Automatizar para crecer</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Belem Gamboa">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Manuel Jasso Sandoval</h4><p class="speaker-profile">Lic. en Administración · Unidades de Emprendimiento.</p><p>IA en 90 minutos: de idea a prototipo</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Manuel Jasso Sandoval">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Ramon González Rodrígez</h4><p class="speaker-profile">Enterprise Agile Coach.</p><p>Tribus ágiles y multiverso ágil</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Ramon González Rodrígez">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Victor Andrés Alvaréz Domingue</h4><p>Startup universitario basada en software o IA</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Victor Andrés Alvaréz Domingue">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Jesús Javier Vallejo Silva</h4><p>Campus inteligente, campus vivo</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Jesús Javier Vallejo Silva">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Carlos Rodrigo García Álvarez</h4><p class="speaker-profile">Lic. en Administración · Unidades de Emprendimiento.</p><p>No-Code Challenge: crea una app sin programar</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Carlos Rodrigo García Álvarez">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Abraham García Aguilar</h4><p>La IA no te reemplaza, te reta</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Abraham García Aguilar">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>César Juárez Chávez</h4><p class="speaker-profile">Fundador y director de Zooner.</p><p>Automatiza tu emprendimiento con CRM y dashboards</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="César Juárez Chávez">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Pablo Goméz Lagunas</h4><p>Movilidad universitaria</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Pablo Goméz Lagunas">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Guillermina Pérez Martínez</h4><p>Del prototipo al mercado: cómo escalar software universitario</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Guillermina Pérez Martínez">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Euclydes Cadena Olivares</h4><p class="speaker-profile">Líder en programas de TI con trayectoria en empresas como IBM, HSBC y Banamex-Citi.</p><p>Egresado tech en empresa global</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Euclydes Cadena Olivares">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Regina Gorostieta</h4><p class="speaker-profile">Muevetex.</p><p>App de movilidad</p><a href="#agenda" class="text-link" data-agenda-stage="tecnologia" data-agenda-query="Regina Gorostieta">Ver actividad <span aria-hidden="true">↗</span></a></article></div><p class="group-footnote">Moderación: Guillermina Pérez Martínez y Crishtian Jonatan Guarneros Vázquez.</p></details><details class="speaker-group" ><summary><span class="group-index">04</span><h3>Diseño</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Eduardo Victoria</h4><p>Romper el molde: Del diseñador reactivo al creador disruptivo</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Eduardo Victoria">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Santiago Navarrete Flores</h4><p>Prototipado rápido de modelos de negocio con IA y No-Code</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Santiago Navarrete Flores">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>María Trinidad Contreras González</h4><p class="speaker-profile">Directora de Innovación Cultural.</p><p>La Triple Hélice y el Talento Joven: ¿Cómo financiamos y escalamos la innovación creativa?</p><p class="content-note">También participa en: Presentación de libro “Navegar con Viento Propio” y Esencial para Diseñadores Emprendedores</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="María Trinidad Contreras González">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Alejandro Razo</h4><p class="speaker-profile">IME.</p><p>La Triple Hélice y el Talento Joven: ¿Cómo financiamos y escalamos la innovación creativa?</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Alejandro Razo">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Mitzi Yareli Reyes Ramos</h4><p>De render a realidad: Cómo fundamos un estudio de arquitectura modular sostenible y rentable</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Mitzi Yareli Reyes Ramos">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Luis Anwar Albarran</h4><p>Diseñar para el fin del mundo (o el inicio de uno nuevo)</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Luis Anwar Albarran">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Víctor Juaréz</h4><p>Diseño de Experiencias Inmersivas y Espacios Híbridos</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Víctor Juaréz">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Caso de éxito</span><h4>Omar Huerta</h4><p>Fungitek: Diseño industrial y nuevos materiales, la clave para nuevos mercados</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Omar Huerta">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Presentación</span><h4>Joaquin Trinidad Iduarte</h4><p>Presentación de libro “Navegar con Viento Propio” y Esencial para Diseñadores Emprendedores</p><a href="#agenda" class="text-link" data-agenda-stage="diseno" data-agenda-query="Joaquin Trinidad Iduarte">Ver actividad <span aria-hidden="true">↗</span></a></article></div></details><details class="speaker-group" ><summary><span class="group-index">05</span><h3>Investigación aplicada</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">Conferencia</span><h4>Humberto Alejandro Rosales Valbuena</h4><p class="speaker-profile">Colombia.</p><p>Innovación social</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Humberto Alejandro Rosales Valbuena">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Sesión de expertos</span><h4>William E. Mosquera Laverde</h4><p class="speaker-profile">Colombia.</p><p>Innovación social</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="William E. Mosquera Laverde">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Sesión de expertos</span><h4>Alejandro García Garnica</h4><p class="speaker-profile">UAEM, Morelos.</p><p>Innovación social</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Alejandro García Garnica">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Sesión de expertos</span><h4>Abel Anibal del Río Cortina</h4><p class="speaker-profile">Colombia.</p><p>Innovación social</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Abel Anibal del Río Cortina">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Sesión de expertos</span><h4>Felipe López</h4><p class="speaker-profile">Colombia.</p><p>Innovación social</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Felipe López">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Sesión de expertos</span><h4>Carlos Santamaria</h4><p class="speaker-profile">Guadalajara.</p><p>Innovación social</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Carlos Santamaria">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Conferencia</span><h4>Ricardo Carvalho</h4><p class="speaker-profile">Brasil.</p><p>Educación para el emprendimiento</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Ricardo Carvalho">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Conferencia</span><h4>Maestro Gudiño</h4><p>Ecosistema o Modelo de Negocios</p><a href="#agenda" class="text-link" data-agenda-stage="investigacion" data-agenda-query="Maestro Gudiño">Ver actividad <span aria-hidden="true">↗</span></a></article></div></details><details class="speaker-group" ><summary><span class="group-index">06</span><h3>Gobernanza</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Alberto Cedillo</h4><p class="speaker-profile">Alteza Corporativo.</p><p>La legalidad también escala negocios</p><a href="#agenda" class="text-link" data-agenda-stage="gobernanza" data-agenda-query="Alberto Cedillo">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Eva Sales</h4><p class="speaker-profile">Consejera Jurídica.</p><p>Del trámite al servicio: el derecho centrado en personas</p><a href="#agenda" class="text-link" data-agenda-stage="gobernanza" data-agenda-query="Eva Sales">Ver actividad <span aria-hidden="true">↗</span></a></article></div></details><details class="speaker-group" ><summary><span class="group-index">07</span><h3>Bienestar Integral</h3><span class="group-action" aria-hidden="true">+</span></summary><div class="speakers-grid"><article class="speaker"><span class="micro-label">Workshop</span><h4>Cyndi Hinojosa Frias</h4><p>Emprendiendo a través de los viajes</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Cyndi Hinojosa Frias">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Charla</span><h4>Leslie Pastrana</h4><p>Experiencias de viaje a tu medida</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Leslie Pastrana">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Workshop</span><h4>Nico</h4><p class="speaker-profile">Nutrición.</p><p>Gastro Wellness Lab. Comer bien para pensar mejor</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Nico">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Mónica del Valle Pérez</h4><p class="speaker-profile">Doctora.</p><p>Del burnout al propósito</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Mónica del Valle Pérez">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">DDE Talk</span><h4>Gloria Georgina Icaza Castro</h4><p class="speaker-profile">Maestra.</p><p>Del burnout al propósito</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Gloria Georgina Icaza Castro">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Panel</span><h4>Yolanda SEDECO</h4><p>Formalización inteligente para emprendedores</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Yolanda SEDECO">Ver actividad <span aria-hidden="true">↗</span></a></article><article class="speaker"><span class="micro-label">Charla</span><h4>Nancy Bravo</h4><p>Interculturalidad</p><a href="#agenda" class="text-link" data-agenda-stage="bienestar" data-agenda-query="Nancy Bravo">Ver actividad <span aria-hidden="true">↗</span></a></article></div></details></div>
+      <div id="speakersDynamic" class="speaker-groups" aria-live="polite" aria-busy="true"></div>
     </div></section>
 
     <section class="section agenda" id="agenda"><div class="container">
@@ -1071,7 +1149,6 @@
       </details>
     </div></section>
 
-    <div id="ubicacion" aria-hidden="true"></div>
 <section class="section map-section" id="mapa"><div class="container">
       <div class="map-grid">
         <div class="map-copy">
@@ -1085,7 +1162,7 @@
         <a class="btn btn-outline map-action" href="assets/mapa-cu-2026.pdf" target="_blank" rel="noopener">ABRIR MAPA PDF <span class="arrow" aria-hidden="true">&#8599;</span></a>
       </div>
       <div class="map-caption"><span>CIUDAD UNIVERSITARIA · UAEMéx</span><span>Abre el PDF para explorar las ubicaciones</span></div>
-      <div class="venue-directory"><article class="venue-row"><span class="group-index">01</span><div><h3>Cultura</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Ciencias Políticas y Sociales / Ágora de Cénide</span></p></div></article><article class="venue-row"><span class="group-index">02</span><div><h3>Deporte</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Estadio Universitario</span></p><span class="content-note">Consulta el espacio de tu actividad dentro del estadio.</span></div></article><article class="venue-row"><span class="group-index">03</span><div><h3>Tecnología</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Ingeniería</span></p></div></article><article class="venue-row"><span class="group-index">04</span><div><h3>Diseño</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Arquitectura y Diseño</span></p></div></article><article class="venue-row"><span class="group-index">05</span><div><h3>Investigación aplicada</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Economía / Facultad de Contaduría y Administración</span></p><span class="content-note">Consulta la sede indicada en cada actividad.</span></div></article><article class="venue-row"><span class="group-index">06</span><div><h3>Gobernanza</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Derecho</span></p></div></article><article class="venue-row"><span class="group-index">07</span><div><h3>Bienestar Integral</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Turismo y Gastronomía · C.U. y El Rosedal</span></p><span class="content-note">La sede varía según actividad.</span></div></article></div>
+      <div class="venue-directory"><article class="venue-row"><span class="group-index">01</span><div><h3>Cultura</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Ciencias Políticas y Sociales / Ágora de Cénide</span></p></div></article><article class="venue-row"><span class="group-index">02</span><div><h3>Deporte</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Estadio Universitario Alberto &quot;Chivo&quot; Córdova</span></p><span class="content-note">Consulta el espacio de tu actividad dentro del estadio.</span></div></article><article class="venue-row"><span class="group-index">03</span><div><h3>Tecnología</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Ingeniería</span></p></div></article><article class="venue-row"><span class="group-index">04</span><div><h3>Diseño</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Arquitectura y Diseño</span></p></div></article><article class="venue-row"><span class="group-index">05</span><div><h3>Investigación aplicada</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Economía / Facultad de Contaduría y Administración</span></p><span class="content-note">Consulta la sede indicada en cada actividad.</span></div></article><article class="venue-row"><span class="group-index">06</span><div><h3>Gobernanza</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Derecho</span></p></div></article><article class="venue-row"><span class="group-index">07</span><div><h3>Bienestar Integral</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Turismo y Gastronomía · C.U. y El Rosedal</span></p><span class="content-note">La sede varía según actividad.</span></div></article></div>
       <details class="editorial-details collaborators"><summary>Colaboración universitaria y vinculación <span aria-hidden="true">+</span></summary><p>Explora las áreas universitarias y redes de vinculación del ecosistema emprendedor.</p><ul class="collaborator-list"><li>Dirección de Tecnologías de la Información</li><li>Facultad de Economía</li><li>Red Internacional de Colaboración en Temas de Innovación, Emprendimiento y Competitividad para el Desarrollo Económico y Social</li><li>Red Global Sault Entrepreneurship &amp; Innovation Research Network</li><li>Facultad de Ciencias Políticas y Sociales</li><li>Dirección de Cultura Física UAEMéx</li><li>Facultad de Humanidades</li><li>Facultad de Derecho</li><li>Facultad de Arquitectura y Diseño</li><li>Facultad de Ingeniería</li><li>Dirección de Innovación Cultural</li><li>Dirección de Promoción Artístico</li><li>Facultad de Turismo y Gastronomía</li><li>Facultad de Contaduría y Administración</li></ul></details>
     </div></section>
 
@@ -1269,12 +1346,8 @@
         const agenda = document.getElementById("agenda");
         agenda.setAttribute("tabindex", "-1");
         requestAnimationFrame(() => {
-          const offset = document.getElementById("siteHeader").getBoundingClientRect().height + 20;
           agenda.focus({ preventScroll:true });
-          window.scrollTo({
-            top:Math.max(0, agenda.getBoundingClientRect().top + window.scrollY - offset),
-            behavior:prefersReducedMotion ? "auto" : "smooth"
-          });
+          agenda.scrollIntoView({ behavior:prefersReducedMotion ? "auto" : "smooth", block:"start" });
           if(window.location.hash !== "#agenda"){
             history.pushState(null, "", "#agenda");
           }
@@ -1457,6 +1530,7 @@
 <script type="module" src="js/site-header.js?v=20260921-4"></script>
   <script type="module" src="js/navbar-auth.js?v=20260921-4"></script>
 <script type="module" src="js/agenda-loader.js?v=20260921-4"></script>
+  <script type="module" src="js/speakers.js?v=20260925-1"></script>
   <dialog class="map-dialog" id="map-dialog" role="dialog" aria-modal="true" aria-label="Mapa ampliado de Ciudad Universitaria UAEMéx">
     <div class="map-dialog-toolbar">
       <p>Ciudad Universitaria UAEMéx</p>

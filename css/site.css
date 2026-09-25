@@ -11,10 +11,11 @@
       --radius-lg:8px;
       --ease:cubic-bezier(.22,1,.36,1);
       --header-h:76px;
+      --header-offset:calc(var(--header-h) + 16px);
     }
 
     *{ box-sizing:border-box; }
-    html{ scroll-behavior:smooth; scroll-padding-top:96px; }
+    html{ scroll-behavior:smooth; scroll-padding-top:var(--header-offset); }
     :focus-visible{ outline:2px solid white; outline-offset:5px; }
     .container > *, .stage > *{ min-width:0; }
     body{

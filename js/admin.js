@@ -4,6 +4,8 @@ import { element,formatActivityTime,scenarioName } from './route-ui.js?v=2026092
 import { attendancePanel } from './admin-attendance.js?v=20260921-4';
 import { ensureProfile } from './profile.js?v=20260921-4';
 import { requirePrivacyAcknowledgement } from './privacy.js?v=20260921-4';
+import { client } from './supabase-client.js?v=20260921-4';
+import { SUPABASE_URL } from './config.js?v=20260921-4';
 const content=document.querySelector('#admin-content'),view=document.querySelector('#admin-view'),message=document.querySelector('#admin-message');
 let accessRevision=0,revision=0,identity=null,section='dashboard';
 let adminRole=null,allowedScenarios=[];
@@ -104,7 +106,7 @@ async function detail(id,initialScenario=null){await run(async current=>{
   }
   const back=()=>(initialScenario||!creating)?scenarioActivities(activity.scenario):activities();
   const form=element('form',undefined,'admin-edit'),grid=element('div',undefined,'form-grid'),fields={};
-  for(const [key,label,type] of [['title','Título','text'],['scenario','Escenario','select'],['slug','Slug','text'],['speaker','PONENTE(S)','text'],['activity_date','Fecha','date'],['start_time','Hora de inicio','time'],['end_time','Hora de término','time'],['location','Ubicación','text'],['description','Descripción','textarea'],['status','Estado','select']]){
+  for(const [key,label,type] of [['title','Título','text'],['scenario','Escenario','select'],['slug','Slug','text'],['activity_date','Fecha','date'],['start_time','Hora de inicio','time'],['end_time','Hora de término','time'],['location','Ubicación','text'],['description','Descripción','textarea'],['status','Estado','select']]){
     if(creating&&key==='slug')continue;
     const wrap=element('label',label,key==='description'?'full':''),input=element(type==='textarea'?'textarea':type==='select'?'select':'input');input.name=key;
     if(type==='select'){for(const value of key==='scenario'?allowedScenarios.map(s=>s.scenario):['draft','open','closed','cancelled']){const opt=element('option',key==='scenario'?editorScenarios[value]:({draft:'BORRADOR',open:'OPEN',closed:'CERRADA',cancelled:'CANCELADA'}[value]));opt.value=value;input.append(opt);}}
@@ -131,14 +133,15 @@ async function detail(id,initialScenario=null){await run(async current=>{
     if(value('start_time')&&value('end_time')&&value('end_time')<=value('start_time')){say('La hora de término debe ser posterior al inicio.');return;}
     const expected=revision;save.disabled=true;say('Guardando cambios…');
     try{
-      const saved=await adminCall(creating?'admin_create_activity':'admin_update_activity',{...(creating?{}:{p_activity_id:id,p_expected_updated_at:activity.updated_at}),p_title:value('title'),p_scenario:value('scenario'),p_speaker:value('speaker'),p_activity_date:value('activity_date'),p_start_time:value('start_time'),p_end_time:value('end_time'),p_location:value('location'),p_description:value('description'),p_status:value('status')});
+      const saved=await adminCall(creating?'admin_create_activity':'admin_update_activity',{...(creating?{}:{p_activity_id:id,p_expected_updated_at:activity.updated_at}),p_title:value('title'),p_scenario:value('scenario'),p_speaker:activity.speaker||null,p_activity_date:value('activity_date'),p_start_time:value('start_time'),p_end_time:value('end_time'),p_location:value('location'),p_description:value('description'),p_status:value('status')});
       try{localStorage.setItem('impulso-activities-changed',String(Date.now()));}catch{}
       if(expected!==revision)return;
       await detail(creating?saved.id:id);say(creating?'Actividad creada.':'Cambios guardados.');
     }catch(error){if(expected===revision)fail(error);}finally{save.disabled=false;}
   });
   const participants=element('div',undefined,'panel');
-  view.replaceChildren(breadcrumb(editorScenarios[activity.scenario]),button('VOLVER A ACTIVIDADES',back),element('h2',creating?'Nueva actividad':'Editar actividad'),...(creating?[]:[element('p',`Personas que la seleccionaron: ${activity.selected_count} · Asistencias confirmadas: ${activity.attendance_count??0}`)]),form,...(creating?[]:[audit,attendancePanel(activity,current),participants]));
+  const linkedSpeakers=element('section',undefined,'panel');
+  view.replaceChildren(breadcrumb(editorScenarios[activity.scenario]),button('VOLVER A ACTIVIDADES',back),element('h2',creating?'Nueva actividad':'Editar actividad'),element('h3','Información de la actividad'),...(creating?[]:[element('p',`Personas que la seleccionaron: ${activity.selected_count} · Asistencias confirmadas: ${activity.attendance_count??0}`)]),form,...(creating?[]:[audit,linkedSpeakers,attendancePanel(activity,current),participants]));
   if(creating)return;
   if(adminRole==='super_admin'){
     const confirmation=element('section',undefined,'panel');confirmation.hidden=true;
@@ -166,7 +169,60 @@ async function detail(id,initialScenario=null){await run(async current=>{
       pager(participants,data.total,offset,loadParticipants);
     }catch(error){if(current())fail(error);return false;}
   }
-  if(adminRole==='super_admin')return await loadParticipants();
+  if(adminRole==='super_admin'){
+    await activitySpeakerPanel(id,linkedSpeakers,current);
+    return await loadParticipants();
+  }
+});}
+async function activitySpeakerPanel(activityId,root,current){
+  const heading=element('h3','Ponentes vinculados');
+  const description=element('p','Los cambios se vinculan por actividad y se reflejan automáticamente en la sección pública.');
+  root.replaceChildren(heading,description,element('p','Cargando ponentes vinculados…'));
+  try{
+    let availableRows=[];
+    try{const available=await adminCall('admin_list_speakers',{p_limit:100});availableRows=Array.isArray(available.rows)?available.rows:[];}catch{}
+    if(!current())return;
+    const search=element('input');search.type='search';search.placeholder='Buscar por nombre u organización';search.setAttribute('aria-label','Buscar ponente existente');
+    const select=element('select');select.setAttribute('aria-label','Seleccionar ponente existente');
+    const participation=element('select');participation.setAttribute('aria-label','Tipo de participación');
+    for(const [value,label] of [['','Tipo de participación'],['Ponente','Ponente'],['Moderador/a','Moderador/a'],['Tallerista','Tallerista'],['Panelista','Panelista'],['Conferencista','Conferencista'],['Artista invitado/a','Artista invitado/a']]){const option=element('option',label);option.value=value;participation.append(option);}
+    const order=element('input');order.type='number';order.min='0';order.value='0';order.setAttribute('aria-label','Orden de participación');
+    const fillSelect=()=>{const query=search.value.trim().toLocaleLowerCase();const previous=select.value;select.replaceChildren(element('option','Selecciona un ponente'));select.firstChild.value='';for(const speaker of availableRows.filter(item=>[item.name,item.organization].filter(Boolean).join(' ').toLocaleLowerCase().includes(query))){const option=element('option',`${speaker.name}${speaker.organization?` · ${speaker.organization}`:''}`);option.value=speaker.id;option.selected=speaker.id===previous;select.append(option);}};
+    search.addEventListener('input',fillSelect);fillSelect();
+    const redraw=async()=>{const response=await adminCall('admin_list_activity_speakers',{p_activity_id:activityId}),data=Array.isArray(response)?response:[];if(!current())return;
+      const add=element('div',undefined,'admin-speaker-add');add.append(search,select,participation,order,button('+ AGREGAR PONENTE',async()=>{if(!select.value){say('Selecciona un ponente.');return;}try{await adminCall('admin_link_activity_speaker',{p_activity_id:activityId,p_speaker_id:select.value,p_participation_type:participation.value||null,p_sort_order:Number(order.value)||0});select.value='';participation.value='';order.value='0';await redraw();say('Ponente vinculado.');}catch(error){fail(error);}}),button('CREAR NUEVO PONENTE',()=>speakerDetail(null,activityId,{participationType:participation.value,sortOrder:Number(order.value)||0})));
+      const cards=element('div',undefined,'admin-speaker-cards');for(const item of data){const card=element('article',undefined,'admin-speaker-card'),copy=element('div',undefined,'admin-speaker-copy'),actions=element('div',undefined,'actions');copy.append(element('h4',item.name),element('p',item.participation_type||'Tipo de participación por definir'),...(item.organization?[element('p',item.organization,'admin-muted')]:[]),...(item.bio?[element('p',item.bio,'admin-muted')]:[]),statusBadge(item.status||'draft'));actions.append(button('EDITAR PONENTE',()=>speakerDetail(item.speaker_id,activityId,{participationType:item.participation_type,sortOrder:item.sort_order})),button('DESVINCULAR',async()=>{try{await adminCall('admin_unlink_activity_speaker',{p_activity_id:activityId,p_speaker_id:item.speaker_id});await redraw();say('Ponente desvinculado.');}catch(error){fail(error);}}));card.append(photoPreview(item.photo_path,item.name),copy,actions);cards.append(card);}
+      root.replaceChildren(heading,description,add,data.length?cards:element('p','Sin ponentes vinculados. Agrega uno existente o crea uno nuevo.'));
+    };
+    await redraw();
+  }catch(error){
+    if(!current())return;
+    root.replaceChildren(heading,description,element('p','No fue posible cargar los ponentes vinculados. Intenta recargar los datos de la actividad.'));
+    fail(error);
+  }
+}
+async function speakers(query='',scenario='',status='',photo='',offset=0){await run(async current=>{
+  const data=await adminCall('admin_list_speakers',{p_search:query,p_scenario:scenario||null,p_status:status||null,p_photo:photo||null,p_offset:offset,p_limit:pageSize});if(!current())return;
+  const form=element('form',undefined,'admin-search'),search=element('input');search.type='search';search.value=query;search.placeholder='Nombre, organización o actividad';search.setAttribute('aria-label','Buscar ponente');
+  const scenarioSelect=element('select');scenarioSelect.append(element('option','Todos los escenarios'));scenarioSelect.firstChild.value='';for(const [key,label] of Object.entries(editorScenarios)){const option=element('option',label);option.value=key;option.selected=key===scenario;scenarioSelect.append(option);}
+  const statusSelect=element('select');for(const [value,label] of [['','Todos los estados'],['active','Activo'],['draft','Borrador'],['hidden','Oculto']]){const option=element('option',label);option.value=value;option.selected=value===status;statusSelect.append(option);}
+  const photoSelect=element('select');for(const [value,label] of [['','Con y sin fotografía'],['with','Con fotografía'],['without','Sin fotografía']]){const option=element('option',label);option.value=value;option.selected=value===photo;photoSelect.append(option);}
+  const submit=element('button','BUSCAR','btn secondary');submit.type='submit';form.append(search,scenarioSelect,statusSelect,photoSelect,submit);form.addEventListener('submit',event=>{event.preventDefault();speakers(search.value,scenarioSelect.value,statusSelect.value,photoSelect.value);});
+  const rows=data.rows.map(s=>[s.name,s.organization||'—',`${s.activity_count} actividades`,(s.scenarios||[]).map(x=>scenarioName(x)).join(' · ')||'—',statusBadge(s.status),button('EDITAR',()=>speakerDetail(s.id))]);
+  view.replaceChildren(element('h2','Ponentes'),button('+ NUEVO PONENTE',()=>speakerDetail(null)),form,table(['PONENTE','ORGANIZACIÓN','ACTIVIDADES','ESCENARIOS','ESTADO','ACCIÓN'],rows));pager(view,data.total,offset,next=>speakers(query,scenario,status,photo,next));
+});}
+const speakerPlaceholder='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#1a1a1a"/><circle cx="60" cy="43" r="22" fill="#777"/><path d="M20 112c5-25 21-38 40-38s35 13 40 38" fill="#777"/></svg>');
+function photoPreview(path,name){const image=element('img',undefined,'admin-speaker-photo');image.width=88;image.height=88;image.alt=path?name:`Fotografía no disponible de ${name||'ponente'}`;image.src=path?`${SUPABASE_URL}/storage/v1/object/public/speaker-photos/${path}`:speakerPlaceholder;image.onerror=()=>{image.onerror=null;image.src=speakerPlaceholder;};return image;}
+async function speakerDetail(id,linkToActivity=null,linkDefaults={}){await run(async current=>{
+  const creating=!id;const speaker=creating?{name:'',bio:'',organization:'',photo_path:null,status:linkToActivity?'active':'draft',activities:[]}:await adminCall('admin_get_speaker',{p_speaker_id:id});if(!current())return;
+  const form=element('form',undefined,'admin-edit'),grid=element('div',undefined,'form-grid'),fields={};
+  for(const [key,label,type] of [['name','Nombre completo','text'],['bio','Semblanza','textarea'],['organization','Organización / cargo','text'],['status','Estado','select']]){const wrap=element('label',label,key==='bio'?'full':''),input=element(type==='textarea'?'textarea':type==='select'?'select':'input');input.name=key;if(type==='select'){for(const [value,text] of [['active','Activo'],['draft','Borrador'],['hidden','Oculto']]){const option=element('option',text);option.value=value;option.selected=value===speaker.status;input.append(option);}}else input.value=speaker[key]||'';if(key==='name')input.required=true;fields[key]=input;wrap.append(input);grid.append(wrap);}
+  const photo=element('input');photo.type='file';photo.accept='image/jpeg,image/png,image/webp';const photoWrap=element('label','Fotografía', 'full'),preview=photoPreview(speaker.photo_path,speaker.name);photo.addEventListener('change',()=>{const file=photo.files[0];if(!file)return;if(file.size>5242880||!['image/jpeg','image/png','image/webp'].includes(file.type)){photo.value='';say('La fotografía debe ser JPEG, PNG o WEBP y pesar máximo 5 MB.');return;}const reader=new FileReader();reader.addEventListener('load',()=>{preview.src=reader.result;preview.alt=`Vista previa de ${fields.name.value.trim()||'ponente'}`;},{once:true});reader.readAsDataURL(file);});photoWrap.append(photo,preview);grid.append(photoWrap);
+  const removePhoto=element('input');removePhoto.type='checkbox';removePhoto.disabled=!speaker.photo_path;const removeWrap=element('label','Quitar fotografía actual', 'full');removeWrap.append(removePhoto);grid.append(removeWrap);
+  const controls=element('div',undefined,'actions'),save=element('button',creating?'CREAR PONENTE':'GUARDAR','btn');save.type='submit';controls.append(button('CANCELAR',()=>linkToActivity?detail(linkToActivity):activities()),save);form.append(grid,controls);
+  const linked=element('section',undefined,'panel');linked.append(element('h3','Actividades vinculadas'));const drawLinks=async()=>{const fresh=creating?[]:(await adminCall('admin_get_speaker',{p_speaker_id:id})).activities||[];linked.replaceChildren(element('h3','Actividades vinculadas'),...(fresh.length?fresh.map(a=>{const row=element('div',undefined,'admin-speaker-link');row.append(element('span',`${a.title} · ${a.participation_type||'Sin tipo'}`),button('DESVINCULAR',async()=>{await adminCall('admin_unlink_activity_speaker',{p_activity_id:a.activity_id,p_speaker_id:id});await drawLinks();}));return row;}):[element('p','Sin actividades vinculadas.')]));};if(!creating)await drawLinks();
+  form.addEventListener('submit',async event=>{event.preventDefault();if(save.disabled)return;save.disabled=true;try{let saved=creating?await adminCall('admin_create_speaker',{p_name:fields.name.value.trim(),p_bio:fields.bio.value.trim()||null,p_organization:fields.organization.value.trim()||null,p_status:fields.status.value}):speaker;let path=removePhoto.checked?null:saved.photo_path;if(photo.files[0]){const file=photo.files[0];if(file.size>5242880||!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('INVALID_SPEAKER_PHOTO');const ext=file.type.split('/')[1]==='jpeg'?'jpg':file.type.split('/')[1];path=`speakers/${saved.id}/${crypto.randomUUID()}.${ext}`;const {error}=await client().storage.from('speaker-photos').upload(path,file,{contentType:file.type,upsert:false});if(error)throw error;}saved=await adminCall('admin_update_speaker',{p_speaker_id:saved.id,p_name:fields.name.value.trim(),p_bio:fields.bio.value.trim()||null,p_organization:fields.organization.value.trim()||null,p_photo_path:path,p_status:fields.status.value});if(speaker.photo_path&&speaker.photo_path!==path){await client().storage.from('speaker-photos').remove([speaker.photo_path]);}if(linkToActivity)await adminCall('admin_link_activity_speaker',{p_activity_id:linkToActivity,p_speaker_id:saved.id,p_participation_type:linkDefaults.participationType||null,p_sort_order:Number(linkDefaults.sortOrder)||0});await (linkToActivity?detail(linkToActivity):activities());say(creating?'Ponente creado.':'Cambios guardados.');}catch(error){fail(error);}finally{save.disabled=false;}});
+  view.replaceChildren(button('VOLVER A LA ACTIVIDAD',()=>linkToActivity?detail(linkToActivity):activities()),element('h2',creating?'Nuevo ponente':'Editar ponente'),form,...(creating||linkToActivity?[]:[linked]));
 });}
 function navigate(next){section=next;document.querySelectorAll('[data-section]').forEach(b=>b.setAttribute('aria-current',b.dataset.section===next?'page':'false'));view.replaceChildren();return next==='dashboard'?dashboard():next==='activities'?activities():next==='badges'?badges():users(next==='routes');}
 document.querySelectorAll('[data-section]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.section)));
