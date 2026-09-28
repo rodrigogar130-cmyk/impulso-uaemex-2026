@@ -85,7 +85,7 @@ async function userPassport(user){await run(async current=>{
   const completed=Math.min(Number(data.attendance_count)||0,12),back=()=>section==='badges'?badges():users(section==='routes');
   const identity=element('div',undefined,'admin-summary');identity.append(element('p',data.folio||'—'),element('p',data.email||'—'));
   const status=badgeState(data.badge_unlocked),summary=element('section',undefined,'panel');summary.append(element('h2','Pasaporte del usuario'),element('h3',`${data.nombre} ${data.apellidos}`),identity,element('p',`${completed} / 12 actividades completadas`,'admin-badge-progress'),passportStamps(completed),status);
-  if(data.badge_unlocked)summary.append(element('p','Insignia IMPULSO UAEMéx 2026 obtenida.'));
+  if(data.badge_unlocked)summary.append(element('p','Insignia Impulso Tuaeméx 2026 obtenida.'));
   summary.append(element('p',data.completed_at?`Fecha de obtención: ${attendanceDate(data.completed_at)}`:'Fecha de obtención: —'));
   const evidence=element('section',undefined,'admin-attendance-evidence');evidence.append(element('h3','Asistencias confirmadas'));
   const rows=(data.attendances||[]).map(a=>[a.title,scenarioName(a.scenario),attendanceDate(a.attended_at),attendanceMethod(a.method)]);

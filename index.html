@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Impulso UAEMéx 2026 | Festival de Emprendimiento</title>
-  <meta name="description" content="Impulso UAEMéx 2026 — Festival de Emprendimiento. 15 y 16 de octubre de 2026 en Ciudad Universitaria UAEMéx." />
+  <title>Impulso Tuaeméx 2026 | Festival de Emprendimiento</title>
+  <meta name="description" content="Impulso Tuaeméx 2026 — Festival de Emprendimiento. 15 y 16 de octubre de 2026 en Ciudad Universitaria UAEMéx." />
   <meta name="theme-color" content="#050505" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,6 +20,10 @@
     .hero{
       position:relative;
       min-height:100svh;
+      --flower-offset-x:min(26vw, 430px);
+      --flower-offset-y:min(18vh, 180px);
+      --flower-scale:.45;
+      --flower-rotation:540deg;
       color:var(--text-primary);
       background:
         linear-gradient(90deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.58) 34%, rgba(0,0,0,.20) 64%, rgba(0,0,0,.08) 100%),
@@ -71,7 +75,41 @@
       background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
     }
 
+    .hero-flower{
+      position:absolute;
+      top:50%;
+      left:50%;
+      z-index:1;
+      width:clamp(280px,38vw,560px);
+      max-width:none;
+      height:auto;
+      pointer-events:none;
+      user-select:none;
+      transform-origin:center;
+      opacity:.22;
+      transform:translate3d(calc(-50% + var(--flower-offset-x)),calc(-50% - var(--flower-offset-y)),0) scale(var(--flower-scale)) rotate(var(--flower-rotation));
+      animation:hero-flower-arrival 5.8s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes hero-flower-arrival{
+      0%{opacity:0;transform:translate3d(-50%,-50%,0) scale(1.25) rotate(0deg)}
+      86%{opacity:1;transform:translate3d(-50%,-50%,0) scale(var(--flower-scale)) rotate(var(--flower-rotation))}
+      100%{opacity:.22;transform:translate3d(calc(-50% + var(--flower-offset-x)),calc(-50% - var(--flower-offset-y)),0) scale(var(--flower-scale)) rotate(var(--flower-rotation))}
+    }
+    @media (min-width:821px){
+      .hero{
+        --flower-offset-x:min(4vw,60px);
+        --flower-offset-y:0px;
+      }
+      .hero-flower{
+        top:calc(var(--header-h) + 180px);
+        left:clamp(190px,18vw,360px);
+        width:clamp(165px,15vw,250px);
+      }
+    }
+
     .hero-inner{
+      position:relative;
+      z-index:2;
       min-height:100svh;
       padding-top:calc(var(--header-h) + 120px);
       padding-bottom:72px;
@@ -124,6 +162,18 @@
     .hero-title .line:nth-child(3){ font-size:clamp(52px,6vw,90px); color:#e5d3a3; }
     .hero-title .accent{
       color:var(--text-primary);
+    }
+    .hero-title-logo{
+      display:block;
+      width:clamp(340px,39vw,690px);
+      max-width:100%;
+      height:auto;
+      margin:0 0 clamp(12px,1.6vw,20px);
+      filter:drop-shadow(0 2px 24px rgba(0,0,0,.45));
+    }
+    .hero-title .line.hero-year{
+      font-size:clamp(52px,6vw,90px);
+      color:#e5d3a3;
     }
     .hero-bottom{
       padding-top:30px;
@@ -442,6 +492,273 @@
       #escenarios .stage:hover .stage-media img{ transform:scale(1.03); }
     }
 
+    /* SPECIAL STAGE — EMPRENDE UAEMéx 365 */
+    .special-stage{
+      position:relative;
+      overflow:hidden;
+      background:#060511;
+      color:#fff;
+      isolation:isolate;
+    }
+    .special-stage::before,
+    .special-stage::after{
+      content:"";
+      position:absolute;
+      z-index:-1;
+      border-radius:50%;
+      filter:blur(18px);
+      pointer-events:none;
+    }
+    .special-stage::before{
+      width:min(72vw,980px);
+      aspect-ratio:1;
+      top:-54%;
+      right:-22%;
+      background:radial-gradient(circle,rgba(15,220,237,.25),rgba(217,16,221,.16) 40%,transparent 70%);
+    }
+    .special-stage::after{
+      width:min(65vw,760px);
+      aspect-ratio:1;
+      bottom:-68%;
+      left:-24%;
+      background:radial-gradient(circle,rgba(77,50,242,.32),transparent 68%);
+    }
+    /* Redesigned special stage — Emprende UAEMéx 365 */
+    .special-stage{
+      background:#05050e;
+      color:#fff;
+    }
+    .special-stage::before{
+      z-index:0;
+      width:min(82vw,1160px);
+      top:-70%;
+      right:-28%;
+      background:radial-gradient(circle,rgba(45,226,241,.23),rgba(128,54,255,.16) 42%,transparent 70%);
+      animation:special-stage-glow 11s ease-in-out infinite alternate;
+    }
+    .special-stage::after{
+      z-index:0;
+      width:min(72vw,900px);
+      bottom:-74%;
+      left:-26%;
+      background:radial-gradient(circle,rgba(235,25,216,.18),rgba(48,51,255,.16) 42%,transparent 70%);
+    }
+    @keyframes special-stage-glow{
+      from{ transform:translate3d(0,0,0) scale(.96); opacity:.72; }
+      to{ transform:translate3d(-3%,5%,0) scale(1.05); opacity:1; }
+    }
+    /* Special stages subsection */
+    .special-stage-heading{
+      display:grid;
+      justify-items:center;
+      max-width:760px;
+      margin:0 auto clamp(38px,5vw,64px);
+      text-align:center;
+    }
+    .special-stage-heading .eyebrow{ margin-bottom:17px; color:#72eef8; }
+    .special-stage-heading .section-title{ margin:0; }
+    .special-stage-heading .section-copy{
+      max-width:670px;
+      margin:22px 0 0;
+      color:rgba(255,255,255,.66);
+      font-size:clamp(.98rem,1.35vw,1.12rem);
+      line-height:1.65;
+    }
+    /* Special stages disclosure */
+    .special-stage-disclosure{
+      position:relative;
+      border-top:1px solid rgba(107,236,247,.38);
+      border-bottom:1px solid rgba(255,255,255,.16);
+    }
+    .special-stage-summary{
+      display:grid;
+      grid-template-columns:minmax(190px,260px) minmax(0,1fr) auto;
+      align-items:center;
+      gap:clamp(24px,4vw,72px);
+      min-height:142px;
+      padding:28px clamp(32px,8vw,160px);
+      cursor:pointer;
+      list-style:none;
+      transition:background .3s ease;
+    }
+    .special-stage-summary::-webkit-details-marker{ display:none; }
+    .special-stage-summary:focus-visible{
+      outline:2px solid #73edf7;
+      outline-offset:-5px;
+    }
+    .special-stage-summary-logo{
+      display:block;
+      width:min(100%,230px);
+      height:auto;
+    }
+    .special-stage-summary-copy{ min-width:0; }
+    .special-stage-summary-copy strong{
+      display:block;
+      color:#fff;
+      font-size:clamp(1.45rem,2.7vw,2.75rem);
+      font-weight:600;
+      letter-spacing:-.05em;
+      line-height:1.05;
+    }
+    .special-stage-summary-copy span{
+      display:block;
+      margin-top:10px;
+      color:rgba(255,255,255,.68);
+      font-size:13px;
+      line-height:1.5;
+    }
+    .special-stage-summary-action{
+      display:inline-flex;
+      align-items:center;
+      gap:12px;
+      color:#73edf7;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .special-stage-summary-action b{
+      display:grid;
+      width:26px;
+      height:26px;
+      place-items:center;
+      border:1px solid rgba(115,237,247,.5);
+      border-radius:50%;
+      font-size:16px;
+      font-weight:400;
+      line-height:1;
+      transition:transform .35s ease,background .35s ease;
+    }
+    .special-stage-disclosure[open] .special-stage-summary{
+      background:linear-gradient(90deg,rgba(24,218,237,.08),rgba(219,40,216,.06),transparent 75%);
+      border-bottom:1px solid rgba(255,255,255,.14);
+    }
+    .special-stage-disclosure[open] .special-stage-summary-action b{
+      transform:rotate(180deg);
+      background:rgba(115,237,247,.12);
+    }
+    .special-stage-open{
+      padding:clamp(42px,5vw,76px) clamp(32px,8vw,160px) clamp(52px,6vw,92px);
+      background:linear-gradient(125deg,rgba(8,8,25,.9),rgba(15,10,44,.68) 56%,rgba(7,26,52,.56));
+      animation:special-stage-open-in .42s cubic-bezier(.22,1,.36,1) both;
+    }
+    .special-stage-open-photo{
+      position:relative;
+      aspect-ratio:20 / 9;
+      margin:0 0 clamp(28px,4vw,56px);
+      background:#050511;
+    }
+    .special-stage-open-photo img{
+      display:block;
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      object-position:center;
+    }
+    .special-stage-open-photo figcaption{
+      position:absolute;
+      right:18px;
+      bottom:16px;
+      left:18px;
+      color:#fff;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.12em;
+      text-align:right;
+      text-shadow:0 2px 12px rgba(0,0,0,.8);
+      text-transform:uppercase;
+    }
+    .special-stage-open-bottom{
+      display:grid;
+      grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
+      gap:clamp(40px,8vw,130px);
+      padding-top:24px;
+      border-top:1px solid rgba(255,255,255,.18);
+    }
+    .special-stage-open-copy p{
+      margin:0;
+      color:rgba(255,255,255,.91);
+      font-size:clamp(1rem,1.25vw,1.16rem);
+      font-weight:500;
+      line-height:1.68;
+    }
+    .special-stage-open-copy p + p{
+      margin-top:18px;
+      color:rgba(255,255,255,.67);
+      font-size:14px;
+      font-weight:400;
+      line-height:1.7;
+    }
+    .special-stage-open-data dl{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:20px 30px;
+      margin:0;
+    }
+    .special-stage-open-data dl > div{
+      min-width:0;
+      padding-top:15px;
+      border-top:1px solid rgba(255,255,255,.18);
+    }
+    .special-stage-open-data dt{
+      color:#71edf7;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+    }
+    .special-stage-open-data dd{
+      margin:8px 0 0;
+      color:rgba(255,255,255,.9);
+      font-size:13px;
+      line-height:1.55;
+    }
+    .special-stage-open-demo{
+      margin-top:25px;
+      padding:17px 0 0 18px;
+      border-left:2px solid #72edf7;
+    }
+    .special-stage-open-demo strong{
+      display:block;
+      color:#fff;
+      font-size:11px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    @keyframes special-stage-open-in{
+      from{ opacity:0; transform:translateY(-10px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+    @media (hover:hover) and (pointer:fine){
+      .special-stage-summary:hover{
+        background:linear-gradient(90deg,rgba(24,218,237,.08),rgba(219,40,216,.05),transparent 76%);
+      }
+      .special-stage-summary:hover .special-stage-summary-action b{ background:rgba(115,237,247,.12); }
+    }
+    @media (max-width:820px){
+      .special-stage-summary{
+        grid-template-columns:1fr;
+        gap:17px;
+        min-height:0;
+        padding:28px 24px;
+      }
+      .special-stage-summary-logo{ width:min(100%,245px); }
+      .special-stage-summary-copy strong{ font-size:clamp(1.65rem,7vw,2.2rem); }
+      .special-stage-summary-action{ justify-content:space-between; width:100%; padding-top:13px; border-top:1px solid rgba(255,255,255,.15); }
+      .special-stage-open{ padding:36px 24px 54px; }
+      .special-stage-open-photo{ margin:0 0 34px; }
+      .special-stage-open-bottom{ grid-template-columns:1fr; gap:34px; }
+      .special-stage-open-data dl{ grid-template-columns:1fr; gap:18px; }
+    }
+    @media (min-width:821px){
+      .special-stage-open-photo{
+        width:min(100%,960px);
+        margin-right:auto;
+        margin-left:auto;
+      }
+    }
+
     /* SPEAKERS */
     .speakers{
       background:var(--background);
@@ -714,10 +1031,18 @@
     @media (max-width:820px){
       .hero{
         min-height:100svh;
+        --flower-offset-x:34vw;
+        --flower-offset-y:24vh;
+        --flower-scale:.56;
+        --flower-rotation:480deg;
         background:
           linear-gradient(180deg, rgba(0,0,0,.08) 0%, rgba(0,0,0,.10) 28%, rgba(0,0,0,.42) 58%, rgba(0,0,0,.92) 100%),
           url("assets/hero-impulso-uaemex-2026-mobile.png") center center / cover no-repeat;
         background-color:#06251d;
+      }
+      .hero-flower{
+        width:clamp(150px,46vw,235px);
+        animation-duration:5s;
       }
       .hero-inner{
         min-height:100svh;
@@ -736,6 +1061,7 @@
       }
       .hero-title .line:nth-child(2),
       .hero-title .line:nth-child(3){ font-size:inherit; }
+      .hero-title-logo{ width:clamp(260px,68vw,430px); }
       .hero-description{
         margin-top:22px;
         max-width:34rem;
@@ -782,6 +1108,8 @@
     summary::-webkit-details-marker{ display:none; }
     .editorial-details summary > span,.group-action{ transition:transform .3s var(--ease); font-size:22px; font-weight:400; }
     details[open] > summary > span:last-child{ transform:rotate(45deg); }
+    /* El indicador del nodo especial es un grupo (texto + flecha), no un icono único. */
+    .special-stage-disclosure[open] > .special-stage-summary > .special-stage-summary-action{ transform:none; }
     .editorial-details p{ font-size:14px; line-height:1.7; color:var(--text-secondary); margin:0 0 18px; }
     .editorial-details h4{ font-size:14px; margin:16px 0 8px; font-weight:600; }
     .stage-function{ max-width:125px; font-size:11px; line-height:1.6; text-transform:uppercase; letter-spacing:.08em; color:var(--text-secondary); }
@@ -883,6 +1211,8 @@
       .hero-title .line > span{
         transform:none !important;
       }
+      .hero{ --flower-rotation:0deg; }
+      .hero-flower{ animation:none; }
     }
     [hidden]{ display:none!important; }
     .nav-login{ font-size:14px; white-space:nowrap; }
@@ -891,13 +1221,18 @@
   </style>
   <link rel="stylesheet" href="css/site.css?v=20260923-evento-2">
 <link rel="stylesheet" href="css/route.css">
-  <link rel="stylesheet" href="css/map.css?v=20260923-6">
+  <link rel="stylesheet" href="css/map.css?v=20260923-7">
   <style>
     /* Compact spacing between the home content sections. */
     main > .section{ padding-block:32px; }
+    main > .section.special-stage{ padding-block:84px; }
     main > #agenda + #mapa{ border-top:1px solid var(--border); }
     @media (max-width:820px){
       main > .section{ padding-block:24px; }
+      main > .section.special-stage{ padding-block:72px; }
+    }
+    @media (max-width:560px){
+      main > .section.special-stage{ padding-block:64px; }
     }
   </style>
 </head>
@@ -910,13 +1245,12 @@
       <div class="hero-noise"></div>
       <div class="hero-orbit parallax-slow"></div>
       <div class="hero-dot"></div>
-
+      <img class="hero-flower" src="assets/impulso-flor-blanca.png" width="2724" height="3131" alt="" aria-hidden="true" decoding="async">
       <div class="container hero-inner">
         <div>
-          <h1 class="hero-title" aria-label="Impulso UAEMéx 2026">
-            <span class="line"><span>IMPULSO</span></span>
-            <span class="line"><span class="accent">UAEMéx</span></span>
-            <span class="line"><span>2026</span></span>
+          <h1 class="hero-title" aria-label="Impulso Tuaeméx 2026">
+            <img class="hero-title-logo" src="assets/logo-impulso-uaemex.svg" width="425" height="122" alt="" aria-hidden="true" decoding="async">
+            <span class="line hero-year"><span>2026</span></span>
           </h1>
           <p class="hero-description">
             Una experiencia universitaria para conectar talento, emprendimiento,
@@ -997,7 +1331,7 @@
         <div class="event-intro" data-event-reveal>
           <span class="eyebrow">EL EVENTO</span>
           <h2 class="section-title"><span class="event-title-line"><span>NO VIENES A VERLO.</span></span> <span class="event-title-line"><span>VIENES A VIVIRLO.</span></span></h2>
-          <p class="event-lead">Dos días para probar ideas, conocer personas y descubrir qué puede venir después. Tú eliges cómo recorrer IMPULSO UAEMéx 2026.</p>
+          <p class="event-lead">Dos días para probar ideas, conocer personas y descubrir qué puede venir después. Tú eliges cómo recorrer Impulso Tuaeméx 2026.</p>
           <ul class="event-pills" aria-label="La experiencia IMPULSO">
             <li style="--event-delay:80ms">7 ESCENARIOS</li>
             <li style="--event-delay:160ms">67 ACTIVIDADES</li>
@@ -1050,14 +1384,14 @@
           <div class="passport-intro">
             <span class="micro-label">TU RECORRIDO POR IMPULSO</span>
             <h3 id="passportTitle">PASAPORTE DIGITAL</h3>
-            <p class="passport-lead">Participa en actividades, confirma tu asistencia y desbloquea una insignia única de IMPULSO UAEMéx 2026.</p>
+            <p class="passport-lead">Participa en actividades, confirma tu asistencia y desbloquea una insignia única de Impulso Tuaeméx 2026.</p>
             <p>Cada asistencia confirmada se suma a tu Pasaporte Digital. Al completar 12 actividades distintas, tu cuenta desbloqueará una insignia personalizada con tu nombre, folio y fecha.</p>
             <p class="passport-highlight">12 actividades · Asistencia por QR o NFC · Insignia digital personalizada</p>
           </div>
           <figure class="passport-preview" aria-labelledby="passportPreviewCaption">
             <div class="passport-composition">
               <div class="passport-card">
-                <div class="passport-card-top"><span>IMPULSO UAEMéx 2026</span><span aria-hidden="true">↗</span></div>
+                <div class="passport-card-top"><span>Impulso Tuaeméx 2026</span><span aria-hidden="true">↗</span></div>
                 <h4>Tu Pasaporte</h4>
                 <div class="passport-counter" aria-label="0 de 12 actividades completadas">0 <span>/ 12</span></div>
                 <p class="passport-counter-label">Actividades completadas</p>
@@ -1073,7 +1407,7 @@
                 <div class="passport-emblem" aria-hidden="true">
                   <svg viewBox="0 0 100 100" fill="none" focusable="false"><path d="M50 8 59 34 83 17 66 41 92 50 66 59 83 83 59 66 50 92 41 66 17 83 34 59 8 50 34 41 17 17 41 34Z" fill="currentColor"/><circle cx="50" cy="50" r="9" fill="#141414"/></svg>
                 </div>
-                <h4>Insignia IMPULSO UAEMéx 2026</h4>
+                <h4>Insignia Impulso Tuaeméx 2026</h4>
                 <p>Se personaliza al completar 12 actividades</p>
                 <p class="passport-badge-detail">Mostrará tu nombre, folio y fecha de cumplimiento</p>
               </div>
@@ -1093,40 +1427,83 @@
     <section class="section stages" id="escenarios"><div class="container">
       <div class="stages-head"><div><span class="eyebrow reveal">Explora</span><h2 class="section-title reveal">7 ESCENARIOS.<br>TU PROPIA RUTA.</h2></div><p class="section-copy reveal">Cada escenario conecta una disciplina con retos, experiencias y oportunidades. Descubre qué te interesa y encuentra tu próxima actividad.</p></div>
       <div class="stage-list"><article class="stage reveal" id="escenario-cultura">
-        <div class="stage-media"><img src="assets/escenario%20de%20cultura.png" alt="Escenario Cultura e Innovación Creativa — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-media"><img src="assets/escenario%20de%20cultura.png" alt="Escenario Cultura e Innovación Creativa — Impulso Tuaeméx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
         <div class="stage-content"><div><span class="stage-big-num">01</span><h3>Cultura e Innovación Creativa</h3><p>Transforma patrimonio, identidad y creatividad en ideas de emprendimiento cultural. Explora nuevas audiencias, narrativas y modelos de negocio.</p></div>
         <div class="stage-footer"><p class="venue-label">Ciencias Políticas y Sociales / Ágora de Cénide</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Storytelling · Patrimonio · IA y transmedia · Economía creativa · Financiamiento</p><h4>Cultura Disruptiva (Cult-D)</h4><p>Narrativas de impacto, mapa transmedia y rutas de ingresos para proyectos culturales.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes de humanidades, diseño, artes, comunicación y turismo; docentes, gestores culturales y proyectos con vocación social.</p><h4>Continuidad</h4><p>Los proyectos y retos culturales pueden vincularse con incubación cultural.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="cultura">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-deporte">
-        <div class="stage-media"><img src="assets/escenario%20de%20deporte.png" alt="Escenario Deporte — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-media"><img src="assets/escenario%20de%20deporte.png" alt="Escenario Deporte — Impulso Tuaeméx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
         <div class="stage-content"><div><span class="stage-big-num">02</span><h3>Deporte</h3><p>Conecta disciplina, resiliencia y liderazgo con la creación de servicios y negocios deportivos. Del entrenamiento a la gestión de oportunidades.</p></div>
         <div class="stage-footer"><p class="venue-label">Estadio Universitario Alberto &quot;Chivo&quot; Córdova</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Liderazgo · Marketing deportivo · Patrocinios · Servicios deportivos · Propiedad intelectual</p><h4>Del entrenamiento al emprendimiento</h4><p>Warm-up emprendedor, modelos de servicios deportivos y pitch para conseguir patrocinio.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes deportistas, entrenadores, docentes, equipos representativos, gestores y emprendedores deportivos.</p><h4>Continuidad</h4><p>Posible vinculación con Demo Day, showroom o podcast.</p><p class="content-note">Consulta el espacio de tu actividad dentro del estadio.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="deporte">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-tecnologia">
-        <div class="stage-media"><img src="assets/escenario%20de%20tecnologia.png" alt="Escenario Tecnología — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-media"><img src="assets/escenario%20de%20tecnologia.png" alt="Escenario Tecnología — Impulso Tuaeméx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
         <div class="stage-content"><div><span class="stage-big-num">03</span><h3>Tecnología</h3><p>Usa IA, datos y herramientas digitales para desarrollar soluciones a retos del campus, las empresas y la comunidad.</p></div>
         <div class="stage-footer"><p class="venue-label">Facultad de Ingeniería</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">IA · No-code · Automatización · Robótica · Movilidad · Software</p><h4>Crear, automatizar y prototipar el futuro</h4><p>Prototipos, demos, flujos automatizados y experiencias como AI Playground, Demo Alley y Reto Innovatics.</p><h4>¿A quién está dirigido?</h4><p>Talento universitario interesado en tecnología, prototipado y soluciones digitales.</p><h4>Continuidad</h4><p>Banco de Retos, Emprende Academy 365, Bootcamp e incubación o aceleración tecnológica.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="tecnologia">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-diseno">
-        <div class="stage-media"><img src="assets/escenario%20de%20dise%C3%B1o.png" alt="Escenario Diseño — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-media"><img src="assets/escenario%20de%20dise%C3%B1o.png" alt="Escenario Diseño — Impulso Tuaeméx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
         <div class="stage-content"><div><span class="stage-big-num">04</span><h3>Diseño</h3><p>Convierte retos empresariales en propuestas visuales, servicios, experiencias y prototipos con valor de mercado.</p></div>
         <div class="stage-footer"><p class="venue-label">Facultad de Arquitectura y Diseño</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Design Thinking · IA y no-code · Diseño sostenible · UX · Realidad aumentada · Biomateriales</p><h4>Disrupción por Diseño (DxD)</h4><p>Prototipado de modelos de negocio y experiencias inmersivas. Explora la co-creación, los aprendizajes compartidos y las cápsulas de pitch de El Lienzo Vivo del Ecosistema.</p><h4>¿A quién está dirigido?</h4><p>Estudiantes de diseño, arquitectura, comunicación y mercadotecnia; emprendedores, empresas, docentes y aliados creativos.</p><h4>Continuidad</h4><p>Banco de Retos, mentoría, incubación, prácticas profesionales y proyectos de vinculación.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="diseno">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-investigacion">
-        <div class="stage-media"><img src="assets/escenario%20investigaci%C3%B3n%20aplicada.png" alt="Escenario Investigación Aplicada — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-media"><img src="assets/escenario%20investigaci%C3%B3n%20aplicada.png" alt="Escenario Investigación Aplicada — Impulso Tuaeméx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
         <div class="stage-content"><div><span class="stage-big-num">05</span><h3>Investigación Aplicada</h3><p>Explora cómo transformar investigación, evidencia y conocimiento en soluciones aplicadas y oportunidades de transferencia.</p></div>
         <div class="stage-footer"><p class="venue-label">Facultad de Economía / Facultad de Contaduría y Administración</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Innovación social · Propiedad intelectual · Patentes · Validación · Modelos de negocio</p><h4>De conocimiento a impacto</h4><p>Rutas de aplicación, protección, validación y salida al mercado de desarrollos universitarios.</p><h4>¿A quién está dirigido?</h4><p>Investigadores, docentes, tesistas, estudiantes con prototipos, unidades de emprendimiento y aliados empresariales.</p><h4>Continuidad</h4><p>Validación con empresas, protección de propiedad intelectual y pasarela de Negocios.</p><p class="content-note">Consulta la sede indicada en cada actividad.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="investigacion">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-gobernanza">
-        <div class="stage-media"><img src="assets/escenario%20gobernanza%20(2).png" alt="Escenario Gobernanza — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-media"><img src="assets/escenario%20gobernanza%20(2).png" alt="Escenario Gobernanza — Impulso Tuaeméx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
         <div class="stage-content"><div><span class="stage-big-num">06</span><h3>Gobernanza</h3><p>Identifica pasos para formalizar y proteger tu proyecto. Conecta legalidad, datos y confianza con nuevas oportunidades.</p></div>
         <div class="stage-footer"><p class="venue-label">Facultad de Derecho</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Contratos · Fiscalidad · Ciberseguridad · Protección de datos · Legaltech · Innovación pública</p><h4>GovLab: confianza, legalidad e innovación pública</h4><p>Checklist legal, ruta fiscal, plan de ciberseguridad, matriz de riesgos y prototipo de servicio público.</p><h4>¿A quién está dirigido?</h4><p>Comunidad universitaria y emprendedores interesados en formalización, protección y servicios públicos digitales.</p><h4>Continuidad</h4><p>Herramientas para convertir proyectos en oportunidades viables mediante formalización, protección y cumplimiento.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="gobernanza">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article>
 <article class="stage reveal" id="escenario-bienestar">
-        <div class="stage-media"><img src="assets/escenario%20bienestar%20integral.png" alt="Escenario Bienestar Integral — IMPULSO UAEMéx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
+        <div class="stage-media"><img src="assets/escenario%20bienestar%20integral.png" alt="Escenario Bienestar Integral — Impulso Tuaeméx 2026" width="1254" height="1254" loading="lazy" decoding="async"></div>
         <div class="stage-content"><div><span class="stage-big-num">07</span><h3>Bienestar Integral</h3><p>Conecta bienestar, propósito y experiencias globales con tu desarrollo personal y emprendedor.</p></div>
         <div class="stage-footer"><p class="venue-label">Facultad de Turismo y Gastronomía · C.U. y El Rosedal</p><details class="editorial-details"><summary>Dentro del escenario <span aria-hidden="true">+</span></summary><p class="stage-topics">Bienestar emocional · Viajes · Idiomas · Internacionalización · Gastronomía · Propósito</p><h4>El futuro se diseña desde el bienestar</h4><p>Ruta personal de internacionalización, mapa emocional y experiencias de alimentación y bienestar.</p><h4>¿A quién está dirigido?</h4><p>Comunidad universitaria interesada en bienestar, movilidad, turismo, gastronomía y proyecto de vida.</p><h4>Continuidad</h4><p>Programa Emprendedor, Emprende Academy 365, Bootcamp, incubación y seguimiento institucional.</p><p class="content-note">La sede varía según actividad.</p></details><a href="#agenda" class="stage-link" data-agenda-stage="bienestar">VER ACTIVIDADES <span aria-hidden="true">↗</span></a></div></div>
       </article></div></div></section>
+
+    <section class="section special-stage" id="escenario-especial" aria-labelledby="escenarios-especiales-title">
+      <div class="container">
+        <header class="special-stage-heading">
+          <span class="eyebrow reveal">Experiencias que continúan</span>
+          <h2 class="section-title reveal" id="escenarios-especiales-title">NODO<br>ESPECIAL.</h2>
+          <p class="section-copy reveal">Además de los escenarios principales, Impulso Tuaeméx 2026 integra experiencias especiales de continuidad formativa y presentación de soluciones.</p>
+        </header>
+        <details class="special-stage-disclosure reveal" id="bootcamp-especial">
+          <summary class="special-stage-summary" aria-labelledby="escenario-especial-title">
+            <img class="special-stage-summary-logo" src="assets/emprende-uaemex-365-logo.png" alt="Emprende UAEMéx 365" width="365" height="128" loading="lazy" decoding="async">
+            <span class="special-stage-summary-copy">
+              <strong id="escenario-especial-title">Bootcamp Emprende UAEMéx 365</strong>
+              <span>15 y 16 de octubre · Facultad de Ingeniería</span>
+            </span>
+            <span class="special-stage-summary-action"><span>Ver detalles</span><b aria-hidden="true">↓</b></span>
+          </summary>
+          <div class="special-stage-open">
+            <figure class="special-stage-open-photo">
+              <img src="assets/emprende-uaemex-365-participantes-2026-b.png" alt="Participantes del Programa Emprende UAEMéx 365, promoción 2026 B" width="1280" height="576" loading="lazy" decoding="async">
+              <figcaption>Participantes · Emprende UAEMéx 365 2026 B</figcaption>
+            </figure>
+            <div class="special-stage-open-bottom">
+              <div class="special-stage-open-copy">
+                <p>Una experiencia especial del Programa Emprende UAEMéx 365 para dar continuidad al trabajo desarrollado por los equipos participantes.</p>
+                <p>Las y los participantes registrados en Emprende UAEMéx 365 2026 B fortalecerán su propuesta y prepararán la presentación de una solución enfocada en una problemática real de las empresas aliadas.</p>
+              </div>
+              <div class="special-stage-open-data">
+                <dl>
+                  <div><dt>Fechas</dt><dd>15 y 16 de octubre de 2026</dd></div>
+                  <div><dt>Sede</dt><dd>Facultad de Ingeniería · Biblioteca</dd></div>
+                  <div><dt>Participación</dt><dd>Personas registradas en Emprende UAEMéx 365 2026 B</dd></div>
+                  <div><dt>Continuidad</dt><dd>Seguimiento al Hackathon y preparación de soluciones a retos reales de empresas aliadas.</dd></div>
+                </dl>
+                <aside class="special-stage-open-demo" aria-label="Información del Demo Day">
+                  <strong>Demo Day · 16 de octubre de 2026</strong>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
 
     <section class="section speakers" id="ponentes"><div class="container">
       <span class="eyebrow reveal">Ponentes y participantes</span><h2 class="section-title reveal">PERSONAS.<br>IDEAS. ENCUENTROS.</h2>
@@ -1156,13 +1533,14 @@
           <h2 class="section-title reveal">SEDES DEL EVENTO.</h2>
           <p>Ciudad Universitaria UAEMéx · Toluca, Estado de México.</p>
           <p>Encuentra actividades en Ciudad Universitaria y El Rosedal. Consulta la sede de cada actividad para organizar tu recorrido.</p>
+          <p class="map-instruction">Haz clic en el nombre de cada sede para abrir su ubicación en Google Maps <span aria-hidden="true">↗</span></p>
         </div>
         <object class="map-pdf" data="assets/mapa-cu-2026.pdf#toolbar=0&navpanes=0&view=FitH" type="application/pdf" aria-label="Mapa de Ciudad Universitaria en PDF"><p><a href="assets/mapa-cu-2026.pdf" target="_blank" rel="noopener">Abrir el mapa en PDF</a></p></object>
-        <button class="map-preview" type="button" data-map-open aria-haspopup="dialog" aria-controls="map-dialog" aria-label="Ampliar mapa de Ciudad Universitaria"><img src="assets/mapa-cu-pdf-preview.jpg?v=1" width="2400" height="1350" loading="lazy" decoding="async" alt="Mapa de Ciudad Universitaria UAEMéx con facultades, accesos y sedes de IMPULSO UAEMéx 2026"></button>
-        <a class="btn btn-outline map-action" href="assets/mapa-cu-2026.pdf" target="_blank" rel="noopener">ABRIR MAPA PDF <span class="arrow" aria-hidden="true">&#8599;</span></a>
+        <button class="map-preview" type="button" data-map-open aria-haspopup="dialog" aria-controls="map-dialog" aria-label="Ampliar mapa de Ciudad Universitaria"><img src="assets/mapa-cu-pdf-preview.jpg" width="2400" height="1350" loading="lazy" decoding="async" alt="Mapa de Ciudad Universitaria UAEMéx con facultades, accesos y sedes de Impulso Tuaeméx 2026"></button>
+        <a class="btn btn-outline map-action" href="assets/mapa-cu-2026.pdf" target="_blank" rel="noopener">ABRIR MAPA COMPLETO <span class="arrow" aria-hidden="true">&#8599;</span></a>
       </div>
       <div class="map-caption"><span>CIUDAD UNIVERSITARIA · UAEMéx</span><span>Abre el PDF para explorar las ubicaciones</span></div>
-      <div class="venue-directory"><article class="venue-row"><span class="group-index">01</span><div><h3>Cultura</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Ciencias Políticas y Sociales / Ágora de Cénide</span></p></div></article><article class="venue-row"><span class="group-index">02</span><div><h3>Deporte</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Estadio Universitario Alberto &quot;Chivo&quot; Córdova</span></p><span class="content-note">Consulta el espacio de tu actividad dentro del estadio.</span></div></article><article class="venue-row"><span class="group-index">03</span><div><h3>Tecnología</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Ingeniería</span></p></div></article><article class="venue-row"><span class="group-index">04</span><div><h3>Diseño</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Arquitectura y Diseño</span></p></div></article><article class="venue-row"><span class="group-index">05</span><div><h3>Investigación aplicada</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Economía / Facultad de Contaduría y Administración</span></p><span class="content-note">Consulta la sede indicada en cada actividad.</span></div></article><article class="venue-row"><span class="group-index">06</span><div><h3>Gobernanza</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Derecho</span></p></div></article><article class="venue-row"><span class="group-index">07</span><div><h3>Bienestar Integral</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Facultad de Turismo y Gastronomía · C.U. y El Rosedal</span></p><span class="content-note">La sede varía según actividad.</span></div></article></div>
+      <div class="venue-directory"><article class="venue-row"><span class="group-index">01</span><div><h3>Cultura</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><a class="venue-map-link" href="https://www.google.com/maps/search/?api=1&amp;query=Facultad+de+Ciencias+Politicas+y+Sociales+UAEMex+Toluca" target="_blank" rel="noopener noreferrer">Ciencias Políticas y Sociales / Ágora de Cénide <span aria-hidden="true">↗</span></a></p></div></article><article class="venue-row"><span class="group-index">02</span><div><h3>Deporte</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><a class="venue-map-link" href="https://www.google.com/maps/search/?api=1&amp;query=Estadio+Universitario+Alberto+Chivo+Cordova+UAEMex+Toluca" target="_blank" rel="noopener noreferrer">Estadio Universitario Alberto &quot;Chivo&quot; Córdova <span aria-hidden="true">↗</span></a></p><span class="content-note">Consulta el espacio de tu actividad dentro del estadio.</span></div></article><article class="venue-row"><span class="group-index">03</span><div><h3>Tecnología</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><a class="venue-map-link" href="https://www.google.com/maps/search/?api=1&amp;query=Facultad+de+Ingenieria+UAEMex+Toluca" target="_blank" rel="noopener noreferrer">Facultad de Ingeniería <span aria-hidden="true">↗</span></a></p></div></article><article class="venue-row"><span class="group-index">04</span><div><h3>Diseño</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><a class="venue-map-link" href="https://www.google.com/maps/search/?api=1&amp;query=Facultad+de+Arquitectura+y+Diseno+UAEMex+Toluca" target="_blank" rel="noopener noreferrer">Facultad de Arquitectura y Diseño <span aria-hidden="true">↗</span></a></p></div></article><article class="venue-row"><span class="group-index">05</span><div><h3>Investigación aplicada</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><a class="venue-map-link" href="https://www.google.com/maps/search/?api=1&amp;query=Facultad+de+Economia+y+Facultad+de+Contaduria+y+Administracion+UAEMex+Toluca" target="_blank" rel="noopener noreferrer">Facultad de Economía / Facultad de Contaduría y Administración <span aria-hidden="true">↗</span></a></p><span class="content-note">Consulta la sede indicada en cada actividad.</span></div></article><article class="venue-row"><span class="group-index">06</span><div><h3>Gobernanza</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><a class="venue-map-link" href="https://www.google.com/maps/search/?api=1&amp;query=Facultad+de+Derecho+UAEMex+Toluca" target="_blank" rel="noopener noreferrer">Facultad de Derecho <span aria-hidden="true">↗</span></a></p></div></article><article class="venue-row"><span class="group-index">07</span><div><h3>Bienestar Integral</h3><p class="venue-location"><svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><a class="venue-map-link" href="https://www.google.com/maps/search/?api=1&amp;query=Facultad+de+Turismo+y+Gastronomia+UAEMex+Toluca" target="_blank" rel="noopener noreferrer">Facultad de Turismo y Gastronomía · C.U. y El Rosedal <span aria-hidden="true">↗</span></a></p><span class="content-note">La sede varía según actividad.</span></div></article></div>
       <details class="editorial-details collaborators"><summary>Colaboración universitaria y vinculación <span aria-hidden="true">+</span></summary><p>Explora las áreas universitarias y redes de vinculación del ecosistema emprendedor.</p><ul class="collaborator-list"><li>Dirección de Tecnologías de la Información</li><li>Facultad de Economía</li><li>Red Internacional de Colaboración en Temas de Innovación, Emprendimiento y Competitividad para el Desarrollo Económico y Social</li><li>Red Global Sault Entrepreneurship &amp; Innovation Research Network</li><li>Facultad de Ciencias Políticas y Sociales</li><li>Dirección de Cultura Física UAEMéx</li><li>Facultad de Humanidades</li><li>Facultad de Derecho</li><li>Facultad de Arquitectura y Diseño</li><li>Facultad de Ingeniería</li><li>Dirección de Innovación Cultural</li><li>Dirección de Promoción Artístico</li><li>Facultad de Turismo y Gastronomía</li><li>Facultad de Contaduría y Administración</li></ul></details>
     </div></section>
 
@@ -1171,7 +1549,7 @@
         <span class="eyebrow reveal">15 — 16 octubre 2026</span>
         <h2 class="reveal">EL FUTURO NO SE ESPERA. SE CONSTRUYE.</h2>
         <p class="reveal">
-          Forma parte de Impulso UAEMéx 2026 y descubre dos días de talento,
+          Forma parte de Impulso Tuaeméx 2026 y descubre dos días de talento,
           innovación, emprendimiento y conexión en Ciudad Universitaria.
         </p>
         <p class="registration-status" role="note">Crea tu cuenta y confirma tu correo. Al iniciar sesión recibirás automáticamente tu folio para el festival.</p>
@@ -1188,7 +1566,7 @@
     <div class="container">
       <div class="footer-top">
         <div class="footer-brand">
-          IMPULSO<br><span>UAEMéx 2026</span>
+          Impulso<br><span>Tuaeméx 2026</span>
         </div>
         <div class="footer-links">
           <a href="#inicio">Inicio</a>
@@ -1247,9 +1625,9 @@
         s.textContent = "00";
 
         if(now <= eventConfig.endDate){
-          countdownMessage.textContent = "IMPULSO UAEMéx 2026 ESTÁ SUCEDIENDO AHORA.";
+          countdownMessage.textContent = "Impulso Tuaeméx 2026 ESTÁ SUCEDIENDO AHORA.";
         }else{
-          countdownMessage.textContent = "GRACIAS POR SER PARTE DE IMPULSO UAEMéx 2026.";
+          countdownMessage.textContent = "GRACIAS POR SER PARTE DE Impulso Tuaeméx 2026.";
         }
         return;
       }
@@ -1540,7 +1918,7 @@
       </div>
     </div>
     <div class="map-dialog-viewport" id="map-viewport" tabindex="0" role="region" aria-label="Mapa: al ampliar, desplázate para explorar los detalles">
-      <img class="map-dialog-image" src="assets/mapa-cu-pdf-preview.jpg?v=1" width="2400" height="1350" loading="lazy" decoding="async" alt="Mapa de Ciudad Universitaria UAEMéx con facultades, accesos y sedes de IMPULSO UAEMéx 2026">
+      <img class="map-dialog-image" src="assets/mapa-cu-pdf-preview.jpg" width="2400" height="1350" loading="lazy" decoding="async" alt="Mapa de Ciudad Universitaria UAEMéx con facultades, accesos y sedes de Impulso Tuaeméx 2026">
     </div>
   </dialog>
   <script src="js/map-lightbox.js?v=20260923-1" defer></script>

@@ -8,7 +8,7 @@ preserveAuthLinks();
 bindGoogleButton();
 if(requestedActivity()){
   const heading=document.querySelector('h1');heading.textContent='PARA ASISTIR A ESTA ACTIVIDAD';
-  const intro=document.createElement('p');intro.textContent='Necesitas acceder a tu cuenta de IMPULSO UAEMÉX 2026.';
+  const intro=document.createElement('p');intro.textContent='Necesitas acceder a tu cuenta de Impulso Tuaeméx 2026.';
   heading.after(intro);
   const signup=document.createElement('a');signup.className='btn secondary';signup.href=authLink('registro.html');signup.textContent='REGISTRARME';
   document.querySelector('form .actions').append(signup);
